@@ -1,16 +1,31 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { randomUUID } from "node:crypto";
+import { COSMOS_CONTAINER_NAME, ensureContainer } from "../config/cosmos";
+import { ok, handleError, parseJson } from "../shared/http";
+import { requireBodyObject, validateTaskCreate } from "../shared/validation";
 
 export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json();
+    try {
+        const body = await parseJson(request);
+        const obj = requireBodyObject(body);
+        const validated = validateTaskCreate(obj);
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .items.create(body);
+        const now = new Date().toISOString();
+        const taskDocument = {
+            ...validated,
+            id: typeof obj.id === "string" && obj.id.trim() ? obj.id.trim() : randomUUID(),
+            createdAt: now,
+            updatedAt: now,
+        };
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+        const container = await ensureContainer(COSMOS_CONTAINER_NAME);
+        const createdTask = await container.items.create(taskDocument);
+
+        return ok(createdTask.resource);
+    } catch (error) {
+        return handleError(context, error, "InsertTask");
+    }
+}
 
 app.http('InsertTask', {
     methods: ['POST'],

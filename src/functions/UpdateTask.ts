@@ -1,30 +1,45 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-
+import { COSMOS_CONTAINER_NAME, ensureContainer } from "../config/cosmos";
+import { ok, handleError, parseJson, HttpError } from "../shared/http";
+import { requireQuery, requireBodyObject, forbidImmutableFields } from "../shared/validation";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    try {
+        const taskId = requireQuery(request, "id");
+        const organizationId = requireQuery(request, "organizationId");
 
-    let patchRequests = [];
+        const body = await parseJson(request);
+        const obj = requireBodyObject(body);
 
-    for (let key in body) {
+        forbidImmutableFields(obj, ["id", "organizationId", "createdAt"]);
+
+        const patchRequests: any[] = [];
+        for (const key of Object.keys(obj)) {
+            patchRequests.push({
+                op: "replace",
+                path: `/${key}`,
+                value: obj[key]
+            });
+        }
+
+        if (patchRequests.length === 0) {
+            throw new HttpError(400, "Request body must include at least one property to update");
+        }
+
         patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
+            op: "replace",
+            path: "/updatedAt",
+            value: new Date().toISOString()
         });
+
+        const container = await ensureContainer(COSMOS_CONTAINER_NAME);
+        const updatedTask = await container.item(taskId, organizationId).patch(patchRequests);
+
+        return ok(updatedTask.resource);
+    } catch (error) {
+        return handleError(context, error, "UpdateTask");
     }
-
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
-
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+}
 
 app.http('UpdateTask', {
     methods: ['POST'],
