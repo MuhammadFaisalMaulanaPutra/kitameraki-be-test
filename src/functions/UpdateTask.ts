@@ -12,7 +12,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
 
         for (let key in body) {
             patchRequests.push({
-                "op": "replace",
+                "op": "set",
                 "path": `/${key}`,
                 "value": body[key]
             });
