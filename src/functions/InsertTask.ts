@@ -1,19 +1,54 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+  app,
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
+import { taskService } from "../services/taskServices";
+import { TaskSchema } from "../models/task";
 
-export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function InsertTask(
+  request: HttpRequest,
+  context: InvocationContext,
+): Promise<HttpResponseInit> {
+  try {
+    // ambil data dari field di frontend
     const body = await request.json();
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .items.create(body);
+    // validasi
+    const validationResult = TaskSchema.safeParse(body);
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    //logic validasi
+    if (!validationResult.success) {
+      context.warn("Validasi gagal: ", validationResult.error.format());
+      return {
+        status: 400, // http status code (bad request)
+        jsonBody: {
+          error: "Data yang dikirim tidak valid!",
+          details: validationResult.error.format(),
+        },
+      };
+    }
 
-app.http('InsertTask', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    handler: InsertTask
+    // data yang sudah aman
+    const newTask = await taskService.createTask(validationResult.data);
+
+    return {
+      status: 201,
+      jsonBody: newTask,
+    };
+  } catch (error: any) {
+    return {
+      jsonBody: {
+        error: "Terjadi kesalahan pada server",
+      },
+      status: 500,
+    };
+  }
+}
+
+app.http("InsertTask", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: InsertTask,
 });
