@@ -8,16 +8,20 @@
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
+    "start-local": "powershell -Command \"$env:NODE_TLS_REJECT_UNAUTHORIZED=0; func start\"",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20.x",
     "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
+    "typescript": "^6.0.3"
   },
   "main": "dist/src/{index.js,functions/*.js}"
 }
