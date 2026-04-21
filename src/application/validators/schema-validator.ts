@@ -1,5 +1,9 @@
-import { z } from "zod";
-import { ValidationError } from "../../domain/errors/DomainError";
+﻿import { z } from "zod";
+import { ValidationError } from "../../domain/errors/domain-error";
+
+export type Organization = {
+    organizationId: string;
+}
 
 export function validateSchema<T>(schema: z.ZodType<T>, data: unknown): T {
     try {

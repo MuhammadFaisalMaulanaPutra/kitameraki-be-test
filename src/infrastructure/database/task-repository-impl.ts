@@ -1,10 +1,10 @@
-import { BulkOperationType, Container } from "@azure/cosmos";
-import { ITaskRepository } from "../../domain/repositories/ITaskRepository";
+﻿import { BulkOperationType, Container } from "@azure/cosmos";
+import { TaskRepository } from "../../domain/repositories/task-repository";
 import { BulkDeleteTaskResult, QueryResult } from "../../domain/types";
-import { Task } from "../../domain/Task";
+import { Task } from "../../domain/task";
 import { chunkArray } from "../../utils/util";
 
-export class TaskRepository implements ITaskRepository {
+export class TaskRepositoryImpl implements TaskRepository {
     constructor(private container: Container) {}
 
     async create(task: Task): Promise<Task> {

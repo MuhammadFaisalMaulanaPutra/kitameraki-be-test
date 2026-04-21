@@ -1,17 +1,23 @@
-import "reflect-metadata";
+﻿import "reflect-metadata";
 import { container } from "tsyringe";
-import { TaskRepository } from "../infrastructure/database/TaskRepository";
-import { CreateTaskUseCase } from "../application/use-cases/task/CreateTaskUseCase";
-import { DeleteTaskUseCase } from "../application/use-cases/task/DeleteTaskUseCase";
-import { BulkDeleteTasksUseCase } from "../application/use-cases/task/BulkDeleteTasksUseCase";
-import { UpdateTaskUseCase } from "../application/use-cases/task/UpdateTaskUseCase";
-import { GetTaskUseCase } from "../application/use-cases/task/GetTaskUseCase";
-import { GetTasksUseCase } from "../application/use-cases/task/GetTasksUseCase";
-import { containers } from "../utils/cosmosClient";
+import { TaskRepositoryImpl } from "../infrastructure/database/task-repository-impl";
+import { CreateTaskUseCase } from "../application/use-cases/task/create-task-use-case";
+import { DeleteTaskUseCase } from "../application/use-cases/task/delete-task-use-case";
+import { BulkDeleteTasksUseCase } from "../application/use-cases/task/bulk-delete-tasks-use-case";
+import { UpdateTaskUseCase } from "../application/use-cases/task/update-task-use-case";
+import { GetTaskUseCase } from "../application/use-cases/task/get-task-use-case";
+import { GetTasksUseCase } from "../application/use-cases/task/get-tasks-use-case";
+import { containers } from "../utils/cosmos-client";
+import { UserRepositoryImpl } from "../infrastructure/database/user-repository-impl";
+import { LoginUseCase } from "../application/use-cases/auth/login-use-case";
 
-container.register("ITaskRepository", {
-    useValue: new TaskRepository(containers.tasks)
-})
+container.register("TaskRepository", {
+    useValue: new TaskRepositoryImpl(containers.tasks)
+});
+
+container.register("UserRepository", {
+    useValue: new UserRepositoryImpl(containers.users)
+});
 
 container.registerSingleton(CreateTaskUseCase);
 container.registerSingleton(DeleteTaskUseCase);
@@ -19,5 +25,7 @@ container.registerSingleton(BulkDeleteTasksUseCase);
 container.registerSingleton(UpdateTaskUseCase);
 container.registerSingleton(GetTaskUseCase);
 container.registerSingleton(GetTasksUseCase);
+
+container.registerSingleton(LoginUseCase);
 
 export { container }

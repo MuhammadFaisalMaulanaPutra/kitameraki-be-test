@@ -1,13 +1,13 @@
-import { injectable, inject } from "tsyringe";
-import { ITaskRepository } from "../../../domain/repositories/ITaskRepository";
-import { Task } from "../../../domain/Task";
-import { UpdateTaskDTO } from "../../dtos/requests/TaskRequestDTO";
-import { NotFoundError } from "../../../domain/errors/DomainError";
-import { TaskResponseDTO } from "../../dtos/responses/TaskResponseDTO";
+﻿import { injectable, inject } from "tsyringe";
+import { TaskRepository } from "../../../domain/repositories/task-repository";
+import { Task } from "../../../domain/task";
+import { UpdateTaskDTO } from "../../dtos/requests/task-request-dto";
+import { NotFoundError } from "../../../domain/errors/domain-error";
+import { TaskResponseDTO } from "../../dtos/responses/task-response-dto";
 
 @injectable()
 export class UpdateTaskUseCase {
-    constructor(@inject("ITaskRepository") private repo: ITaskRepository) {}
+    constructor(@inject("TaskRepository") private repo: TaskRepository) {}
 
     async execute(updateTaskDTO: UpdateTaskDTO): Promise<TaskResponseDTO> {
         const existingTask = await this.repo.findById(updateTaskDTO.organizationId, updateTaskDTO.id);

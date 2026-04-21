@@ -1,4 +1,4 @@
-export class DomainError extends Error {
+﻿export class DomainError extends Error {
     constructor(
         message: string,
         public code: string,
@@ -36,5 +36,12 @@ export class ConflictError extends DomainError {
     constructor(message: string) {
         super(message, 'CONFLICT', 409);
         Object.setPrototypeOf(this, ConflictError.prototype);
+    }
+}
+
+export class InvalidCredentialsError extends DomainError {
+    constructor(message: string = "Invalid credentials") {
+        super(message, "INVALID_CREDENTIALS", 401);
+        Object.setPrototypeOf(this, InvalidCredentialsError.prototype);
     }
 }

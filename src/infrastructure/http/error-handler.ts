@@ -1,5 +1,5 @@
-import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { ValidationError, DomainError } from "../../domain/errors/DomainError";
+﻿import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { ValidationError, DomainError, InvalidCredentialsError } from "../../domain/errors/domain-error";
 import { ApiResponseBuilder } from "./response";
 
 export type HttpHandlerFunction = (
@@ -20,6 +20,22 @@ export function withErrorHandling(
             if (error instanceof ValidationError) {
                 context.warn(JSON.stringify({
                     event: 'Validation error',
+                    message: error.message,
+                    details: error.details
+                }));
+
+                return ApiResponseBuilder.error(
+                    error.code,
+                    error.message,
+                    error.statusCode,
+                    error.details,
+                    requestId
+                );
+            }
+            
+            if (error instanceof InvalidCredentialsError) {
+                context.warn(JSON.stringify({
+                    event: 'Credential error',
                     message: error.message,
                     details: error.details
                 }));

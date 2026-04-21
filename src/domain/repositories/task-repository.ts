@@ -1,7 +1,7 @@
-import { Task } from "../Task"
+﻿import { Task } from "../task";
 import { BulkDeleteTaskResult, QueryResult } from "../types"
 
-export interface ITaskRepository {
+export interface TaskRepository {
     create(task: Task): Promise<Task>
     findAll(organizationId: string, token?: string): Promise<QueryResult<Task>>
     findById(organizationId: string, id: string): Promise<Task | null>

@@ -1,4 +1,4 @@
-import { HttpResponseInit } from "@azure/functions";
+﻿import { HttpResponseInit } from "@azure/functions";
 
 export interface ApiResponse<T = any> {
     success: boolean;

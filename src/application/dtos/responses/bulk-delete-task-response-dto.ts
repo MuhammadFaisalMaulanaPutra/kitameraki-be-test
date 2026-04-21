@@ -1,4 +1,4 @@
-export interface BulkDeleteTaskResponseDTO {
+﻿export interface BulkDeleteTaskResponseDTO {
     successIds: string[];
     failedIds: string[];
 }

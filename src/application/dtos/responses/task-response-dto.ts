@@ -1,4 +1,4 @@
-export interface TaskResponseDTO {
+﻿export interface TaskResponseDTO {
     id: string;
     organizationId: string;
     title: string;
