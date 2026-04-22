@@ -1,7 +1,7 @@
 {
   "name": "kitameraki-be-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Task Management API — Azure Functions v4 + Cosmos DB (TypeScript)",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
@@ -10,14 +10,16 @@
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
+  "main": "dist/src/{index.js,functions/*.js}",
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/node": "^20.x",
+    "@types/uuid": "^8.3.4",
     "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
-  },
-  "main": "dist/src/{index.js,functions/*.js}"
+    "typescript": "^4.9.5"
+  }
 }

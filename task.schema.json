@@ -1,41 +1,43 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Task",
+  "description": "A single task entity as stored in Azure Cosmos DB. The 'id' field also serves as the Cosmos DB partition key.",
   "type": "object",
   "properties": {
     "id": {
       "type": "string",
       "format": "uuid",
-      "description": "Unique identifier for the task"
+      "description": "Server-generated UUID v4. Also used as the Cosmos DB partition key."
     },
     "organizationId": {
       "type": "string",
-      "format": "uuid",
-      "description": "Unique identifier of the organization to which the task belongs"
+      "description": "UUID of the organisation that owns this task. Used for multi-tenant data isolation."
     },
     "title": {
       "type": "string",
+      "minLength": 1,
       "maxLength": 100,
-      "description": "Title of the task"
+      "description": "Short, human-readable title of the task."
     },
     "description": {
       "type": "string",
       "maxLength": 1000,
-      "description": "Description of the task"
+      "description": "Optional longer description of the task."
     },
     "dueDate": {
       "type": "string",
       "format": "date-time",
-      "description": "Due date and time for the task"
+      "description": "ISO 8601 date-time string for the task deadline."
     },
     "priority": {
       "type": "string",
       "enum": ["low", "medium", "high"],
-      "description": "Priority level of the task"
+      "description": "Priority level of the task."
     },
     "status": {
       "type": "string",
       "enum": ["todo", "in-progress", "completed"],
-      "description": "Status of the task"
+      "description": "Current lifecycle status of the task."
     },
     "tags": {
       "type": "array",
@@ -43,7 +45,22 @@
         "type": "string",
         "maxLength": 50
       },
-      "description": "Tags associated with the task"
+      "description": "Optional free-form labels associated with the task."
+    },
+    "customFieldValues": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Map of fieldId → value for any dynamic custom fields configured in GlobalSettings."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Server-assigned ISO 8601 timestamp of when the task was created."
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Server-assigned ISO 8601 timestamp of the last mutation."
     }
   },
   "required": ["id", "organizationId", "title", "status"],

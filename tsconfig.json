@@ -1,10 +1,40 @@
 {
+  /**
+   * TypeScript compiler configuration for the Kitameraki Task Management API.
+   *
+   * Key decisions:
+   *  - "strict": true  — enables the full suite of strict type-checks
+   *    (strictNullChecks, noImplicitAny, strictFunctionTypes, etc.).
+   *    This is the industry standard for production TypeScript and catches
+   *    an entire class of runtime bugs at compile time.
+   *
+   *  - "module": "commonjs" — required by the Azure Functions v4 Node.js worker.
+   *
+   *  - "target": "es2020" — supports async/await, optional chaining, and
+   *    nullish coalescing natively without extra polyfills, while remaining
+   *    compatible with Node 18+ (the minimum for Azure Functions v4).
+   *
+   *  - "esModuleInterop": true — allows default imports from CommonJS modules
+   *    without needing the `* as` import syntax.
+   *
+   *  - "resolveJsonModule": true — enables importing JSON files (e.g. schemas)
+   *    with full type inference.
+   *
+   *  - "forceConsistentCasingInFileNames": true — prevents casing bugs that
+   *    only manifest on case-sensitive file systems (Linux / CI).
+   */
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "es2020",
+    "lib": ["es2020"],
     "outDir": "dist",
     "rootDir": ".",
     "sourceMap": true,
-    "strict": false
-  }
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "exclude": ["node_modules", "dist", "test"]
 }

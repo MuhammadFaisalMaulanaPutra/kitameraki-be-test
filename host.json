@@ -6,6 +6,22 @@
         "isEnabled": true,
         "excludedTypes": "Request"
       }
+    },
+    "logLevel": {
+      "default": "Information",
+      "Host.Results": "Error",
+      "Function": "Information",
+      "Host.Aggregator": "Warning"
+    }
+  },
+  "extensions": {
+    "http": {
+      /**
+       * routePrefix is set to "api" (the Azure Functions default).
+       * All function routes are therefore accessible at /api/{route}.
+       * Example: GET /api/tasks, DELETE /api/tasks/{id}
+       */
+      "routePrefix": "api"
     }
   },
   "extensionBundle": {
