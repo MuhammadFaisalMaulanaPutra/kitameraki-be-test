@@ -1,24 +1,35 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, HttpResponseInit } from "@azure/functions";
+import { bulkDeleteTasks } from "../services/taskService";
+import { BulkDeleteItemDto } from "../dto/task.dto";
+import { errorResponse, successResponse } from "../utils/response";
 
-export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
+export async function BulkDeleteTasks(request: HttpRequest): Promise<HttpResponseInit> {
+  try {
+    const body = (await request.json()) as BulkDeleteItemDto[];
 
-    return { status: 200 };
+    const result = await bulkDeleteTasks(body);
+
+    return {
+  status: 200,
+  jsonBody: successResponse(null, "Bulk delete completed", {
+    total: result.total,
+    success: result.success,
+    failed: result.failed
+  })
 };
 
-app.http('BulkDeleteTasks', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+  } catch (error: any) {
+    return {
+      status: 400,
+      jsonBody: errorResponse(error.message) 
+    };
+  }
+}
+
+app.http("BulkDeleteTasks", {
+  methods: ["DELETE"],
+  authLevel: "anonymous",
+  route: "tasks/bulk-delete",
+  handler: BulkDeleteTasks,
 });

@@ -1,33 +1,45 @@
 import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { UpdateTaskDto } from "../dto/task.dto";
+import { patchTask } from "../services/taskService";
+import { NotFoundError } from "../errors/notFoundError";
+import { errorResponse, successResponse } from "../utils/response";
 
 
-export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
 
-    let patchRequests = [];
+export async function UpdateTask(request: HttpRequest): Promise<HttpResponseInit> {
+  try {
+    const taskId = request.params.id;
+    const organizationId = request.params.organizationId;
 
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
+    if (!taskId || !organizationId) {
+      return {
+        status: 400,
+        jsonBody: errorResponse("taskId and organizationId are required"),
+      };
     }
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
+    const body = (await request.json()) as UpdateTaskDto;
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    const result = await patchTask(taskId, organizationId, body);
+
+    return {
+      status: 200,
+      jsonBody: successResponse(result, "Task updated successfully"),
+    };
+    
+
+  } catch (error: any) {
+    return {
+      status: error instanceof NotFoundError ? 404 : 400,
+      jsonBody: errorResponse(error.message),
+    };
+  }
+}
 
 app.http('UpdateTask', {
-    methods: ['POST'],
+    methods: ['PATCH'],
+    route: 'task/{id}/organization/{organizationId}',
     authLevel: 'anonymous',
     handler: UpdateTask
 });

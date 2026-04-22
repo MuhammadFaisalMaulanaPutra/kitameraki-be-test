@@ -1,23 +1,44 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { fetchTask } from "../services/taskService";
+import { NotFoundError } from "../errors/notFoundError"; 
+import { errorResponse, successResponse } from "../utils/response";
 
-export async function GetTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
+export async function GetTask(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const taskId = request.params.id;
+    const organizationId = request.params.organizationId;
 
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    if (!taskId || !organizationId) {
+      return {
+        status: 400,
+        jsonBody: {
+          message: "taskId and organizationId are required",
+        },
+      };
+    }
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .read();
+    const result = await fetchTask(taskId, organizationId);
 
-    return { jsonBody: task.resource, status: 200 };
-};
+    return {
+      status: 200,
+      jsonBody: successResponse(result, "Task fetched successfully")
+    };
 
-app.http('GetTask', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTask
+  } catch (error: any) {
+    console.log("Error fetching task:", error);
+    return {
+      status: error instanceof NotFoundError ? 404 : 400,
+      jsonBody: errorResponse(error.message),
+    };
+  }
+}
+
+app.http("GetTask", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "task/{id}/organization/{organizationId}",
+  handler: GetTask,
 });
