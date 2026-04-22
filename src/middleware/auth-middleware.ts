@@ -14,7 +14,6 @@ export async function authMiddleware(request: HttpRequest, context: InvocationCo
     try {
         const token = authHeader.split(' ')[1];
         const payload = verifyToken(token);
-        console.log(`payload: ${JSON.stringify(payload, null, 2)}`)
         const requestContext: RequestContext = {
             userId: payload.sub,
             organizationId: payload.organizationId

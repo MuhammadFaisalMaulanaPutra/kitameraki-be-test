@@ -13,6 +13,7 @@ export function withErrorHandling(
 ): HttpHandlerFunction {
     return async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
         const requestId = request.headers.get('x-request-id') || context.invocationId;
+        const origin = request.headers.get('origin');
 
         try {
             return await handler(request, context);
@@ -29,7 +30,8 @@ export function withErrorHandling(
                     error.message,
                     error.statusCode,
                     error.details,
-                    requestId
+                    requestId,
+                    origin
                 );
             }
             
@@ -45,7 +47,8 @@ export function withErrorHandling(
                     error.message,
                     error.statusCode,
                     error.details,
-                    requestId
+                    requestId,
+                    origin
                 );
             }
 
@@ -61,7 +64,8 @@ export function withErrorHandling(
                     error.message,
                     error.statusCode,
                     error.details,
-                    requestId
+                    requestId,
+                    origin
                 );
             }
 
@@ -72,7 +76,8 @@ export function withErrorHandling(
                 defaultErrorMessage,
                 500,
                 undefined,
-                requestId
+                requestId,
+                origin
             );
         }
     };

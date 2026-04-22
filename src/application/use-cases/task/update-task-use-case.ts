@@ -1,4 +1,4 @@
-﻿import { injectable, inject } from "tsyringe";
+import { injectable, inject } from "tsyringe";
 import { TaskRepository } from "../../../domain/repositories/task-repository";
 import { Task } from "../../../domain/task";
 import { UpdateTaskDTO } from "../../dtos/requests/task-request-dto";
@@ -20,6 +20,7 @@ export class UpdateTaskUseCase {
             ...(updateTaskDTO.title && { title: updateTaskDTO.title }),
             ...(updateTaskDTO.description !== undefined && { description: updateTaskDTO.description }),
             ...(updateTaskDTO.status && { status: updateTaskDTO.status }),
+            ...(updateTaskDTO.customFields !== undefined && { customFields: updateTaskDTO.customFields }),
             updatedAt: new Date().toISOString()
         } as Task;
 

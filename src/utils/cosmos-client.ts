@@ -10,11 +10,12 @@ export const database = cosmosClient.database(process.env.COSMOS_DB)
 export const containers =  {
     tasks: database.container(process.env.COSMOS_TASK_CONTAINER),
     users: database.container(process.env.COSMOS_USER_CONTAINER),
+    formSettings: database.container(process.env.COSMOS_FROM_SETTINGS_CONTAINER),
 }
 
 export async function testConnection(): Promise<{ success: boolean; message: string }> {
     try {
-        const { resource: account } = await cosmosClient.getDatabaseAccount();
+        await cosmosClient.getDatabaseAccount();
         return {
             success: true,
             message: `Successfully connected to Cosmos DB`

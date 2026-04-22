@@ -1,4 +1,4 @@
-﻿import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { container } from "../../config/container";
 import { GetTasksUseCase } from "../../application/use-cases/task/get-tasks-use-case";
 import { ApiResponseBuilder } from "../../infrastructure/http/response";
@@ -15,8 +15,11 @@ const getTasksHandler: AuthenticatedHandler = async (request: HttpRequest, conte
     const requestId = request.headers.get('x-request-id') || context.invocationId;
     const organizationId = user.organizationId;
     const paginationToken = request.query.get('paginationToken') || undefined;
+    const keyword = request.query.get('keyword') || undefined;
+    const filter = request.query.get('filter') || undefined;
     
-    const validatedInput = validateSchema(GetTasksSchema, { paginationToken });
+    
+    const validatedInput = validateSchema(GetTasksSchema, { token: paginationToken, keyword, filter });
     const getTasksDTO: GetTasksDTO = {
             ...validatedInput,
             organizationId

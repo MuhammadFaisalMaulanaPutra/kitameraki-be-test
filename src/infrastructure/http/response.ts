@@ -15,7 +15,7 @@ export interface ApiResponse<T = any> {
 }
 
 export class ApiResponseBuilder {
-    static success<T>(data: T, statusCode: number = 200, requestId?: string): HttpResponseInit {
+    static success<T>(data: T, statusCode: number = 200, requestId?: string, origin?: string): HttpResponseInit {
         const response: ApiResponse<T> = {
             success: true,
             data,
@@ -24,11 +24,14 @@ export class ApiResponseBuilder {
                 requestId
             }
         };
-        return { jsonBody: response, status: statusCode };
+        return { 
+            jsonBody: response, 
+            status: statusCode,
+        };
     }
 
-    static created<T>(data: T, requestId?: string): HttpResponseInit {
-        return this.success(data, 201, requestId);
+    static created<T>(data: T, requestId?: string, origin?: string): HttpResponseInit {
+        return this.success(data, 201, requestId, origin);
     }
 
     static error(
@@ -36,7 +39,8 @@ export class ApiResponseBuilder {
         message: string,
         statusCode: number = 400,
         details?: any,
-        requestId?: string
+        requestId?: string,
+        origin?: string
     ): HttpResponseInit {
         const response: ApiResponse = {
             success: false,
