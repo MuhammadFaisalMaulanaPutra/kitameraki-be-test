@@ -1,0 +1,11 @@
+import { Task } from "../task";
+import { BulkDeleteTaskResult, QueryResult } from "../types"
+
+export interface TaskRepository {
+    create(task: Task): Promise<Task>
+    findAll(organizationId: string, token?: string, keyword?: string, filter?: string): Promise<QueryResult<Task>>
+    findById(organizationId: string, id: string): Promise<Task | null>
+    update(task: Task): Promise<Task>
+    delete(organizationId: string, id: string): Promise<boolean>
+    bulkDelete(organizationId: string, ids: string[]): Promise<BulkDeleteTaskResult>
+}
