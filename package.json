@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "@azure/identity": "^4.13.1",
+    "prettier": "^3.8.3"
   },
   "devDependencies": {
     "@types/node": "^20.x",

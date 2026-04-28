@@ -1,19 +1,82 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+  app,
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
 
-export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+import { getDefaultCosmosClient } from "../cosmos.util";
+import {
+  ETaskStatus,
+  ITaskDBStruct,
+  ITaskPostData,
+} from "../interfaces/Task.interface";
+import { createResponse, HttpError, response500 } from "../libs/http";
+
+function validateTaskPostData(d: any): d is ITaskPostData {
+  if (!d?.name) {
+    throw new HttpError("Task Name must be provided!");
+  }
+
+  if (d) {
+    if (typeof d.status !== "number") {
+      delete d.status;
+    } else {
+      if (!(d.status >= 0 && d.status <= 3)) {
+        throw new HttpError("Invalid Task Status!");
+      }
+    }
+  }
+
+  return true;
+}
+
+export async function InsertTask(
+  request: HttpRequest,
+  context: InvocationContext,
+): Promise<HttpResponseInit> {
+  try {
     const body = await request.json();
+    if (!validateTaskPostData(body)) return;
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .items.create(body);
+    // list of allowed props
+    const props = [
+      "name",
+      "description",
+      "status" /* another list from custom form */,
+    ];
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    const toInsert: ITaskDBStruct = {
+      organizationId: 1, // hardcoded value
+      name: "", // override
+      status: ETaskStatus.NOT_STARTED,
+      isDeleted: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-app.http('InsertTask', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    handler: InsertTask
+    for (const k of props) {
+      const v = body[k];
+      if (!!v) toInsert[k] = v;
+    }
+
+    const client = getDefaultCosmosClient();
+    const createdTask = await client
+      .database("TaskApp")
+      .container("Tasks")
+      .items.create(toInsert);
+
+    return createResponse(createdTask.resource);
+  } catch (e) {
+    if (e instanceof HttpError) {
+      return e.createResponse();
+    }
+    return response500("InsertTask", e);
+  }
+}
+
+app.http("InsertTask", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: InsertTask,
 });
