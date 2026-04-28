@@ -5,75 +5,90 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { getDefaultCosmosClient } from "../cosmos.util";
-import { ETaskStatus, IUpdateTaskStatusData } from "../interfaces/Task.interface";
-import { createResponse, HttpError, response500 } from "../libs/http";
+import { HTTP_STATUS } from "../constants";
+import { updateTaskStatus as updateTaskStatusService } from "../services/taskService";
+import {
+  validateOrganizationId,
+  validateTaskId,
+} from "../validators/parametersValidator";
+import { validateTaskStatus } from "../validators/taskValidator";
+import {
+  AppError,
+  createErrorResponse,
+  createSuccessResponse,
+  Logger,
+} from "../libs/errorHandling";
 
-function validateStatusUpdate(data: any): data is IUpdateTaskStatusData {
-  if (data?.status === undefined || data?.status === null) {
-    throw new HttpError("Status must be provided", 400);
-  }
-
-  const status = data.status;
-  if (typeof status !== "number") {
-    throw new HttpError("Status must be a number", 400);
-  }
-
-  if (!(status >= 0 && status <= 3)) {
-    throw new HttpError(
-      `Invalid Task Status. Must be between 0-3 (0: NOT_STARTED, 1: IN_PROGRESS, 2: COMPLETED, 3: CANCELLED)`,
-      400
-    );
-  }
-
-  return true;
-}
-
+/**
+ * UpdateTaskStatus function - Updates only the status of a task
+ * Query parameters:
+ *   - organizationId (required): Organization ID
+ *   - id (required): Task ID
+ * Body:
+ *   - status (required): New status (0: NOT_STARTED, 1: IN_PROGRESS, 2: COMPLETED, 3: CANCELLED)
+ */
 export async function UpdateTaskStatus(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
+  const logger = new Logger("UpdateTaskStatus");
+
   try {
-    const taskId = request.query.get("id");
-    const organizationId = request.query.get("organizationId");
+    logger.info("Processing UpdateTaskStatus request");
 
-    if (!taskId) {
-      throw new HttpError("Task ID is required", 400);
+    // Validate required parameters
+    const organizationId = validateOrganizationId(
+      request.query.get("organizationId")
+    );
+    const taskId = validateTaskId(request.query.get("id"));
+
+    // Parse and validate request body
+    const body = (await request.json()) as any;
+
+    if (!body || body.status === undefined || body.status === null) {
+      throw new Error("Status must be provided");
     }
 
-    if (!organizationId) {
-      throw new HttpError("Organization ID is required", 400);
-    }
+    validateTaskStatus(body.status);
 
-    const body = await request.json();
-
-    if (!validateStatusUpdate(body)) return;
-
-    const patchRequests = [
-      {
-        op: "replace" as const,
-        path: "/status",
-        value: body.status,
-      },
-      {
-        op: "replace" as const,
-        path: "/updatedAt",
-        value: new Date(),
-      },
-    ];
-
+    // Update task status in database
     const client = getDefaultCosmosClient();
-    const updatedTask = await client
-      .database("TaskApp")
-      .container("Tasks")
-      .item(taskId, organizationId)
-      .patch(patchRequests);
+    const updatedTask = await updateTaskStatusService(
+      client,
+      taskId,
+      organizationId,
+      body.status
+    );
 
-    return createResponse(updatedTask.resource, 200);
+    logger.info("Task status updated successfully", {
+      taskId,
+      newStatus: body.status,
+    });
+
+    const response = createSuccessResponse(updatedTask, HTTP_STATUS.OK);
+    return {
+      jsonBody: response,
+      status: response.status,
+    };
   } catch (e) {
-    if (e instanceof HttpError) {
-      return e.createResponse();
+    if (e instanceof AppError) {
+      logger.error(e.message, e, { code: e.code });
+      const errorResponse = createErrorResponse(e, e.status);
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
     }
-    return response500("UpdateTaskStatus", e);
+
+    logger.error("Unexpected error", e as Error);
+    const errorResponse = createErrorResponse(
+      "Internal Server Error",
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+    return {
+      jsonBody: errorResponse,
+      status: errorResponse.status,
+    };
   }
 }
 
@@ -82,6 +97,3 @@ app.http("UpdateTaskStatus", {
   authLevel: "anonymous",
   handler: UpdateTaskStatus,
 });
-
-// query params: organizationId (required), id (required)
-// body: { status: number } (0: NOT_STARTED, 1: IN_PROGRESS, 2: COMPLETED, 3: CANCELLED)

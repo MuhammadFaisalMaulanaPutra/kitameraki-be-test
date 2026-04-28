@@ -5,51 +5,90 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { getDefaultCosmosClient } from "../cosmos.util";
-import { createResponse, HttpError, response500 } from "../libs/http";
+import { HTTP_STATUS } from "../constants";
+import { bulkSoftDeleteTasks } from "../services/taskService";
+import {
+  validateOrganizationId,
+  validateTaskIdsArray,
+} from "../validators/parametersValidator";
+import {
+  AppError,
+  createErrorResponse,
+  createSuccessResponse,
+  Logger,
+} from "../libs/errorHandling";
 
+/**
+ * BulkDeleteTasks function - Soft deletes multiple tasks
+ * Query parameters:
+ *   - organizationId (required): Organization ID
+ * Body:
+ *   - Array of task IDs to delete
+ */
 export async function BulkDeleteTasks(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
+  const logger = new Logger("BulkDeleteTasks");
+
   try {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = (await request.json()) as string[];
-    const organizationId = request.query.get("organizationId");
+    logger.info("Processing BulkDeleteTasks request");
 
-    if (!organizationId) {
-      throw new HttpError("Organization ID is required", 400);
-    }
+    // Validate required parameters
+    const organizationId = validateOrganizationId(
+      request.query.get("organizationId")
+    );
 
-    if (!Array.isArray(body) || body.length === 0) {
-      throw new HttpError("Task IDs array is required and must not be empty", 400);
-    }
+    // Parse and validate request body
+    const body = await request.json();
+    const taskIds = validateTaskIdsArray(body);
 
+    logger.info("Deleting tasks", { count: taskIds.length });
+
+    // Delete tasks from database
     const client = getDefaultCosmosClient();
-    
-    // Properly await all delete operations
-    const deletePromises = body.map((taskId) =>
-      client
-        .database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .delete()
-        .catch((e) => {
-          context.log(`Failed to delete task ${taskId}: ${e.message}`);
-          return null; // Continue with other deletions even if one fails
-        })
+    const deletedCount = await bulkSoftDeleteTasks(
+      client,
+      taskIds,
+      organizationId
     );
 
-    await Promise.all(deletePromises);
+    logger.info("Tasks deleted successfully", {
+      requestedCount: taskIds.length,
+      deletedCount,
+    });
 
-    return createResponse(
-      { message: `Successfully deleted ${body.length} task(s)` },
-      200
+    const response = createSuccessResponse(
+      {
+        message: `Successfully deleted ${deletedCount} of ${taskIds.length} task(s)`,
+        deletedCount,
+        requestedCount: taskIds.length,
+      },
+      HTTP_STATUS.OK
     );
+    return {
+      jsonBody: response,
+      status: response.status,
+    };
   } catch (e) {
-    if (e instanceof HttpError) {
-      return e.createResponse();
+    if (e instanceof AppError) {
+      logger.error(e.message, e, { code: e.code });
+      const errorResponse = createErrorResponse(e, e.status);
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
     }
-    return response500("BulkDeleteTasks", e);
+
+    logger.error("Unexpected error", e as Error);
+    const errorResponse = createErrorResponse(
+      "Internal Server Error",
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+    return {
+      jsonBody: errorResponse,
+      status: errorResponse.status,
+    };
   }
 }
 
@@ -58,6 +97,3 @@ app.http("BulkDeleteTasks", {
   authLevel: "anonymous",
   handler: BulkDeleteTasks,
 });
-
-// query param: organizationId (required)
-// body: array of task IDs to delete

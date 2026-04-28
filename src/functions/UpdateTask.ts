@@ -5,36 +5,59 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { getDefaultCosmosClient } from "../cosmos.util";
-import { createResponse, HttpError, response500 } from "../libs/http";
+import { HTTP_STATUS, PROTECTED_FIELDS } from "../constants";
+import { updateTask } from "../services/taskService";
+import {
+  validateOrganizationId,
+  validateTaskId,
+} from "../validators/parametersValidator";
+import { validateTaskUpdateData } from "../validators/taskValidator";
+import {
+  AppError,
+  createErrorResponse,
+  createSuccessResponse,
+  Logger,
+} from "../libs/errorHandling";
 
+/**
+ * UpdateTask function - Updates an existing task
+ * Query parameters:
+ *   - organizationId (required): Organization ID
+ *   - id (required): Task ID
+ * Body:
+ *   - name (optional): Task name
+ *   - description (optional): Task description
+ *   - status (optional): Task status (0-3)
+ *   - Custom fields: Any additional fields to update
+ */
 export async function UpdateTask(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
+  const logger = new Logger("UpdateTask");
+
   try {
-    const taskId = request.query.get("id");
-    const organizationId = request.query.get("organizationId");
+    logger.info("Processing UpdateTask request");
 
-    if (!taskId) {
-      throw new HttpError("Task ID is required", 400);
-    }
+    // Validate required parameters
+    const organizationId = validateOrganizationId(
+      request.query.get("organizationId")
+    );
+    const taskId = validateTaskId(request.query.get("id"));
 
-    if (!organizationId) {
-      throw new HttpError("Organization ID is required", 400);
-    }
+    // Parse and validate request body
+    const body = (await request.json()) as any;
+    validateTaskUpdateData(body);
 
-    const body = (await request.json()) as object;
+    // Build patch operations, excluding protected fields
+    const patchRequests: Array<{
+      op: "replace" | "add" | "remove" | "set" | "incr";
+      path: string;
+      value?: any;
+    }> = [];
 
-    if (!body || Object.keys(body).length === 0) {
-      throw new HttpError("Request body must contain at least one field to update", 400);
-    }
-
-    // Prevent certain fields from being updated directly
-    const protectedFields = ["organizationId", "id", "createdAt", "isDeleted"];
-    const patchRequests = [];
-
-    for (let key in body) {
-      if (!protectedFields.includes(key)) {
+    for (const key in body) {
+      if (!(PROTECTED_FIELDS as readonly string[]).includes(key)) {
         patchRequests.push({
           op: "replace" as const,
           path: `/${key}`,
@@ -50,26 +73,41 @@ export async function UpdateTask(
       value: new Date(),
     });
 
-    if (patchRequests.length === 0) {
-      throw new HttpError(
-        "No valid fields to update (protected fields: organizationId, id, createdAt, isDeleted)",
-        400
-      );
-    }
-
+    // Update task in database
     const client = getDefaultCosmosClient();
-    const updatedTask = await client
-      .database("TaskApp")
-      .container("Tasks")
-      .item(taskId, organizationId)
-      .patch(patchRequests);
+    const updatedTask = await updateTask(
+      client,
+      taskId,
+      organizationId,
+      patchRequests
+    );
 
-    return createResponse(updatedTask.resource, 200);
+    logger.info("Task updated successfully", { taskId });
+
+    const response = createSuccessResponse(updatedTask, HTTP_STATUS.OK);
+    return {
+      jsonBody: response,
+      status: response.status,
+    };
   } catch (e) {
-    if (e instanceof HttpError) {
-      return e.createResponse();
+    if (e instanceof AppError) {
+      logger.error(e.message, e, { code: e.code });
+      const errorResponse = createErrorResponse(e, e.status);
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
     }
-    return response500("UpdateTask", e);
+
+    logger.error("Unexpected error", e as Error);
+    const errorResponse = createErrorResponse(
+      "Internal Server Error",
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+    return {
+      jsonBody: errorResponse,
+      status: errorResponse.status,
+    };
   }
 }
 
@@ -78,7 +116,3 @@ app.http("UpdateTask", {
   authLevel: "anonymous",
   handler: UpdateTask,
 });
-
-// query params: organizationId (required), id (required)
-// body: object of key-value pairs to update (name, description, status, etc.)
-// protected fields: organizationId, id, createdAt, isDeleted

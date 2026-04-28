@@ -7,91 +7,113 @@ import {
 
 import { getDefaultCosmosClient } from "../cosmos.util";
 import {
+  ALLOWED_TASK_FIELDS,
+  HTTP_STATUS,
+} from "../constants";
+import {
   ETaskStatus,
   ITaskDBStruct,
-  ITaskPostData,
 } from "../interfaces/Task.interface";
-import { createResponse, HttpError, response500 } from "../libs/http";
+import { createTask } from "../services/taskService";
+import { validateOrganizationId } from "../validators/parametersValidator";
+import { validateTaskPostData } from "../validators/taskValidator";
+import {
+  AppError,
+  ValidationError,
+  createErrorResponse,
+  createSuccessResponse,
+  Logger,
+} from "../libs/errorHandling";
 
-function validateTaskPostData(d: any): d is ITaskPostData {
-  if (!d?.name || typeof d.name !== "string" || d.name.trim() === "") {
-    throw new HttpError(
-      "Task Name must be provided and must be a non-empty string",
-      400
-    );
-  }
-
-  if (d?.status !== undefined && d?.status !== null) {
-    if (typeof d.status !== "number") {
-      throw new HttpError("Status must be a number", 400);
-    }
-    if (!(d.status >= 0 && d.status <= 3)) {
-      throw new HttpError(
-        "Invalid Task Status. Must be between 0-3 (0: NOT_STARTED, 1: IN_PROGRESS, 2: COMPLETED, 3: CANCELLED)",
-        400
-      );
-    }
-  }
-
-  if (d?.description !== undefined && typeof d.description !== "string") {
-    throw new HttpError("Description must be a string if provided", 400);
-  }
-
-  return true;
-}
-
+/**
+ * InsertTask function - Creates a new task
+ * Query parameters:
+ *   - organizationId (required): Organization ID
+ * Body:
+ *   - name (required): Task name
+ *   - description (optional): Task description
+ *   - status (optional, default: 0): Task status (0-3)
+ */
 export async function InsertTask(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
+  const logger = new Logger("InsertTask");
+
   try {
-    const body = await request.json();
-    if (!validateTaskPostData(body)) return;
+    logger.info("Processing InsertTask request");
 
-    // Get organizationId from query parameter (or use default)
-    // NOTE: This should ideally come from authenticated user context
-    const organizationId = request.query.get("organizationId");
-    if (!organizationId) {
-      throw new HttpError("Organization ID is required", 400);
-    }
+    // Validate required parameters
+    const organizationId = validateOrganizationId(
+      request.query.get("organizationId")
+    );
 
-    // list of allowed props for task creation
-    const allowedProps = ["name", "description", "status"];
+    // Parse and validate request body
+    const body = (await request.json()) as any;
+    validateTaskPostData(body);
 
+    // Build task object with allowed properties only
     const toInsert: ITaskDBStruct = {
-      organizationId: parseInt(organizationId, 10),
+      organizationId,
       name: body.name.trim(),
-      status:
-        body.status !== undefined ? body.status : ETaskStatus.NOT_STARTED,
+      status: body.status !== undefined ? body.status : ETaskStatus.NOT_STARTED,
       description: body.description?.trim() || "",
       isDeleted: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as any;
 
-    // Add any custom properties that are provided
+    // Add custom properties that aren't protected
     for (const key in body) {
-      if (
-        !allowedProps.includes(key) &&
-        key !== "organizationId" &&
-        key !== "isDeleted"
-      ) {
-        toInsert[key] = body[key];
+      if (!(ALLOWED_TASK_FIELDS as readonly string[]).includes(key)) {
+        if (key !== "organizationId" && key !== "isDeleted") {
+          toInsert[key] = body[key];
+        }
       }
     }
 
+    // Create task in database
     const client = getDefaultCosmosClient();
-    const createdTask = await client
-      .database("TaskApp")
-      .container("Tasks")
-      .items.create(toInsert);
+    const createdTask = await createTask(client, toInsert);
 
-    return createResponse(createdTask.resource, 201);
+    logger.info("Task created successfully", { taskId: createdTask.id });
+
+    const response = createSuccessResponse(createdTask, HTTP_STATUS.CREATED);
+    return {
+      jsonBody: response,
+      status: response.status,
+    };
   } catch (e) {
-    if (e instanceof HttpError) {
-      return e.createResponse();
+    if (e instanceof AppError) {
+      logger.error(e.message, e, { code: e.code });
+      const errorResponse = createErrorResponse(e, e.status);
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
     }
-    return response500("InsertTask", e);
+
+    if (e instanceof Error && e.message.includes("Task")) {
+      logger.error(e.message, e);
+      const errorResponse = createErrorResponse(
+        new ValidationError(e.message),
+        HTTP_STATUS.BAD_REQUEST
+      );
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
+    }
+
+    logger.error("Unexpected error", e as Error);
+    const errorResponse = createErrorResponse(
+      "Internal Server Error",
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+    return {
+      jsonBody: errorResponse,
+      status: errorResponse.status,
+    };
   }
 }
 
@@ -100,6 +122,3 @@ app.http("InsertTask", {
   authLevel: "anonymous",
   handler: InsertTask,
 });
-
-// query params: organizationId (required)
-// body: { name: string, description?: string, status?: number }

@@ -5,98 +5,106 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { getDefaultCosmosClient } from "../cosmos.util";
-import { IPaginatedResponse, ITaskDBStruct } from "../interfaces/Task.interface";
-import { createResponse, HttpError, response500 } from "../libs/http";
+import { HTTP_STATUS } from "../constants";
+import { getTasksList } from "../services/taskService";
+import {
+  validateOrganizationId,
+  validatePaginationParams,
+  validateSortParams,
+  validateStatusFilter,
+  validateSearchTermParam,
+} from "../validators/parametersValidator";
+import {
+  AppError,
+  createErrorResponse,
+  createSuccessResponse,
+  Logger,
+} from "../libs/errorHandling";
 
+/**
+ * GetTasks function - Retrieves paginated list of tasks with optional filtering and searching
+ * Query parameters:
+ *   - organizationId (required): Organization ID
+ *   - pageNumber (optional, default: 1): Page number
+ *   - pageSize (optional, default: 10, max: 100): Items per page
+ *   - status (optional): Filter by status (0-3)
+ *   - searchTerm (optional): Search in name and description
+ *   - sortBy (optional, default: createdAt): Sort field
+ *   - sortOrder (optional, default: desc): Sort direction (asc/desc)
+ */
 export async function GetTasks(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
+  const logger = new Logger("GetTasks");
+
   try {
-    context.log(`Http function processed request for url "${request.url}"`);
-    
-    // Get query parameters
-    const organizationId = request.query.get("organizationId");
-    const pageNumberParam = request.query.get("pageNumber") || "1";
-    const pageSizeParam = request.query.get("pageSize") || "10";
-    const searchTerm = request.query.get("searchTerm") || "";
-    const statusParam = request.query.get("status");
-    const sortBy = request.query.get("sortBy") || "createdAt";
-    const sortOrder = request.query.get("sortOrder") || "desc";
+    logger.info("Processing GetTasks request");
 
-    // Validate and parse pagination parameters
-    const pageNumber = Math.max(1, parseInt(pageNumberParam, 10) || 1);
-    const pageSize = Math.max(1, Math.min(100, parseInt(pageSizeParam, 10) || 10)); // Max 100 per page
-    const offset = (pageNumber - 1) * pageSize;
+    // Validate required parameters
+    const organizationId = validateOrganizationId(
+      request.query.get("organizationId")
+    );
 
-    // Validate sort parameters
-    const validSortFields = ["createdAt", "updatedAt", "name", "status"];
-    const sortField = validSortFields.includes(sortBy) ? sortBy : "createdAt";
-    const sortDirection = sortOrder.toLowerCase() === "asc" ? "ASC" : "DESC";
+    // Validate optional parameters
+    const { pageNumber, pageSize, offset } = validatePaginationParams(
+      request.query.get("pageNumber") || undefined,
+      request.query.get("pageSize") || undefined
+    );
 
-    // Validate organization ID
-    if (!organizationId) {
-      throw new HttpError("organizationId is required", 400);
-    }
+    const { sortField, sortDirection } = validateSortParams(
+      request.query.get("sortBy") || undefined,
+      request.query.get("sortOrder") || undefined
+    );
 
-    // Build query with filters
-    let whereConditions = [
-      `c.organizationId = ${organizationId}`,
-      "c.isDeleted = false",
-    ];
+    const statusFilter = validateStatusFilter(request.query.get("status"));
+    const searchTerm = validateSearchTermParam(
+      request.query.get("searchTerm") || ""
+    );
 
-    // Add status filter if provided
-    if (statusParam !== null && statusParam !== "") {
-      const statusValue = parseInt(statusParam, 10);
-      if (!isNaN(statusValue) && statusValue >= 0 && statusValue <= 3) {
-        whereConditions.push(`c.status = ${statusValue}`);
-      }
-    }
-
-    // Add search filter if provided
-    if (searchTerm) {
-      const escapedSearchTerm = searchTerm.replace(/'/g, "''");
-      whereConditions.push(
-        `(CONTAINS(LOWER(c.name), LOWER('${escapedSearchTerm}')) OR CONTAINS(LOWER(c.description), LOWER('${escapedSearchTerm}')))`
-      );
-    }
-
-    const whereClause = whereConditions.join(" AND ");
-
-    // Count total items matching the filter
+    // Get Cosmos client and fetch data
     const client = getDefaultCosmosClient();
-    const countQuery = `SELECT VALUE COUNT(1) FROM c WHERE ${whereClause}`;
-    const countResult = await client
-      .database("TaskApp")
-      .container("Tasks")
-      .items.query<number>(countQuery)
-      .fetchAll();
-
-    const totalCount = countResult.resources[0] || 0;
-    const totalPages = Math.ceil(totalCount / pageSize);
-
-    // Fetch paginated and sorted data
-    const dataQuery = `SELECT * FROM c WHERE ${whereClause} ORDER BY c.${sortField} ${sortDirection} OFFSET ${offset} LIMIT ${pageSize}`;
-    const tasksResult = await client
-      .database("TaskApp")
-      .container("Tasks")
-      .items.query<ITaskDBStruct>(dataQuery)
-      .fetchAll();
-
-    const paginatedResponse: IPaginatedResponse<ITaskDBStruct> = {
-      items: tasksResult.resources,
-      totalCount,
+    const paginatedResponse = await getTasksList(
+      client,
+      organizationId,
       pageNumber,
       pageSize,
-      totalPages,
-    };
+      statusFilter || undefined,
+      searchTerm || undefined,
+      sortField,
+      sortDirection
+    );
 
-    return createResponse(paginatedResponse, 200);
+    logger.info("Successfully retrieved tasks", {
+      pageNumber,
+      pageSize,
+      totalCount: paginatedResponse.totalCount,
+    });
+
+    const response = createSuccessResponse(paginatedResponse, HTTP_STATUS.OK);
+    return {
+      jsonBody: response,
+      status: response.status,
+    };
   } catch (e) {
-    if (e instanceof HttpError) {
-      return e.createResponse();
+    if (e instanceof AppError) {
+      logger.error(e.message, e, { code: e.code });
+      const errorResponse = createErrorResponse(e, e.status);
+      return {
+        jsonBody: errorResponse,
+        status: errorResponse.status,
+      };
     }
-    return response500("GetTasks", e);
+
+    logger.error("Unexpected error", e as Error);
+    const errorResponse = createErrorResponse(
+      "Internal Server Error",
+      HTTP_STATUS.INTERNAL_SERVER_ERROR
+    );
+    return {
+      jsonBody: errorResponse,
+      status: errorResponse.status,
+    };
   }
 }
 
@@ -105,6 +113,3 @@ app.http("GetTasks", {
   authLevel: "anonymous",
   handler: GetTasks,
 });
-
-// query params: organizationId (required), pageNumber (default: 1), pageSize (default: 10, max: 100), 
-// searchTerm (optional), status (optional: 0-3), sortBy (default: createdAt), sortOrder (default: desc)
