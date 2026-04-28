@@ -20,7 +20,15 @@ Simple Azure Functions backend for task management backed by Azure Cosmos DB.
    npm install
    ```
 
-2. Create or update `local.settings.json` (example):
+2. Configure Azure Cosmos DB for local development:
+
+   **Option A: Azure Cosmos DB Emulator (Recommended for local testing)**
+   
+   The Azure Cosmos DB Emulator provides a local environment that emulates the Azure Cosmos DB service for free. It's ideal for development and testing without using Azure resources.
+
+   - Download and install the [Azure Cosmos DB Emulator](https://learn.microsoft.com/azure/cosmos-db/how-to-develop-emulator)
+   - Start the emulator (runs on `https://localhost:8081` by default)
+   - Update `local.settings.json` with emulator credentials:
 
    ```json
    {
@@ -28,8 +36,9 @@ Simple Azure Functions backend for task management backed by Azure Cosmos DB.
      "Values": {
        "FUNCTIONS_WORKER_RUNTIME": "node",
        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-       "COSMOS_ENDPOINT": "https://<your-cosmos-account>.documents.azure.com:443/",
-       "COSMOS_REGIONS": "East US",
+       "COSMOS_ENDPOINT": "https://localhost:8081",
+       "COSMOS_KEY": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+       "COSMOS_REGIONS": "East US,West US",
        "APP_VERSION": "1.0.0",
        "ENVIRONMENT": "development",
        "DEBUG": "true"
@@ -37,7 +46,17 @@ Simple Azure Functions backend for task management backed by Azure Cosmos DB.
    }
    ```
 
-   - For local Cosmos development use the Cosmos emulator or point `COSMOS_ENDPOINT` to a test account.
+   **Option B: Azure Cosmos DB Account**
+   
+   If you have an Azure subscription, you can use an actual Cosmos DB account:
+   - Create a free Cosmos DB account in the Azure Portal
+   - Copy the endpoint and key from the Azure Portal
+   - Update `local.settings.json` with your actual credentials
+
+   **Required Configuration:**
+   - `COSMOS_ENDPOINT` - Cosmos DB account URI (required)
+   - `COSMOS_KEY` - Cosmos DB account key (required for authentication)
+   - `COSMOS_REGIONS` - Preferred regions for multi-region deployment (optional, defaults to single region)
 
 3. Start the TypeScript watcher and function host (two terminals):
 
