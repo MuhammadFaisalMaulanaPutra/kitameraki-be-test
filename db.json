@@ -1,0 +1,246 @@
+{
+  "tasks": [
+    {
+      "id": "task-001",
+      "organizationId": "org1",
+      "title": "Design system architecture",
+      "status": "done",
+      "priority": "high",
+      "dueDate": "2025-01-15",
+      "description": "Create the overall system architecture diagram and documentation.",
+      "assignedTo": "alice@example.com",
+      "customFields": {
+        "clientName": "Acme Corp",
+        "estimatedHours": "40"
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "task-002",
+      "organizationId": "org1",
+      "title": "Implement authentication",
+      "status": "in-progress",
+      "priority": "high",
+      "dueDate": "2025-02-01",
+      "description": "Set up OAuth2 and JWT-based authentication.",
+      "assignedTo": "bob@example.com",
+      "customFields": {
+        "clientName": "Acme Corp",
+        "estimatedHours": "32"
+      },
+      "createdAt": "2025-01-05T00:00:00.000Z",
+      "updatedAt": "2025-01-12T00:00:00.000Z"
+    },
+    {
+      "id": "task-003",
+      "organizationId": "org1",
+      "title": "Write API documentation",
+      "status": "todo",
+      "priority": "medium",
+      "dueDate": "2025-02-10",
+      "description": "Document all REST endpoints with OpenAPI spec.",
+      "assignedTo": "charlie@example.com",
+      "customFields": {
+        "clientName": "Beta Inc",
+        "estimatedHours": "16"
+      },
+      "createdAt": "2025-01-08T00:00:00.000Z",
+      "updatedAt": "2025-01-08T00:00:00.000Z"
+    },
+    {
+      "id": "task-004",
+      "organizationId": "org1",
+      "title": "Setup CI/CD pipeline",
+      "status": "todo",
+      "priority": "medium",
+      "dueDate": "2025-02-15",
+      "description": "Configure GitHub Actions for automated testing and deployment.",
+      "assignedTo": "diana@example.com",
+      "customFields": {
+        "clientName": "Gamma LLC",
+        "estimatedHours": "24"
+      },
+      "createdAt": "2025-01-10T00:00:00.000Z",
+      "updatedAt": "2025-01-10T00:00:00.000Z"
+    },
+    {
+      "id": "task-005",
+      "organizationId": "org1",
+      "title": "Frontend unit tests",
+      "status": "in-progress",
+      "priority": "low",
+      "dueDate": "2025-02-20",
+      "description": "Write Jest + React Testing Library tests for all components.",
+      "assignedTo": "eve@example.com",
+      "customFields": {
+        "clientName": "Beta Inc",
+        "estimatedHours": "20"
+      },
+      "createdAt": "2025-01-11T00:00:00.000Z",
+      "updatedAt": "2025-01-14T00:00:00.000Z"
+    },
+    {
+      "id": "task-006",
+      "organizationId": "org1",
+      "title": "Performance optimization",
+      "status": "todo",
+      "priority": "high",
+      "dueDate": "2025-03-01",
+      "description": "Optimize bundle size and lazy load heavy components.",
+      "assignedTo": "frank@example.com",
+      "customFields": {
+        "clientName": "Acme Corp",
+        "estimatedHours": "48"
+      },
+      "createdAt": "2025-01-12T00:00:00.000Z",
+      "updatedAt": "2025-01-12T00:00:00.000Z"
+    },
+    {
+      "id": "task-007",
+      "organizationId": "org1",
+      "title": "User acceptance testing",
+      "status": "todo",
+      "priority": "medium",
+      "dueDate": "2025-03-05",
+      "description": "Coordinate with stakeholders for UAT sessions.",
+      "assignedTo": "grace@example.com",
+      "customFields": {
+        "clientName": "Gamma LLC",
+        "estimatedHours": "12"
+      },
+      "createdAt": "2025-01-13T00:00:00.000Z",
+      "updatedAt": "2025-01-13T00:00:00.000Z"
+    },
+    {
+      "id": "106a3e80-3ac6-4043-9f0c-1bb275412d5a",
+      "title": "Setup CI/CD Pipeline",
+      "organizationId": "org1",
+      "status": "in-progress",
+      "priority": "high",
+      "dueDate": "2026-04-28",
+      "description": "Konfigurasi GitHub Actions untuk deploy otomatis ke server staging.",
+      "assignedTo": "ahmad.dev@gmail.com",
+      "customFields": {
+        "clientName": "TechNova Solutions",
+        "estimatedHours": "8"
+      },
+      "createdAt": "2026-04-28T16:49:55.707Z",
+      "updatedAt": "2026-04-28T16:49:55.707Z"
+    },
+    {
+      "id": "ed21855e-f9ca-4176-9fb3-05bcba7b608c",
+      "title": "Fix Memory Leak",
+      "organizationId": "org1",
+      "status": "todo",
+      "priority": "high",
+      "dueDate": "2026-04-30",
+      "description": "Investigasi dan perbaikan penggunaan memori yang melonjak pada modul laporan.",
+      "assignedTo": "sara.backend@gmail.com",
+      "customFields": {
+        "clientName": "Global Retail",
+        "estimatedHours": "12"
+      },
+      "createdAt": "2026-04-28T16:50:44.902Z",
+      "updatedAt": "2026-04-28T16:50:44.902Z"
+    },
+    {
+      "id": "5d200269-38c6-4407-aaa4-e249e86f61ce",
+      "title": "UI Redesign Landing Page",
+      "organizationId": "org1",
+      "status": "done",
+      "priority": "medium",
+      "dueDate": "2026-04-28",
+      "description": "Implementasi desain Figma baru menggunakan Tailwind CSS untuk beranda.",
+      "assignedTo": "budi.uiux@gmail.com",
+      "customFields": {
+        "clientName": "Creative Agency",
+        "estimatedHours": "20"
+      },
+      "createdAt": "2026-04-28T16:51:44.515Z",
+      "updatedAt": "2026-04-28T16:51:44.515Z"
+    },
+    {
+      "id": "564037b9-74c2-42e4-af47-30ee51f4354c",
+      "title": "API Integration Payment",
+      "organizationId": "org1",
+      "status": "in-progress",
+      "priority": "high",
+      "dueDate": "2026-05-05",
+      "description": "Integrasi payment gateway Midtrans untuk modul checkout.",
+      "assignedTo": "deni.fullstack@gmail.com",
+      "customFields": {
+        "clientName": "E-Shop ID",
+        "estimatedHours": "16"
+      },
+      "createdAt": "2026-04-28T16:52:42.368Z",
+      "updatedAt": "2026-04-28T16:52:42.368Z"
+    },
+    {
+      "id": "b8e18980-8a5e-4d98-b132-b5e8bec75df1",
+      "title": "Unit Testing Auth Module",
+      "organizationId": "org1",
+      "status": "todo",
+      "priority": "medium",
+      "dueDate": "2026-05-01",
+      "description": "Membuat test case untuk login, register, dan reset password (Jest).",
+      "assignedTo": "sara.backend@gmail.com",
+      "customFields": {
+        "clientName": "FinTech Corp",
+        "estimatedHours": "10"
+      },
+      "createdAt": "2026-04-28T16:53:51.353Z",
+      "updatedAt": "2026-04-28T16:53:51.353Z"
+    }
+  ],
+  "settings": [
+    {
+      "organizationId": "org1",
+      "fields": [
+        {
+          "id": "title",
+          "label": "Title",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "description",
+          "label": "Description",
+          "type": "text"
+        },
+        {
+          "id": "status",
+          "label": "Status",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "priority",
+          "label": "Priority",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "dueDate",
+          "label": "Due Date",
+          "type": "date"
+        },
+        {
+          "id": "assignedTo",
+          "label": "Assigned To",
+          "type": "email"
+        },
+        {
+          "id": "clientName",
+          "label": "Client Name",
+          "type": "text"
+        },
+        {
+          "id": "estimatedHours",
+          "label": "Estimated Hours",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
