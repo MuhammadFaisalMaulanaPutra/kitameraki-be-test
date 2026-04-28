@@ -4,7 +4,7 @@
  * Provides a clean abstraction layer for data access
  */
 
-import { CosmosClient } from "@azure/cosmos";
+import { CosmosClient, ExistingKeyOperation } from "@azure/cosmos";
 import { DB_CONFIG } from "../constants";
 import { ITaskDBStruct, IPaginatedResponse } from "../interfaces/Task.interface";
 import {
@@ -149,7 +149,7 @@ export async function updateTask(
   client: CosmosClient,
   taskId: string,
   organizationId: number,
-  updates: Array<{ op: "replace" | "add" | "remove" | "set" | "incr"; path: string; value?: any }>
+  updates: Array<ExistingKeyOperation>
 ): Promise<ITaskDBStruct> {
   const container = getTasksContainer(client);
   const { resource } = await container

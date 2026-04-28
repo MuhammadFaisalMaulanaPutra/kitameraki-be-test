@@ -19,6 +19,7 @@ import {
   Logger,
 } from "../libs/errorHandling";
 
+import { ExistingKeyOperation } from "@azure/cosmos";
 /**
  * UpdateTask function - Updates an existing task
  * Query parameters:
@@ -50,11 +51,7 @@ export async function UpdateTask(
     validateTaskUpdateData(body);
 
     // Build patch operations, excluding protected fields
-    const patchRequests: Array<{
-      op: "replace" | "add" | "remove" | "set" | "incr";
-      path: string;
-      value?: any;
-    }> = [];
+    const patchRequests: Array<ExistingKeyOperation> = [];
 
     for (const key in body) {
       if (!(PROTECTED_FIELDS as readonly string[]).includes(key)) {
