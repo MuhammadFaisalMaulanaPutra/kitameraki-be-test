@@ -94,6 +94,6 @@ export async function UpdateTaskStatus(
 
 app.http("UpdateTaskStatus", {
   methods: ["POST"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: UpdateTaskStatus,
 });

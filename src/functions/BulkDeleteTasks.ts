@@ -94,6 +94,6 @@ export async function BulkDeleteTasks(
 
 app.http("BulkDeleteTasks", {
   methods: ["DELETE"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: BulkDeleteTasks,
 });

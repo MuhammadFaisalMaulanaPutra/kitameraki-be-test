@@ -119,6 +119,6 @@ export async function InsertTask(
 
 app.http("InsertTask", {
   methods: ["POST"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: InsertTask,
 });

@@ -66,13 +66,22 @@ Simple Azure Functions backend for task management backed by Azure Cosmos DB.
    - `ENVIRONMENT=production`
    - `AzureWebJobsStorage` (storage account connection string)
 
-4. Security recommendations:
+4. Security:
 
-   - Enable Managed Identity for the Function App and grant it access to Cosmos DB (preferred).
-   - Use Azure Key Vault for secrets and connection strings.
-   - Protect HTTP endpoints with authentication (Azure AD or function keys) before exposing publicly.
+   - Function keys are required for all endpoints (set `authLevel: "function"`).
+   - Generate and manage function keys in Azure Portal or via Azure CLI.
+   - Store keys securely and rotate periodically.
+   - Pass the key in the `x-functions-key` header on each request.
+
+   Example API call:
+   ```bash
+   curl -X GET "https://<function-app>.azurewebsites.net/api/GetTasks?organizationId=1" \
+     -H "x-functions-key: <your-function-key>"
+   ```
 
 ## API Endpoints
+
+All endpoints require `x-functions-key` header:
 
 - `GET /GetTasks?organizationId={orgId}&pageNumber={n}&pageSize={n}&searchTerm={q}&status={0|1|2|3}`
 - `GET /GetTask?organizationId={orgId}&id={taskId}`
@@ -93,8 +102,8 @@ Simple Azure Functions backend for task management backed by Azure Cosmos DB.
 
 ## Notes
 
+- All HTTP endpoints require a valid function key for authentication.
 - The project uses `DefaultAzureCredential` and is designed to run with a Managed Identity in production.
-- All HTTP endpoints are currently open (`authLevel: "anonymous"`). Secure and authenticate before production use.
 - Database operations use soft deletes (`isDeleted` flag).
 
 ## Contributing

@@ -77,6 +77,6 @@ export async function DeleteTask(
 
 app.http("DeleteTask", {
   methods: ["DELETE"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: DeleteTask,
 });

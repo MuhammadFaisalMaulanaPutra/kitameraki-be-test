@@ -113,6 +113,6 @@ export async function UpdateTask(
 
 app.http("UpdateTask", {
   methods: ["POST"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: UpdateTask,
 });

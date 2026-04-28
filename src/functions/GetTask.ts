@@ -80,6 +80,6 @@ export async function GetTask(
 
 app.http("GetTask", {
   methods: ["GET"],
-  authLevel: "anonymous",
+  authLevel: "function",
   handler: GetTask,
 });
