@@ -24,3 +24,15 @@ export interface ITaskDBStruct extends ITask {
 }
 
 export interface ITaskPostData extends ITask {}
+
+export interface IPaginatedResponse<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface IUpdateTaskStatusData {
+  status: ETaskStatus;
+}

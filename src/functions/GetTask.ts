@@ -5,24 +5,44 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { getDefaultCosmosClient } from "../cosmos.util";
+import { createResponse, HttpError, response500 } from "../libs/http";
 
 export async function GetTask(
   request: HttpRequest,
   context: InvocationContext,
 ): Promise<HttpResponseInit> {
-  context.log(`Http function processed request for url "${request.url}"`);
+  try {
+    context.log(`Http function processed request for url "${request.url}"`);
 
-  const taskId = request.query.get("id");
-  const organizationId = request.query.get("organizationId");
+    const taskId = request.query.get("id");
+    const organizationId = request.query.get("organizationId");
 
-  const client = getDefaultCosmosClient();
-  const task = await client
-    .database("TaskApp")
-    .container("Tasks")
-    .item(taskId, organizationId)
-    .read();
+    if (!taskId) {
+      throw new HttpError("Task ID is required", 400);
+    }
 
-  return { jsonBody: task.resource, status: 200 };
+    if (!organizationId) {
+      throw new HttpError("Organization ID is required", 400);
+    }
+
+    const client = getDefaultCosmosClient();
+    const task = await client
+      .database("TaskApp")
+      .container("Tasks")
+      .item(taskId, organizationId)
+      .read();
+
+    if (!task.resource) {
+      throw new HttpError("Task not found", 404);
+    }
+
+    return createResponse(task.resource, 200);
+  } catch (e) {
+    if (e instanceof HttpError) {
+      return e.createResponse();
+    }
+    return response500("GetTask", e);
+  }
 }
 
 app.http("GetTask", {
@@ -31,4 +51,4 @@ app.http("GetTask", {
   handler: GetTask,
 });
 
-// param: organizationId, id
+// query params: organizationId (required), id (required)
