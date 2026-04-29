@@ -4,7 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import { HTTP_STATUS } from "../constants";
 import { getTaskById } from "../services/taskService";
 import {
@@ -41,7 +41,7 @@ export async function GetTask(
     const taskId = validateTaskId(request.query.get("id"));
 
     // Get task from database
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     const task = await getTaskById(client, taskId, organizationId);
 
     if (!task) {

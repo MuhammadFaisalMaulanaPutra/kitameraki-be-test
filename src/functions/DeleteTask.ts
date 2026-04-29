@@ -4,7 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import { HTTP_STATUS } from "../constants";
 import { softDeleteTask } from "../services/taskService";
 import {
@@ -40,7 +40,7 @@ export async function DeleteTask(
     const taskId = validateTaskId(request.query.get("id"));
 
     // Delete task from database
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     await softDeleteTask(client, taskId, organizationId);
 
     logger.info("Task deleted successfully", { taskId });

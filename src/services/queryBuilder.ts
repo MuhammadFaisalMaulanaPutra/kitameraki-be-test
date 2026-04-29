@@ -42,7 +42,7 @@ export function buildCountQuery(
     "c.isDeleted = false",
   ];
 
-  if (status !== undefined && status !== null) {
+  if (typeof status === "number") {
     conditions.push(`c.status = ${status}`);
   }
 

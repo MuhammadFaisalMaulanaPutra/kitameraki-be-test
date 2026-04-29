@@ -4,7 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import { HTTP_STATUS, PROTECTED_FIELDS } from "../constants";
 import { updateTask } from "../services/taskService";
 import {
@@ -71,7 +71,7 @@ export async function UpdateTask(
     });
 
     // Update task in database
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     const updatedTask = await updateTask(
       client,
       taskId,

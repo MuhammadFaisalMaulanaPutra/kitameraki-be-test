@@ -4,7 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import { HTTP_STATUS } from "../constants";
 import { bulkSoftDeleteTasks } from "../services/taskService";
 import {
@@ -46,7 +46,7 @@ export async function BulkDeleteTasks(
     logger.info("Deleting tasks", { count: taskIds.length });
 
     // Delete tasks from database
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     const deletedCount = await bulkSoftDeleteTasks(
       client,
       taskIds,

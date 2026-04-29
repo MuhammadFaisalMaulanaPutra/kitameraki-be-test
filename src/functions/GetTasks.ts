@@ -4,7 +4,7 @@ import {
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import { HTTP_STATUS } from "../constants";
 import { getTasksList } from "../services/taskService";
 import {
@@ -63,13 +63,13 @@ export async function GetTasks(
     );
 
     // Get Cosmos client and fetch data
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     const paginatedResponse = await getTasksList(
       client,
       organizationId,
       pageNumber,
       pageSize,
-      statusFilter || undefined,
+      typeof statusFilter === "number" ? statusFilter : undefined,
       searchTerm || undefined,
       sortField,
       sortDirection
@@ -96,7 +96,11 @@ export async function GetTasks(
       };
     }
 
-    logger.error("Unexpected error", e as Error);
+    logger.error("Unexpected error", e as Error, { 
+      message: (e as Error).message,
+      stack: (e as Error).stack,
+      name: (e as Error).name
+    });
     const errorResponse = createErrorResponse(
       "Internal Server Error",
       HTTP_STATUS.INTERNAL_SERVER_ERROR

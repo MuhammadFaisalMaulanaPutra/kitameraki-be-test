@@ -5,7 +5,7 @@ import {
   InvocationContext,
 } from "@azure/functions";
 
-import { getDefaultCosmosClient } from "../cosmos.util";
+import { getInitializedCosmosClient } from "../cosmos.util";
 import {
   ALLOWED_TASK_FIELDS,
   HTTP_STATUS,
@@ -73,7 +73,7 @@ export async function InsertTask(
     }
 
     // Create task in database
-    const client = getDefaultCosmosClient();
+    const client = await getInitializedCosmosClient();
     const createdTask = await createTask(client, toInsert);
 
     logger.info("Task created successfully", { taskId: createdTask.id });
