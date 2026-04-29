@@ -4,7 +4,7 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const body = await request.json();
 
-    const client = new CosmosClient("this is a connection string");
+    const client = new CosmosClient(process.env.COSMOS_DB_CONNECTION_STRING);
     const createdTask = await client.database("TaskApp")
         .container("Tasks")
         .items.create(body);

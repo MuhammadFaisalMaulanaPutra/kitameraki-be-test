@@ -1,0 +1,42 @@
+{
+  "title": "FormSettings",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["text", "date", "datetime", "email"]
+          },
+          "column": {
+            "type": "number",
+            "enum": [1, 2]
+          },
+          "order": {
+            "type": "number"
+          }
+        },
+        "required": ["label", "key", "type", "column", "order"]
+      }
+    }
+  },
+  "required": ["id", "organizationId", "fields"],
+  "additionalProperties": false
+}
