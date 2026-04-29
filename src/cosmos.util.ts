@@ -25,6 +25,9 @@ export function getDefaultCosmosClient(): CosmosClient {
   const cosmosKey = process.env.COSMOS_KEY;
 
   if (cosmosKey) {
+    // allow unauthorized cert in local development
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
     // Use key-based authentication for local development/emulator
     cosmosClient = new CosmosClient({
       key: cosmosKey,
