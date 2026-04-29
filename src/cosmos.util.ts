@@ -62,14 +62,20 @@ async function initializeDatabase(): Promise<void> {
       id: DB_CONFIG.DATABASE_NAME,
     });
 
-    // Check if container exists, create if not
+    // Check if Tasks container exists, create if not
     await database.containers.createIfNotExists({
       id: DB_CONFIG.CONTAINER_NAME,
       partitionKey: { paths: ["/organizationId"] },
     });
 
+    // Check if FormSettings container exists, create if not
+    await database.containers.createIfNotExists({
+      id: DB_CONFIG.FORM_SETTINGS_CONTAINER_NAME,
+      partitionKey: { paths: ["/organizationId"] },
+    });
+
     isInitialized = true;
-    console.log(`Database "${DB_CONFIG.DATABASE_NAME}" and container "${DB_CONFIG.CONTAINER_NAME}" initialized successfully.`);
+    console.log(`Database "${DB_CONFIG.DATABASE_NAME}" initialized with containers "${DB_CONFIG.CONTAINER_NAME}" and "${DB_CONFIG.FORM_SETTINGS_CONTAINER_NAME}".`);
   } catch (error) {
     console.error("Failed to initialize database:", error);
     throw error;

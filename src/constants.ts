@@ -7,6 +7,7 @@
 export const DB_CONFIG = {
   DATABASE_NAME: "TaskApp",
   CONTAINER_NAME: "Tasks",
+  FORM_SETTINGS_CONTAINER_NAME: "FormSettings",
 } as const;
 
 // ============ PAGINATION CONFIGURATION ============
@@ -88,4 +89,10 @@ export const ERROR_MESSAGES = {
   INVALID_PAGE_NUMBER: "Page number must be a positive integer",
   INVALID_STATUS_VALUE: "Invalid status value",
   INVALID_TASK_IDS: "Task IDs array is required and must not be empty",
+  INVALID_FIELD_TYPE: "Invalid field type. Must be one of: text, date, datetime, email",
+  INVALID_COLUMN: "Column must be 0 or 1",
+  INVALID_ORDER: "Order must be a non-negative number",
+  FIELD_LABEL_REQUIRED: "Field label is required",
+  FIELD_ID_REQUIRED: "Field ID is required",
+  FIELDS_ARRAY_REQUIRED: "Fields array is required",
 } as const;

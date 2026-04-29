@@ -50,13 +50,16 @@ export async function UpdateTask(
     const body = (await request.json()) as any;
     validateTaskUpdateData(body);
 
+    logger.info("Request body for update", { body });
+
     // Build patch operations, excluding protected fields
     const patchRequests: Array<ExistingKeyOperation> = [];
 
     for (const key in body) {
       if (!(PROTECTED_FIELDS as readonly string[]).includes(key)) {
+        // Use 'add' operation for custom fields (will create if doesn't exist, replace if exists)
         patchRequests.push({
-          op: "replace" as const,
+          op: "add" as const,
           path: `/${key}`,
           value: body[key],
         });
@@ -72,6 +75,8 @@ export async function UpdateTask(
 
     // Update task in database
     const client = await getInitializedCosmosClient();
+    logger.info("Patch requests", { patchRequests });
+
     const updatedTask = await updateTask(
       client,
       taskId,
