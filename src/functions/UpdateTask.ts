@@ -1,33 +1,35 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { PatchOperation } from '@azure/cosmos';
+import { getCosmosClient } from '../libs/cosmosClient';
+import { ok, errorResponse } from '../libs/response';
+import { patchTask } from '../services/taskService';
+import { parseOrganizationId, parseTaskId, validateUpdateBody } from '../validators/taskValidator';
 
+export async function UpdateTask(request: HttpRequest, _context: InvocationContext): Promise<HttpResponseInit> {
+  try {
+    const organizationId = parseOrganizationId(request.query.get('organizationId'));
+    const taskId = parseTaskId(request.query.get('id'));
+    const fields = validateUpdateBody(await request.json());
 
-export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    const ops: PatchOperation[] = [
+      ...Object.entries(fields).map(([key, value]) => ({
+        op: 'add' as const,
+        path: `/${key}`,
+        value,
+      })),
+      { op: 'replace' as const, path: '/updatedAt', value: new Date().toISOString() },
+    ];
 
-    let patchRequests = [];
-
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
-    }
-
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
-
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    const client = getCosmosClient();
+    const task = await patchTask(client, taskId, organizationId, ops);
+    return ok(task);
+  } catch (err) {
+    return errorResponse(err);
+  }
+}
 
 app.http('UpdateTask', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    handler: UpdateTask
+  methods: ['POST'],
+  authLevel: 'anonymous',
+  handler: UpdateTask,
 });

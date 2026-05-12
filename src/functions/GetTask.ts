@@ -1,23 +1,25 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { getCosmosClient } from '../libs/cosmosClient';
+import { ok, errorResponse, NotFoundError } from '../libs/response';
+import { getTaskById } from '../services/taskService';
+import { parseOrganizationId, parseTaskId } from '../validators/taskValidator';
 
-export async function GetTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
+export async function GetTask(request: HttpRequest, _context: InvocationContext): Promise<HttpResponseInit> {
+  try {
+    const organizationId = parseOrganizationId(request.query.get('organizationId'));
+    const taskId = parseTaskId(request.query.get('id'));
 
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
-
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .read();
-
-    return { jsonBody: task.resource, status: 200 };
-};
+    const client = getCosmosClient();
+    const task = await getTaskById(client, taskId, organizationId);
+    if (!task) throw new NotFoundError('Task not found');
+    return ok(task);
+  } catch (err) {
+    return errorResponse(err);
+  }
+}
 
 app.http('GetTask', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTask
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  handler: GetTask,
 });
