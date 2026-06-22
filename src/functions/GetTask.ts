@@ -1,23 +1,62 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+  app,
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
+import { container } from "../database/cosmos";
 
-export async function GetTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
+export async function GetTask(
+  request: HttpRequest,
+  context: InvocationContext,
+): Promise<HttpResponseInit> {
+  const taskId = request.query.get("id");
+  const organizationId = request.query.get("organizationId");
 
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+  if (!taskId || !organizationId) {
+    return {
+      status: 400,
+      jsonBody: {
+        message: "id and organizationId are required",
+      },
+    };
+  }
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .read();
+  try {
+    const { resource } = await container.item(taskId, organizationId).read();
 
-    return { jsonBody: task.resource, status: 200 };
-};
+    if (!resource) {
+      return {
+        status: 404,
+        jsonBody: {
+          message: "Task not found",
+        },
+      };
+    }
 
-app.http('GetTask', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTask
+    return {
+      status: 200,
+      jsonBody: {
+        data: resource,
+      },
+    };
+  } catch (error) {
+    context.error(
+      `Failed to get task. taskId=${taskId}, organizationId=${organizationId}`,
+      error,
+    );
+
+    return {
+      status: 500,
+      jsonBody: {
+        message: "Failed to get task",
+      },
+    };
+  }
+}
+
+app.http("GetTask", {
+  methods: ["GET"],
+  authLevel: "function",
+  handler: GetTask,
 });
