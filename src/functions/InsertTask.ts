@@ -44,6 +44,7 @@ export async function InsertTask(
       organizationId: body.organizationId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      customFields: body.customFields ?? {},
     };
 
     const result = await container.items.create(newTask);

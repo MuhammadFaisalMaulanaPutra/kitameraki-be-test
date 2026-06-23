@@ -13,6 +13,7 @@ const ALLOWED_FIELDS = [
   "priority",
   "assignee",
   "dueDate",
+  "customFields",
 ] as const;
 
 function buildPatchOperations(body: any) {
@@ -21,7 +22,7 @@ function buildPatchOperations(body: any) {
   for (const key of ALLOWED_FIELDS) {
     if (body[key] !== undefined) {
       ops.push({
-        op: "replace",
+        op: key === "customFields" ? "set" : "replace",
         path: `/${key}`,
         value: body[key],
       });

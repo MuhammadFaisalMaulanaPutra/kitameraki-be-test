@@ -13,3 +13,4 @@ export const client = new CosmosClient({
 
 export const database = client.database(databaseName);
 export const container = database.container(containerName);
+export const settingsContainer = database.container("form-settings");
