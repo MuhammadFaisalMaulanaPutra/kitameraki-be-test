@@ -44,6 +44,11 @@
         "maxLength": 50
       },
       "description": "Tags associated with the task"
+    },
+    "dynamicData": {
+      "type": "object",
+      "description": "Dynamic field values from form builder. Keys are FormFieldConfig IDs.",
+      "additionalProperties": true
     }
   },
   "required": ["id", "organizationId", "title", "status"],
