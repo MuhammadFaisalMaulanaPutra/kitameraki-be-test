@@ -1,24 +1,25 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest } from '@azure/functions';
+import { noContent } from '../http/respond';
+import { withErrorHandling } from '../http/withErrorHandling';
+import { bulkDeleteSchema, organizationQuerySchema } from '../schemas/task';
+import { bulkDeleteTasks } from '../repositories/taskRepository';
 
-export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
+/**
+ * POST /api/tasks/bulk-delete?organizationId=… — body: { ids: string[] }.
+ * POST (not DELETE) because request bodies on DELETE are unreliable across
+ * proxies/fetch. Waits for every delete to finish before responding.
+ */
+export const bulkDelete = withErrorHandling(async (request: HttpRequest) => {
+  const { organizationId } = organizationQuerySchema.parse(Object.fromEntries(request.query.entries()));
+  const { ids } = bulkDeleteSchema.parse(await request.json());
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
-
-    return { status: 200 };
-};
+  await bulkDeleteTasks(ids, organizationId);
+  return noContent();
+});
 
 app.http('BulkDeleteTasks', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+  methods: ['POST'],
+  authLevel: 'anonymous',
+  route: 'tasks/bulk-delete',
+  handler: bulkDelete,
 });

@@ -1,21 +1,29 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest } from '@azure/functions';
+import { ok } from '../http/respond';
+import { withErrorHandling } from '../http/withErrorHandling';
+import { listTasksQuerySchema } from '../schemas/task';
+import { listTasks } from '../repositories/taskRepository';
 
-export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const organizationId = request.query.get('organizationId');
+/** GET /api/tasks — paginated, filterable, searchable list scoped to an org. */
+export const getTasks = withErrorHandling(async (request: HttpRequest) => {
+  const { organizationId, page, pageSize, status, priority, search } = listTasksQuerySchema.parse(
+    Object.fromEntries(request.query.entries()),
+  );
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+  const { items, total } = await listTasks({ organizationId, status, priority, search }, page, pageSize);
 
-    return { jsonBody: task.resources, status: 200 };
-};
+  return ok({
+    items,
+    page,
+    pageSize,
+    total,
+    totalPages: Math.max(1, Math.ceil(total / pageSize)),
+  });
+});
 
 app.http('GetTasks', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTasks
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'tasks',
+  handler: getTasks,
 });
