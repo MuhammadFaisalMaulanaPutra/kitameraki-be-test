@@ -1,0 +1,43 @@
+{
+  "title": "Form",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the custom field"
+    },
+    "formOrder": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Display order of the custom field in the form"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the organization that owns the custom field"
+    },
+    "label": {
+      "type": "string",
+      "maxLength": 100,
+      "description": "Display label of the custom field"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "email",
+        "date"
+      ],
+      "description": "Data type of the custom field"
+    }
+  },
+  "required": [
+    "id",
+    "formOrder",
+    "organizationId",
+    "label",
+    "type"
+  ],
+  "additionalProperties": false
+}

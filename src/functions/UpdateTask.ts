@@ -1,33 +1,49 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-
+import client from "../config/Cosmos";
+import { PatchOperation } from "@azure/cosmos";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    const body = await request.json() as Record<string, any>;
+    const taskId = request.params.id;
+    const organizationId = body.organizationId;
 
-    let patchRequests = [];
-
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
+    if (!taskId) {
+        return { jsonBody: { message: "Task ID is required" }, status: 400 };
     }
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
+    if (!organizationId) {
+        return { jsonBody: { message: "Organization ID is required" }, status: 400 };
+    }
 
-    return { jsonBody: createdTask.resource, status: 200 };
+    try {
+        const patchRequests: PatchOperation[] = Object.entries(body)
+            .filter(([key]) => key !== "id")
+            .map(([key, value]) => ({
+                op: "replace",
+                path: `/${key}`,
+                value
+            }));
+
+        const updatedTask = await client
+            .database("TaskApp")
+            .container("Tasks")
+            .item(taskId, organizationId)
+            .patch(patchRequests);
+
+        return { jsonBody: updatedTask.resource, status: 200 };
+
+    } catch (error: any) {
+        if (error.code === 404 || error.statusCode === 404) {
+            return { jsonBody: { message: "Task not found" }, status: 404 };
+        }
+
+        return { jsonBody: { message: error.message }, status: 500 };
+    }
 };
 
 app.http('UpdateTask', {
-    methods: ['POST'],
+    methods: ['PUT'],
     authLevel: 'anonymous',
+    route: 'UpdateTask/{id}',
     handler: UpdateTask
 });
