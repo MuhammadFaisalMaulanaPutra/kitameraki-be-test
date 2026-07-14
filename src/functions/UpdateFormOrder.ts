@@ -11,11 +11,6 @@ export async function updateFormOrder(request: HttpRequest, context: InvocationC
         return { jsonBody: { message: "Organization ID is required" }, status: 400 }
     }
 
-    if (!formId) {
-        return { jsonBody: { message: "Form ID is required" }, status: 400 }
-    }
-
-
     const orderIds: string[] = body.orderIds;
     try {
 
@@ -25,7 +20,7 @@ export async function updateFormOrder(request: HttpRequest, context: InvocationC
                     .database("TaskApp")
                     .container("Form")
                     .item(id, organizationId)
-                    .patch([{ op: "replace", path: "/order", value: index + 1 }]);
+                    .patch([{ op: "replace", path: "/formOrder", value: index + 1 }]);
             })
         );
 
@@ -50,6 +45,6 @@ export async function updateFormOrder(request: HttpRequest, context: InvocationC
 app.http('UpdateFormOrder', {
     methods: ['PATCH'],
     authLevel: 'anonymous',
-    route: 'UpdateFormOrder/{id}',
+    route: 'UpdateFormOrder',
     handler: updateFormOrder
 });

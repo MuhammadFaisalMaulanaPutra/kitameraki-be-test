@@ -19,7 +19,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
         const patchRequests: PatchOperation[] = Object.entries(body)
             .filter(([key]) => key !== "id")
             .map(([key, value]) => ({
-                op: "replace",
+                op: "set",
                 path: `/${key}`,
                 value
             }));
