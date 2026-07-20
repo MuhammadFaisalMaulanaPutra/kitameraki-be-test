@@ -26,3 +26,14 @@ export function getTasksContainer(): Container {
     .database(config.COSMOS_DATABASE_NAME)
     .container(config.COSMOS_TASKS_CONTAINER);
 }
+
+/**
+ * Mendapatkan reference ke FormSettings container.
+ * Menyimpan konfigurasi form kustom per organization.
+ */
+export function getFormSettingsContainer(): Container {
+  const config = getEnvConfig();
+  return getCosmosClient()
+    .database(config.COSMOS_DATABASE_NAME)
+    .container(config.COSMOS_FORM_SETTINGS_CONTAINER);
+}

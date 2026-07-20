@@ -15,6 +15,10 @@ const envSchema = z.object({
   COSMOS_TASKS_CONTAINER: z
     .string({ required_error: "COSMOS_TASKS_CONTAINER is required" })
     .min(1, "COSMOS_TASKS_CONTAINER cannot be empty"),
+  COSMOS_FORM_SETTINGS_CONTAINER: z
+    .string()
+    .min(1, "COSMOS_FORM_SETTINGS_CONTAINER cannot be empty")
+    .default("FormSettings"),
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
