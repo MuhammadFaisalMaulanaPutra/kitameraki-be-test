@@ -1,24 +1,31 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { withErrorHandler } from "../middleware/errorHandler";
+import { validateBody, validateQueryParams } from "../middleware/validateRequest";
+import { BulkDeleteSchema, OrganizationIdParamSchema } from "../models/task.model";
+import { TaskService } from "../services/task.service";
 
-export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+const BulkDeleteTasks = withErrorHandler(
+  async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
+    const { organizationId } = validateQueryParams(request, OrganizationIdParamSchema);
 
-    return { status: 200 };
-};
+    // Validasi body — array of UUID strings, min 1, max 100
+    const taskIds = await validateBody(request, BulkDeleteSchema);
+
+    // Promise.all — menunggu semua delete selesai sebelum return
+    // (fix dari bug forEach async sebelumnya)
+    await TaskService.bulkDeleteTasks(taskIds, organizationId);
+
+    return {
+      status: 200,
+      jsonBody: { message: `${taskIds.length} task(s) deleted successfully` },
+    };
+  }
+);
 
 app.http('BulkDeleteTasks', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+  methods: ['DELETE'],
+  authLevel: 'anonymous',
+  handler: BulkDeleteTasks,
 });

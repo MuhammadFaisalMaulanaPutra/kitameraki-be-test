@@ -1,21 +1,24 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { withErrorHandler } from "../middleware/errorHandler";
+import { validateQueryParams } from "../middleware/validateRequest";
+import { OrganizationIdParamSchema } from "../models/task.model";
+import { TaskService } from "../services/task.service";
 
-export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+const GetTasks = withErrorHandler(
+  async (request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> => {
     context.log(`Http function processed request for url "${request.url}"`);
-    const organizationId = request.query.get('organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+    const { organizationId } = validateQueryParams(request, OrganizationIdParamSchema);
 
-    return { jsonBody: task.resources, status: 200 };
-};
+    // Menggunakan parameterized query di service layer (fix SQL injection)
+    const tasks = await TaskService.getTasksByOrganization(organizationId);
+
+    return { jsonBody: tasks, status: 200 };
+  }
+);
 
 app.http('GetTasks', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTasks
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  handler: GetTasks,
 });
