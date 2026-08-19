@@ -1,0 +1,60 @@
+{
+  "title": "FormSettings",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the form settings document. Equal to organizationId (one settings document per organization)."
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the organization these form settings belong to"
+    },
+    "fields": {
+      "type": "array",
+      "description": "Custom fields appended to the end of the base task form, in addition to the built-in Part 1 fields (title, description, dueDate, priority, status, tags).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Stable identifier for the field. Used to key custom values stored on tasks and to preserve identity across reorders/renames."
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Display label for the field. Can be renamed by the user."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["text", "date", "datetime", "email"],
+            "description": "Input type for the field."
+          },
+          "row": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based row position in the form grid. Unlimited rows are allowed."
+          },
+          "column": {
+            "type": "integer",
+            "enum": [1, 2],
+            "description": "Column position within the row. Up to 2 columns per row."
+          }
+        },
+        "required": ["id", "label", "type", "row", "column"],
+        "additionalProperties": false
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the last update, set server-side."
+    }
+  },
+  "required": ["id", "organizationId", "fields"],
+  "additionalProperties": false
+}

@@ -1,23 +1,24 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { withErrorHandling } from "../middleware/errorHandler";
+import { requireUuidQueryParam, requireRouteParam } from "../utils/requestHelpers";
+import * as taskService from "../services/taskService";
 
-export async function DeleteTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+async function deleteTaskHandler(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    const taskId = requireRouteParam(request, 'id');
+    const organizationId = requireUuidQueryParam(request, 'organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .delete();
+    await taskService.deleteTask(taskId, organizationId);
 
-    return { status: 200 };
-};
+    return { status: 204 };
+}
+
+export const DeleteTask = withErrorHandling(deleteTaskHandler);
 
 app.http('DeleteTask', {
+    route: 'tasks/{id}',
     methods: ['DELETE'],
-    authLevel: 'anonymous',
+    authLevel: 'function',
     handler: DeleteTask
 });

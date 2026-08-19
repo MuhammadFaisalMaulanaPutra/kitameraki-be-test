@@ -1,33 +1,36 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { withErrorHandling } from "../middleware/errorHandler";
+import { requireUuidQueryParam, requireRouteParam } from "../utils/requestHelpers";
+import * as taskService from "../services/taskService";
+import { UpdateTaskInput } from "../models/task.types";
+import { BadRequestError } from "../utils/errors";
 
+async function updateTaskHandler(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    context.log(`Http function processed request for url "${request.url}"`);
 
-export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    const taskId = requireRouteParam(request, 'id');
+    const organizationId = requireUuidQueryParam(request, 'organizationId');
 
-    let patchRequests = [];
-
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
+    let body: unknown;
+    try {
+        body = await request.json();
+    } catch {
+        throw new BadRequestError('Request body must be valid JSON.');
     }
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
+    const updatedTask = await taskService.updateTask(taskId, organizationId, body as UpdateTaskInput);
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    return { jsonBody: updatedTask, status: 200 };
+}
 
+export const UpdateTask = withErrorHandling(updateTaskHandler);
+
+// Changed from POST -> PATCH: this endpoint applies a partial update,
+// which PATCH communicates correctly per REST conventions. The id is
+// now taken from the route (tasks/{id}) instead of a query parameter.
 app.http('UpdateTask', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
+    route: 'tasks/{id}',
+    methods: ['PATCH'],
+    authLevel: 'function',
     handler: UpdateTask
 });

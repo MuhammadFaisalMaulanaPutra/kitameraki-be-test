@@ -1,19 +1,35 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { withErrorHandling } from "../middleware/errorHandler";
+import { requireUuidQueryParam } from "../utils/requestHelpers";
+import * as taskService from "../services/taskService";
+import { CreateTaskInput } from "../models/task.types";
+import { BadRequestError } from "../utils/errors";
 
-export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json();
+async function insertTaskHandler(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    context.log(`Http function processed request for url "${request.url}"`);
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .items.create(body);
+    // TODO: once real authentication is in place, derive organizationId
+    // from the authenticated caller's context instead of trusting a
+    // client-supplied query parameter.
+    const organizationId = requireUuidQueryParam(request, 'organizationId');
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+    let body: unknown;
+    try {
+        body = await request.json();
+    } catch {
+        throw new BadRequestError('Request body must be valid JSON.');
+    }
+
+    const createdTask = await taskService.createTask(organizationId, body as CreateTaskInput);
+
+    return { jsonBody: createdTask, status: 201 };
+}
+
+export const InsertTask = withErrorHandling(insertTaskHandler);
 
 app.http('InsertTask', {
+    route: 'tasks',
     methods: ['POST'],
-    authLevel: 'anonymous',
+    authLevel: 'function',
     handler: InsertTask
 });
