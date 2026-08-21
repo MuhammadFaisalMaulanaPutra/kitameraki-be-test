@@ -11,11 +11,23 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
             return { status: 400, body: "Missing id or organizationId parameter." };
         }
 
-        const patchRequests = Object.keys(body).map(key => ({
-            op: "replace" as const,
-            path: `/${key}`,
-            value: body[key]
-        }));
+        const restrictedKeys = ['id', 'organizationId', '_rid', '_self', '_etag', '_attachments', '_ts'];
+
+        let patchRequests = [];
+
+        for (let key in body) {
+            if (!restrictedKeys.includes(key)) {
+                patchRequests.push({
+                    op: "replace" as const,
+                    path: `/${key}`,
+                    value: body[key]
+                });
+            }
+        }
+
+        if (patchRequests.length === 0) {
+            return { status: 400, body: "No valid fields to update." };
+        }
 
         const { resource } = await client.database(databaseId)
             .container(containerId)
