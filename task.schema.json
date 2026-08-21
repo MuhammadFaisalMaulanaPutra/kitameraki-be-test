@@ -44,6 +44,14 @@
         "maxLength": 50
       },
       "description": "Tags associated with the task"
+    },
+    "customFields": {
+      "type": "object",
+      "description": "Values for the organization's custom form fields (see FormSettings), keyed by the custom field's id. Values are always stored as strings; the client is responsible for formatting them per the field's configured type (text/date/datetime/email).",
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 1000
+      }
     }
   },
   "required": ["id", "organizationId", "title", "status"],

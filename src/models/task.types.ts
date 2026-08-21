@@ -14,6 +14,12 @@ export interface Task {
     priority?: TaskPriority;
     status: TaskStatus;
     tags?: string[];
+    /**
+     * Values for the organization's custom form fields (see
+     * FormSettings), keyed by the custom field's id. Always stored as
+     * strings; the client formats/parses them per the field's type.
+     */
+    customFields?: Record<string, string>;
 }
 
 /**
