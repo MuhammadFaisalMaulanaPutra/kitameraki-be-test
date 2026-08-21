@@ -1,21 +1,27 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { client, databaseId, containerId } from "../shared/cosmos";
 
 export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
+    try {
+        const body = await request.json() as string[];
+        const organizationId = request.query.get('organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
+        if (!Array.isArray(body) || body.length === 0 || !organizationId) {
+            return { status: 400, body: "Invalid payload or missing organizationId." };
+        }
 
-    return { status: 200 };
-};
+        const container = client.database(databaseId).container(containerId);
+
+        await Promise.all(
+            body.map(taskId => container.item(taskId, organizationId).delete())
+        );
+
+        return { status: 204 };
+    } catch (error) {
+        context.error("Error during bulk delete:", error);
+        return { status: 500, body: "Internal server error" };
+    }
+}
 
 app.http('BulkDeleteTasks', {
     methods: ['DELETE'],

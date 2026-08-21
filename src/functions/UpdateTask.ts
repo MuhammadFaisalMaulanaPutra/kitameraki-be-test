@@ -1,33 +1,36 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-
+import { client, databaseId, containerId } from "../shared/cosmos";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
+    try {
+        const body = await request.json() as Record<string, any>;
+        const taskId = request.query.get('id');
+        const organizationId = request.query.get('organizationId');
 
-    let patchRequests = [];
+        if (!taskId || !organizationId) {
+            return { status: 400, body: "Missing id or organizationId parameter." };
+        }
 
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
+        const patchRequests = Object.keys(body).map(key => ({
+            op: "replace" as const,
+            path: `/${key}`,
+            value: body[key]
+        }));
+
+        const { resource } = await client.database(databaseId)
+            .container(containerId)
+            .item(taskId, organizationId)
+            .patch(patchRequests);
+
+        return { jsonBody: resource, status: 200 };
+    } catch (error) {
+        context.error("Error updating task:", error);
+        return { status: 500, body: "Internal server error" };
     }
-
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
-        .patch(patchRequests);
-
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+}
 
 app.http('UpdateTask', {
-    methods: ['POST'],
+    methods: ['PATCH'],
     authLevel: 'anonymous',
     handler: UpdateTask
 });
