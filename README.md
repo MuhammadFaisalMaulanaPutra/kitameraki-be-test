@@ -71,9 +71,15 @@ npm start
 4. The API will be available at `http://localhost:7071/api/`
 
 ### API Endpoints
+
+**Task Management**
 - `GET /api/GetTasks?organizationId={id}`
 - `GET /api/GetTask?id={id}&organizationId={orgId}`
 - `POST /api/InsertTask`
 - `PATCH /api/UpdateTask?id={id}&organizationId={orgId}`
 - `DELETE /api/DeleteTask?id={id}&organizationId={orgId}`
 - `DELETE /api/BulkDeleteTasks?organizationId={orgId}`
+
+**Form Settings (Dynamic Form Builder)**
+- `GET /api/GetFormSettings?organizationId={id}`
+- `PUT /api/UpdateFormSettings?organizationId={orgId}`
