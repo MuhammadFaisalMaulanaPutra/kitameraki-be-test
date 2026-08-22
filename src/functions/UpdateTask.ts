@@ -18,7 +18,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
         for (let key in body) {
             if (!restrictedKeys.includes(key)) {
                 patchRequests.push({
-                    op: "replace" as const,
+                    op: "set" as const,
                     path: `/${key}`,
                     value: body[key]
                 });
@@ -29,12 +29,22 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
             return { status: 400, body: "No valid fields to update." };
         }
 
-        const { resource } = await client.database(databaseId)
-            .container(containerId)
-            .item(taskId, organizationId)
-            .patch(patchRequests);
+        const container = client.database(databaseId).container(containerId);
+        let updatedResource;
 
-        return { jsonBody: resource, status: 200 };
+        const MAX_PATCH_OPS = 10;
+
+        for (let i = 0; i < patchRequests.length; i += MAX_PATCH_OPS) {
+            const chunk = patchRequests.slice(i, i + MAX_PATCH_OPS);
+
+            const { resource } = await container
+                .item(taskId, organizationId)
+                .patch(chunk);
+
+            updatedResource = resource;
+        }
+
+        return { jsonBody: updatedResource, status: 200 };
     } catch (error) {
         context.error("Error updating task:", error);
         return { status: 500, body: "Internal server error" };
