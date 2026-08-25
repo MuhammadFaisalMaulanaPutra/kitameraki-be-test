@@ -1,23 +1,38 @@
 {
   "name": "kitameraki-be-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Kitameraki BE TEST",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "clean": "rimraf dist",
+    "typegen": "node scripts/generate-types.mjs",
+    "copy:schemas": "cpx \"src/schemas/**/*.json\" dist/schemas",
+    "clean": "rimraf dist src/models/generated",
+    "lint": "biome check src/ scripts/",
+    "lint:fix": "biome check --write src/ scripts/",
+    "prebuild": "npm run clean && npm run typegen",
+    "build": "tsc && tsc-alias && npm run copy:schemas",
+    "watch:tsc": "tsc -w",
+    "watch:alias": "tsc-alias -w",
+    "watch": "npm run typegen && concurrently \"tsc -w\" \"tsc-alias -w\"",
+    "dev": "concurrently --kill-others \"npm run watch\" \"func start\"",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/cosmos": "^4.10.0",
+    "@azure/functions": "^4.16.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.x",
-    "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
+    "@biomejs/biome": "1.8.3",
+    "@types/node": "^26.x",
+    "concurrently": "^8.2.2",
+    "cpx2": "^8.0.0",
+    "json-schema-to-typescript": "^15.0.4",
+    "rimraf": "^6.1.3",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^7.0.2"
   },
-  "main": "dist/src/{index.js,functions/*.js}"
+  "main": "dist/{index.js,functions/**/*.js,functions/**/**/*.js}"
 }

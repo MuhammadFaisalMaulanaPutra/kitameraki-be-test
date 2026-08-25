@@ -7,4 +7,11 @@ __blobstorage__
 __queuestorage__
 local.settings.json
 test
-tsconfig.json
+tsconfig.jsonsrc/**
+scripts/**
+biome.json
+package-lock.json
+README.md
+docker-compose.yml
+mise.toml
+task.schema.json

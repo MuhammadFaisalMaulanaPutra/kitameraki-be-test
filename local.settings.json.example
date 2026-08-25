@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_CONNECTION_STRING": "AccountEndpoint=https://<your-cosmos-account>.documents.azure.com:443/;AccountKey=<your-account-key>;",
+    "COSMOS_DATABASE_NAME": "<your-database-name>",
+    "COSMOS_TASKS_CONTAINER": "<your-tasks-container-name>",
+    "COSMOS_SETTINGS_CONTAINER": "<your-settings-container-name>",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*"
+  }
+}
