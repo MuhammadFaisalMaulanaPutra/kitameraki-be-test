@@ -1,22 +1,12 @@
-export interface ApiResponse<T> {
-  success: true
-  statusCode: number
-  data: T
-  meta?: Record<string, unknown>
-  timestamp: string
+export interface ResponseMeta {
+  page: number
+  pageSize: number
+  totalCount: number
+  totalPages: number
 }
 
-export interface PaginatedResponse<T> {
-  success: true
-  statusCode: number
-  data: T[]
-  pagination: {
-    page: number
-    pageSize: number
-    totalCount: number
-    totalPages: number
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-  }
-  timestamp: string
+export interface ApiResponse<T> {
+  message: string
+  data?: T
+  meta?: ResponseMeta
 }

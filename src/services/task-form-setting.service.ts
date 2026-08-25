@@ -24,7 +24,7 @@ export class TaskFormSettingService {
           ...body,
           id: TaskFormSettingService.SETTING_ID,
           orgId,
-          updatedAt: new Date().toISOString()
+          updatedAt: dayjs().toISOString()
         },
         etag
       )
@@ -37,7 +37,7 @@ export class TaskFormSettingService {
           ...body,
           id: TaskFormSettingService.SETTING_ID,
           orgId,
-          updatedAt: new Date().toISOString()
+          updatedAt: dayjs().toISOString()
         },
         etag
       )
@@ -48,8 +48,9 @@ export class TaskFormSettingService {
       ...body,
       id: TaskFormSettingService.SETTING_ID,
       orgId,
-      createdAt: current?.createdAt ?? new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      createdAt: current?.createdAt ?? dayjs().toISOString(),
+      updatedAt: dayjs().toISOString()
     })
   }
 }
+import dayjs from 'dayjs'

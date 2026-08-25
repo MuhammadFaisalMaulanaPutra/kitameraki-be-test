@@ -15,6 +15,7 @@ export interface TaskSearchCriteria {
 export interface TaskQueryResult {
   items: TaskEntity[]
   continuationToken?: string
+  totalCount: number
   requestCharge: number
 }
 
@@ -43,10 +44,20 @@ export class TaskRepository extends BaseRepository<TaskEntity> {
       continuationToken: criteria.continuationToken
     }
 
-    const response = await this.container.items.query<TaskEntity>(query, options).fetchNext()
+    const countQuery: SqlQuerySpec = {
+      query: `SELECT VALUE COUNT(1) FROM c WHERE ${conditions.join(' AND ')}`,
+      parameters
+    }
+
+    const [response, countResponse] = await Promise.all([
+      this.container.items.query<TaskEntity>(query, options).fetchNext(),
+      this.container.items.query<number>(countQuery, { partitionKey: criteria.orgId }).fetchNext()
+    ])
+
     return {
       items: response.resources ?? [],
       continuationToken: response.continuationToken,
+      totalCount: countResponse.resources?.[0] ?? 0,
       requestCharge: response.requestCharge
     }
   }

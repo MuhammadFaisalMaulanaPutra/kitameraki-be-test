@@ -1,6 +1,5 @@
 import { cosmosClient, cosmosConfig } from '@/config/cosmos.config'
 import ajvInstance from '@/config/validator.config'
-import { HTTP_STATUS } from '@/constants/http-status'
 import { httpHandler } from '@/middleware/http-handler.wrapper'
 import { validateBody } from '@/middleware/validate.middleware'
 import type { PutTaskFormSettingSchema } from '@/models/generated/put-task-form-setting'
@@ -9,6 +8,7 @@ import putTaskFormSettingSchemaJson from '@/schemas/put-task-form-setting.schema
 import { TaskFormSettingService } from '@/services/task-form-setting.service'
 import { requireIfMatch, requireRouteParameter, successResponse } from '@/utils/http-request.util'
 import { type HttpResponseInit, type InvocationContext, app } from '@azure/functions'
+import status from 'http-status'
 
 const service = new TaskFormSettingService(
   new TaskFormSettingRepository(
@@ -30,7 +30,11 @@ const wrappedHandler = validateBody<PutTaskFormSettingSchema>(
       requireIfMatch(request),
       requireRouteParameter(request, 'orgId')
     )
-    return successResponse(HTTP_STATUS.OK, settings)
+
+    return successResponse(status.OK, {
+      message: 'Task form settings updated successfully.',
+      data: settings
+    })
   }
 )
 

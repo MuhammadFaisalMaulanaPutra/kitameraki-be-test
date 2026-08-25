@@ -1,8 +1,6 @@
-import type { ErrorCode } from '@/constants/error-codes'
-
 export abstract class AppError extends Error {
   abstract readonly statusCode: number
-  abstract readonly errorCode: ErrorCode
+  abstract readonly errorCode: string
 
   constructor(
     message: string,

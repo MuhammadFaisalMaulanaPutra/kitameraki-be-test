@@ -7,6 +7,7 @@ import type { CreateTaskSchema } from '@/models/generated/create-task'
 import type { PatchTaskSchema } from '@/models/generated/patch-task'
 import type { TaskQuerySchema } from '@/models/generated/task-query'
 import type { TaskRepository } from '@/repositories/task.repository'
+import dayjs from 'dayjs'
 
 export class TaskService {
   constructor(private readonly taskRepository: TaskRepository) {}
@@ -24,7 +25,7 @@ export class TaskService {
   }
 
   async create(body: CreateTaskSchema, orgId: string): Promise<TaskEntity> {
-    const now = new Date().toISOString()
+    const now = dayjs().toISOString()
     return this.taskRepository.create({
       ...body,
       id: randomUUID(),
@@ -46,7 +47,7 @@ export class TaskService {
   ): Promise<TaskEntity> {
     if (!etag) throw new BadRequestError('If-Match header is required for optimistic concurrency.')
     const existing = await this.taskRepository.getById(id, orgId)
-    const now = new Date().toISOString()
+    const now = dayjs().toISOString()
     return this.taskRepository.replace(
       {
         ...existing,

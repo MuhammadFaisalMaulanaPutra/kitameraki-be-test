@@ -1,11 +1,10 @@
-export function calculatePagination(page: number, pageSize: number, totalCount: number) {
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+import type { ResponseMeta } from '@/models/responses/api-response.dto'
+
+export function calculatePagination(page = 1, pageSize = 20, totalCount = 0): ResponseMeta {
   return {
     page,
     pageSize,
     totalCount,
-    totalPages,
-    hasNextPage: page < totalPages,
-    hasPreviousPage: page > 1
+    totalPages: Math.ceil(totalCount / pageSize)
   }
 }

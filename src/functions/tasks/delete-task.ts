@@ -1,9 +1,8 @@
 import { cosmosClient, cosmosConfig } from '@/config/cosmos.config'
-import { HTTP_STATUS } from '@/constants/http-status'
 import { httpHandler } from '@/middleware/http-handler.wrapper'
 import { TaskRepository } from '@/repositories/task.repository'
 import { TaskService } from '@/services/task.service'
-import { requireRouteParameter } from '@/utils/http-request.util'
+import { noContentResponse, requireRouteParameter } from '@/utils/http-request.util'
 import { app } from '@azure/functions'
 
 const service = new TaskService(
@@ -15,7 +14,8 @@ export default httpHandler(async (request) => {
     requireRouteParameter(request, 'id'),
     requireRouteParameter(request, 'orgId')
   )
-  return { status: HTTP_STATUS.NO_CONTENT }
+
+  return noContentResponse()
 })
 
 app.http('DeleteTask', {

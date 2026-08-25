@@ -1,9 +1,9 @@
-import { ErrorCode } from '@/constants/error-codes'
 import { AppError } from '@/errors/app-error'
+import status from 'http-status'
 
 export class NotFoundError extends AppError {
-  readonly statusCode = 404
-  readonly errorCode = ErrorCode.RESOURCE_NOT_FOUND
+  readonly statusCode = status.NOT_FOUND
+  readonly errorCode = status['404_NAME']
 
   constructor(resource: string, identifier: string) {
     super(`${resource} with identifier '${identifier}' was not found.`)
