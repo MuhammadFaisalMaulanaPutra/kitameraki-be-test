@@ -1,0 +1,14 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "STORAGE_PROVIDER": "json",
+    "LOCAL_DATA_DIRECTORY": ".data",
+    "DEFAULT_ORGANIZATION_ID": "org-local",
+    "COSMOS_CONNECTION_STRING": "",
+    "COSMOS_DATABASE_NAME": "TaskApp",
+    "COSMOS_TASKS_CONTAINER_NAME": "Tasks",
+    "COSMOS_FORM_SETTINGS_CONTAINER_NAME": "FormSettings"
+  }
+}

@@ -1,51 +1,60 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Task",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "id": {
       "type": "string",
       "format": "uuid",
-      "description": "Unique identifier for the task"
+      "description": "Server-generated task identifier"
     },
     "organizationId": {
       "type": "string",
-      "format": "uuid",
-      "description": "Unique identifier of the organization to which the task belongs"
+      "description": "Workspace/partition identifier"
     },
     "title": {
       "type": "string",
-      "maxLength": 100,
-      "description": "Title of the task"
+      "minLength": 1,
+      "maxLength": 100
     },
     "description": {
       "type": "string",
-      "maxLength": 1000,
-      "description": "Description of the task"
+      "maxLength": 1000
     },
     "dueDate": {
       "type": "string",
-      "format": "date-time",
-      "description": "Due date and time for the task"
+      "format": "date-time"
     },
     "priority": {
       "type": "string",
-      "enum": ["low", "medium", "high"],
-      "description": "Priority level of the task"
+      "enum": ["low", "medium", "high"]
     },
     "status": {
       "type": "string",
-      "enum": ["todo", "in-progress", "completed"],
-      "description": "Status of the task"
+      "enum": ["todo", "in-progress", "completed"]
     },
     "tags": {
       "type": "array",
+      "maxItems": 20,
       "items": {
         "type": "string",
+        "minLength": 1,
         "maxLength": 50
-      },
-      "description": "Tags associated with the task"
+      }
+    },
+    "customFields": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
     }
   },
-  "required": ["id", "organizationId", "title", "status"],
-  "additionalProperties": false
+  "required": ["id", "organizationId", "title", "status", "createdAt", "updatedAt"]
 }

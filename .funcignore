@@ -2,9 +2,12 @@
 *.ts
 .git*
 .vscode
+.data
 __azurite_db*__.json
 __blobstorage__
 __queuestorage__
 local.settings.json
-test
+tests
+dist/tests
+scripts
 tsconfig.json

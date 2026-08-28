@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormSettings",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": { "const": "task-form" },
+    "organizationId": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "key": { "type": "string" },
+          "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+          "type": { "enum": ["text", "date", "datetime", "email"] },
+          "isSystem": { "type": "boolean" },
+          "required": { "type": "boolean" },
+          "showInTable": { "type": "boolean" },
+          "row": { "type": "integer", "minimum": 1 },
+          "column": { "enum": [1, 2] },
+          "order": { "type": "integer", "minimum": 1 }
+        },
+        "required": ["id", "key", "label", "type", "isSystem", "required", "showInTable", "row", "column", "order"]
+      }
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "required": ["id", "organizationId", "version", "fields", "createdAt", "updatedAt"]
+}

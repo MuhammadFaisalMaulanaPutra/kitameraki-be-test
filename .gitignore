@@ -97,3 +97,12 @@ local.settings.json
 __blobstorage__
 __queuestorage__
 __azurite_db*__.json
+
+# Local application data
+.data/
+
+# Azurite local storage emulator
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
+__azurite_db_*.json

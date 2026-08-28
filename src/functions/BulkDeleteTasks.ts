@@ -1,24 +1,20 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions';
+import { readJsonBody, resolveOrganizationId, success, withErrorHandling } from '../http/http';
+import { getTaskService } from '../services/serviceFactory';
+import { parseBulkDeleteBody } from '../validation/taskValidation';
 
-export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
-
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
-
-    return { status: 200 };
-};
+export const BulkDeleteTasks = withErrorHandling(
+  async (request: HttpRequest, _context: InvocationContext): Promise<HttpResponseInit> => {
+    const organizationId = resolveOrganizationId(request);
+    const ids = parseBulkDeleteBody(await readJsonBody(request));
+    const result = await getTaskService().bulkDelete(ids, organizationId);
+    return success(result);
+  },
+);
 
 app.http('BulkDeleteTasks', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+  methods: ['DELETE'],
+  authLevel: 'anonymous',
+  route: 'tasks/bulk',
+  handler: BulkDeleteTasks,
 });
