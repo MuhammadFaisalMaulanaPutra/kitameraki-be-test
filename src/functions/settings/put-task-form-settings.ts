@@ -28,7 +28,7 @@ const wrappedHandler = validateBody<PutTaskFormSettingSchema>(
     const settings = await service.put(
       body,
       requireIfMatch(request),
-      requireRouteParameter(request, 'orgId')
+      requireRouteParameter(request, 'organizationId')
     )
 
     return successResponse(status.OK, {
@@ -41,7 +41,7 @@ const wrappedHandler = validateBody<PutTaskFormSettingSchema>(
 export default httpHandler(wrappedHandler)
 
 app.http('PutTaskFormSettings', {
-  route: 'organizations/{orgId}/task-form-settings',
+  route: 'organizations/{organizationId}/task-form-settings',
   methods: ['PUT'],
   authLevel: 'anonymous',
   handler: module.exports.default

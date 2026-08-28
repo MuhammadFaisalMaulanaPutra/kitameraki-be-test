@@ -6,7 +6,7 @@ import type { PatchTaskSchema } from '@/models/generated/patch-task'
 import { TaskRepository } from '@/repositories/task.repository'
 import patchTaskSchemaJson from '@/schemas/patch-task.schema.json'
 import { TaskService } from '@/services/task.service'
-import { requireIfMatch, requireRouteParameter, successResponse } from '@/utils/http-request.util'
+import { requireRouteParameter, successResponse } from '@/utils/http-request.util'
 import { type HttpResponseInit, type InvocationContext, app } from '@azure/functions'
 import status from 'http-status'
 
@@ -21,9 +21,8 @@ const wrappedHandler = validateBody<PatchTaskSchema>(
   async (request, _context: InvocationContext, body): Promise<HttpResponseInit> => {
     const task = await service.update(
       requireRouteParameter(request, 'id'),
-      body,
-      requireIfMatch(request),
-      requireRouteParameter(request, 'orgId')
+      requireRouteParameter(request, 'organizationId'),
+      body
     )
 
     return successResponse(status.OK, {
@@ -36,8 +35,8 @@ const wrappedHandler = validateBody<PatchTaskSchema>(
 export default httpHandler(wrappedHandler)
 
 app.http('UpdateTask', {
-  route: 'organizations/{orgId}/tasks/{id}',
-  methods: ['PATCH'],
+  route: 'organizations/{organizationId}/tasks/{id}',
+  methods: ['PUT'],
   authLevel: 'anonymous',
   handler: module.exports.default
 })

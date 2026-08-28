@@ -12,14 +12,14 @@ const service = new TaskService(
 export default httpHandler(async (request) => {
   await service.delete(
     requireRouteParameter(request, 'id'),
-    requireRouteParameter(request, 'orgId')
+    requireRouteParameter(request, 'organizationId')
   )
 
   return noContentResponse()
 })
 
 app.http('DeleteTask', {
-  route: 'organizations/{orgId}/tasks/{id}',
+  route: 'organizations/{organizationId}/tasks/{id}',
   methods: ['DELETE'],
   authLevel: 'anonymous',
   handler: module.exports.default

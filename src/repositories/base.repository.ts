@@ -1,7 +1,7 @@
 import { ConflictError } from '@/errors/conflict.error'
 import { NotFoundError } from '@/errors/not-found.error'
 import type { BaseEntity } from '@/models/entities/base.entity'
-import type { CosmosClient, PatchOperation } from '@azure/cosmos'
+import { type CosmosClient, type PatchOperation, StatusCodes } from '@azure/cosmos'
 
 export abstract class BaseRepository<T extends BaseEntity> {
   protected readonly databaseName: string
@@ -20,13 +20,16 @@ export abstract class BaseRepository<T extends BaseEntity> {
     return this.client.database(this.databaseName).container(this.containerName)
   }
 
-  async getById(id: string, partitionKey: string): Promise<T> {
+  async getById(id: string, partitionKey: string | string[]): Promise<T> {
     try {
       const { resource } = await this.container.item(id, partitionKey).read<T>()
       if (!resource) throw new NotFoundError(this.containerName, id)
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, 404)) throw new NotFoundError(this.containerName, id)
+      if (isCosmosStatus(error, StatusCodes.NotFound)) {
+        throw new NotFoundError(this.containerName, id)
+      }
+
       throw error
     }
   }
@@ -37,21 +40,21 @@ export abstract class BaseRepository<T extends BaseEntity> {
       if (!resource) throw new Error('Cosmos DB returned no created item.')
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, 409))
+      if (isCosmosStatus(error, StatusCodes.Conflict)) {
         throw new ConflictError(`An item with id '${item.id}' already exists.`)
+      }
+
       throw error
     }
   }
 
-  async replace(item: T, etag?: string): Promise<T> {
+  async replace(item: T): Promise<T> {
     try {
-      const { resource } = await this.container.items.upsert<T>(item, {
-        accessCondition: etag ? { condition: etag, type: 'IfMatch' } : undefined
-      })
+      const { resource } = await this.container.items.upsert<T>(item)
       if (!resource) throw new Error('Cosmos DB returned no replaced item.')
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, 412)) throw new ConflictError()
+      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) throw new ConflictError()
       throw error
     }
   }
@@ -69,8 +72,9 @@ export abstract class BaseRepository<T extends BaseEntity> {
       if (!resource) throw new Error('Cosmos DB returned no patched item.')
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, 404)) throw new NotFoundError(this.containerName, id)
-      if (isCosmosStatus(error, 412)) throw new ConflictError()
+      if (isCosmosStatus(error, StatusCodes.NotFound))
+        throw new NotFoundError(this.containerName, id)
+      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) throw new ConflictError()
       throw error
     }
   }
@@ -81,11 +85,12 @@ export abstract class BaseRepository<T extends BaseEntity> {
     return resource
   }
 
-  async delete(id: string, partitionKey: string): Promise<void> {
+  async delete(id: string, partitionKey: string | string[]): Promise<void> {
     try {
       await this.container.item(id, partitionKey).delete()
     } catch (error: unknown) {
-      if (isCosmosStatus(error, 404)) throw new NotFoundError(this.containerName, id)
+      if (isCosmosStatus(error, StatusCodes.NotFound))
+        throw new NotFoundError(this.containerName, id)
       throw error
     }
   }

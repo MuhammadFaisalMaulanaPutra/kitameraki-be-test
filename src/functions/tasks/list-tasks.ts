@@ -37,7 +37,7 @@ function mapAjvErrors(errors: readonly ErrorObject[] | null | undefined): ParamV
 }
 
 export default httpHandler(async (request) => {
-  const organizationId = requireRouteParameter(request, 'orgId')
+  const organizationId = requireRouteParameter(request, 'organizationId')
   const query = parseQuery(request.query)
   const result = await service.list(query, organizationId)
 
@@ -49,7 +49,7 @@ export default httpHandler(async (request) => {
 })
 
 app.http('ListTasks', {
-  route: 'organizations/{orgId}/tasks',
+  route: 'organizations/{organizationId}/tasks',
   methods: ['GET'],
   authLevel: 'anonymous',
   handler: module.exports.default

@@ -4,7 +4,7 @@ Azure Functions v4 and TypeScript service for multi-tenant task management and t
 
 ## Architecture
 
-- Cosmos DB containers are partitioned by `/orgId`, and transactional reads/writes always provide the tenant partition key.
+- Cosmos DB containers are partitioned by `/organizationId`, and transactional reads/writes always provide the tenant partition key.
 - JSON schemas in `src/schemas` are the source of truth. They generate TypeScript DTOs during `typegen` and runtime validators through Ajv.
 - HTTP functions remain thin transport adapters; business logic lives in services and data access lives in repositories.
 - `PATCH` requires `If-Match`, while `PUT task-form-settings` uses `If-Match` when an existing setting is present.

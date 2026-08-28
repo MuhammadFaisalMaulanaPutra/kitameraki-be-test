@@ -13,7 +13,7 @@ const service = new TaskService(
 export default httpHandler(async (request) => {
   const task = await service.getById(
     requireRouteParameter(request, 'id'),
-    requireRouteParameter(request, 'orgId')
+    requireRouteParameter(request, 'organizationId')
   )
 
   return successResponse(status.OK, {
@@ -23,7 +23,7 @@ export default httpHandler(async (request) => {
 })
 
 app.http('GetTaskById', {
-  route: 'organizations/{orgId}/tasks/{id}',
+  route: 'organizations/{organizationId}/tasks/{id}',
   methods: ['GET'],
   authLevel: 'anonymous',
   handler: module.exports.default

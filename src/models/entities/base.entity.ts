@@ -1,6 +1,6 @@
 export interface BaseEntity {
   id: string
-  orgId: string
+  organizationId: string
   createdAt?: string
   updatedAt?: string
   _etag?: string

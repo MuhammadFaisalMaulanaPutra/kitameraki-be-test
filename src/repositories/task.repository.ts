@@ -3,9 +3,10 @@ import { BaseRepository } from '@/repositories/base.repository'
 import type { FeedOptions, SqlParameter, SqlQuerySpec } from '@azure/cosmos'
 
 export interface TaskSearchCriteria {
-  orgId: string
+  organizationId: string
   status?: string
   priority?: string
+  search?: string
   sortBy: string
   sortOrder: 'asc' | 'desc'
   pageSize: number
@@ -21,44 +22,60 @@ export interface TaskQueryResult {
 
 export class TaskRepository extends BaseRepository<TaskEntity> {
   async search(criteria: TaskSearchCriteria): Promise<TaskQueryResult> {
-    const conditions = ['c.orgId = @orgId']
-    const parameters: SqlParameter[] = [{ name: '@orgId', value: criteria.orgId }]
+    const sortBy = criteria.sortBy || 'createdAt'
+    const sortOrder = (criteria.sortOrder || 'desc').toUpperCase()
+    const pageSize = criteria.pageSize || 10
+
+    const conditions = ['c.organizationId = @organizationId']
+    const parameters: SqlParameter[] = [{ name: '@organizationId', value: criteria.organizationId }]
 
     if (criteria.status) {
       conditions.push('c.status = @status')
       parameters.push({ name: '@status', value: criteria.status })
     }
+
     if (criteria.priority) {
       conditions.push('c.priority = @priority')
       parameters.push({ name: '@priority', value: criteria.priority })
     }
 
+    if (criteria.search) {
+      conditions.push('CONTAINS(LOWER(c.title), LOWER(@search))')
+      parameters.push({ name: '@search', value: criteria.search })
+    }
+
+    const whereClause = conditions.join(' AND ')
+
     const query: SqlQuerySpec = {
-      query: `SELECT * FROM c WHERE ${conditions.join(' AND ')} ORDER BY c.${criteria.sortBy} ${criteria.sortOrder.toUpperCase()}`,
+      query: `SELECT * FROM c WHERE ${whereClause} ORDER BY c.${sortBy} ${sortOrder}`,
       parameters
     }
 
     const options: FeedOptions = {
-      partitionKey: criteria.orgId,
-      maxItemCount: criteria.pageSize,
+      maxItemCount: pageSize,
       continuationToken: criteria.continuationToken
     }
 
     const countQuery: SqlQuerySpec = {
-      query: `SELECT VALUE COUNT(1) FROM c WHERE ${conditions.join(' AND ')}`,
-      parameters
+      query: `SELECT VALUE COUNT(1) FROM c WHERE ${whereClause}`,
+      parameters: [
+        {
+          name: '@organizationId',
+          value: criteria.organizationId
+        }
+      ]
     }
 
-    const [response, countResponse] = await Promise.all([
-      this.container.items.query<TaskEntity>(query, options).fetchNext(),
-      this.container.items.query<number>(countQuery, { partitionKey: criteria.orgId }).fetchNext()
-    ])
+    const response = await this.container.items.query<TaskEntity>(query, options).fetchNext()
+    const countResponse = await this.container.items.query<number>(countQuery).fetchAll()
+
+    const totalCharge = (response.requestCharge ?? 0) + (countResponse.requestCharge ?? 0)
 
     return {
       items: response.resources ?? [],
       continuationToken: response.continuationToken,
       totalCount: countResponse.resources?.[0] ?? 0,
-      requestCharge: response.requestCharge
+      requestCharge: totalCharge
     }
   }
 }

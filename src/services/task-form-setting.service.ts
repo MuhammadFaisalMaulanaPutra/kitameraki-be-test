@@ -7,47 +7,41 @@ export class TaskFormSettingService {
 
   constructor(private readonly settingsRepository: TaskFormSettingRepository) {}
 
-  get(orgId: string): Promise<TaskFormSettingEntity> {
-    return this.settingsRepository.getById(TaskFormSettingService.SETTING_ID, orgId)
+  get(organizationId: string): Promise<TaskFormSettingEntity> {
+    return this.settingsRepository.getById(TaskFormSettingService.SETTING_ID, organizationId)
   }
 
   async put(
     body: PutTaskFormSettingSchema,
     etag: string | null,
-    orgId: string
+    organizationId: string
   ): Promise<TaskFormSettingEntity> {
-    const current = await this.get(orgId).catch(() => undefined)
+    const current = await this.get(organizationId).catch(() => undefined)
     if (etag && current?._etag && etag !== current._etag) {
-      return this.settingsRepository.replace(
-        {
-          ...current,
-          ...body,
-          id: TaskFormSettingService.SETTING_ID,
-          orgId,
-          updatedAt: dayjs().toISOString()
-        },
-        etag
-      )
+      return this.settingsRepository.replace({
+        ...current,
+        ...body,
+        id: TaskFormSettingService.SETTING_ID,
+        organizationId,
+        updatedAt: dayjs().toISOString()
+      })
     }
 
     if (etag && current?._etag && etag === current._etag) {
-      return this.settingsRepository.replace(
-        {
-          ...(current ?? {}),
-          ...body,
-          id: TaskFormSettingService.SETTING_ID,
-          orgId,
-          updatedAt: dayjs().toISOString()
-        },
-        etag
-      )
+      return this.settingsRepository.replace({
+        ...(current ?? {}),
+        ...body,
+        id: TaskFormSettingService.SETTING_ID,
+        organizationId,
+        updatedAt: dayjs().toISOString()
+      })
     }
 
     return this.settingsRepository.upsert({
       ...(current ?? {}),
       ...body,
       id: TaskFormSettingService.SETTING_ID,
-      orgId,
+      organizationId,
       createdAt: current?.createdAt ?? dayjs().toISOString(),
       updatedAt: dayjs().toISOString()
     })

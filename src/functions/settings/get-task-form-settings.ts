@@ -15,7 +15,7 @@ const service = new TaskFormSettingService(
 )
 
 export default httpHandler(async (request) => {
-  const settings = await service.get(requireRouteParameter(request, 'orgId'))
+  const settings = await service.get(requireRouteParameter(request, 'organizationId'))
 
   return successResponse(status.OK, {
     message: 'Task form settings retrieved successfully.',
@@ -24,7 +24,7 @@ export default httpHandler(async (request) => {
 })
 
 app.http('GetTaskFormSettings', {
-  route: 'organizations/{orgId}/task-form-settings',
+  route: 'organizations/{organizationId}/task-form-settings',
   methods: ['GET'],
   authLevel: 'anonymous',
   handler: module.exports.default

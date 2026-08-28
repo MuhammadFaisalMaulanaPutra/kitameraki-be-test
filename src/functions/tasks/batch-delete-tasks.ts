@@ -19,7 +19,7 @@ const validateBatchDelete = ajvInstance.compile<BatchDeleteTasksSchema>(batchDel
 const wrappedHandler = validateBody<BatchDeleteTasksSchema>(
   validateBatchDelete,
   async (request, _context: InvocationContext, body): Promise<HttpResponseInit> => {
-    const result = await service.batchDelete(body, requireRouteParameter(request, 'orgId'))
+    const result = await service.batchDelete(body, requireRouteParameter(request, 'organizationId'))
 
     return successResponse(status.OK, {
       message: 'Tasks deleted successfully',
@@ -31,7 +31,7 @@ const wrappedHandler = validateBody<BatchDeleteTasksSchema>(
 export default httpHandler(wrappedHandler)
 
 app.http('BatchDeleteTasks', {
-  route: 'organizations/{orgId}/tasks/batch-delete',
+  route: 'organizations/{organizationId}/tasks/batch-delete',
   methods: ['POST'],
   authLevel: 'anonymous',
   handler: module.exports.default

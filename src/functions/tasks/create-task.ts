@@ -19,7 +19,7 @@ const validateCreateTask = ajvInstance.compile<CreateTaskSchema>(createTaskSchem
 const wrappedHandler = validateBody<CreateTaskSchema>(
   validateCreateTask,
   async (request, _context, body): Promise<HttpResponseInit> => {
-    const task = await service.create(body, requireRouteParameter(request, 'orgId'))
+    const task = await service.create(body, requireRouteParameter(request, 'organizationId'))
 
     return successResponse(status.CREATED, {
       message: 'Task created successfully',
@@ -31,7 +31,7 @@ const wrappedHandler = validateBody<CreateTaskSchema>(
 export default httpHandler(wrappedHandler)
 
 app.http('CreateTask', {
-  route: 'organizations/{orgId}/tasks',
+  route: 'organizations/{organizationId}/tasks',
   methods: ['POST'],
   authLevel: 'anonymous',
   handler: module.exports.default
