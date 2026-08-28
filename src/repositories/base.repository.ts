@@ -1,6 +1,7 @@
 import { ConflictError } from '@/errors/conflict.error'
 import { NotFoundError } from '@/errors/not-found.error'
 import type { BaseEntity } from '@/models/entities/base.entity'
+import type { OperationInput } from '@azure/cosmos'
 import { type CosmosClient, type PatchOperation, StatusCodes } from '@azure/cosmos'
 
 export abstract class BaseRepository<T extends BaseEntity> {
@@ -54,7 +55,10 @@ export abstract class BaseRepository<T extends BaseEntity> {
       if (!resource) throw new Error('Cosmos DB returned no replaced item.')
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) throw new ConflictError()
+      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) {
+        throw new ConflictError()
+      }
+
       throw error
     }
   }
@@ -72,9 +76,14 @@ export abstract class BaseRepository<T extends BaseEntity> {
       if (!resource) throw new Error('Cosmos DB returned no patched item.')
       return resource
     } catch (error: unknown) {
-      if (isCosmosStatus(error, StatusCodes.NotFound))
+      if (isCosmosStatus(error, StatusCodes.NotFound)) {
         throw new NotFoundError(this.containerName, id)
-      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) throw new ConflictError()
+      }
+
+      if (isCosmosStatus(error, StatusCodes.PreconditionFailed)) {
+        throw new ConflictError()
+      }
+
       throw error
     }
   }
@@ -89,24 +98,45 @@ export abstract class BaseRepository<T extends BaseEntity> {
     try {
       await this.container.item(id, partitionKey).delete()
     } catch (error: unknown) {
-      if (isCosmosStatus(error, StatusCodes.NotFound))
+      if (isCosmosStatus(error, StatusCodes.NotFound)) {
         throw new NotFoundError(this.containerName, id)
+      }
+
       throw error
     }
   }
 
   async batchDelete(ids: string[], partitionKey: string): Promise<void> {
-    for (let offset = 0; offset < ids.length; offset += 100) {
-      const operations = ids.slice(offset, offset + 100).map((id) => ({
-        operationType: 'Delete' as const,
-        id
-      }))
-      const response = await this.container.items.batch(operations, partitionKey)
-      const failed = (response.result ?? []).some((operation) => operation.statusCode >= 400)
-      if (!response.result || failed) {
-        throw new ConflictError('One or more tasks could not be deleted.')
-      }
+    if (ids.length === 0) return
+
+    const operations: OperationInput[] = ids.map((id) => ({
+      operationType: 'Delete',
+      id: id,
+      partitionKey: [partitionKey, id]
+    }))
+
+    const results = await this.container.items.executeBulkOperations(operations)
+
+    const failures = results.filter((result) => {
+      if (result.error) return true
+      const status = result.response?.statusCode
+      return status && status >= 400
+    })
+
+    if (failures.length === 0) return
+
+    const notFoundFailure = failures.find((result) => {
+      return (
+        result.response?.statusCode === StatusCodes.NotFound ||
+        result.error?.code === StatusCodes.NotFound
+      )
+    })
+
+    if (notFoundFailure) {
+      throw new NotFoundError(this.containerName, 'One or more tasks could not be found.')
     }
+
+    throw new ConflictError('One or more tasks could not be deleted.')
   }
 }
 

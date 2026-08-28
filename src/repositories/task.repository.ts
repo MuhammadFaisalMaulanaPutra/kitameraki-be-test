@@ -1,6 +1,6 @@
 import type { TaskEntity } from '@/models/entities/task.entity'
 import { BaseRepository } from '@/repositories/base.repository'
-import type { FeedOptions, SqlParameter, SqlQuerySpec } from '@azure/cosmos'
+import type { SqlParameter, SqlQuerySpec } from '@azure/cosmos'
 
 export interface TaskSearchCriteria {
   organizationId: string
@@ -9,6 +9,7 @@ export interface TaskSearchCriteria {
   search?: string
   sortBy: string
   sortOrder: 'asc' | 'desc'
+  page: number
   pageSize: number
   continuationToken?: string
 }
@@ -24,7 +25,10 @@ export class TaskRepository extends BaseRepository<TaskEntity> {
   async search(criteria: TaskSearchCriteria): Promise<TaskQueryResult> {
     const sortBy = criteria.sortBy || 'createdAt'
     const sortOrder = (criteria.sortOrder || 'desc').toUpperCase()
+
+    const page = criteria.page && criteria.page > 0 ? criteria.page : 1
     const pageSize = criteria.pageSize || 10
+    const offset = (page - 1) * pageSize
 
     const conditions = ['c.organizationId = @organizationId']
     const parameters: SqlParameter[] = [{ name: '@organizationId', value: criteria.organizationId }]
@@ -47,33 +51,29 @@ export class TaskRepository extends BaseRepository<TaskEntity> {
     const whereClause = conditions.join(' AND ')
 
     const query: SqlQuerySpec = {
-      query: `SELECT * FROM c WHERE ${whereClause} ORDER BY c.${sortBy} ${sortOrder}`,
-      parameters
-    }
-
-    const options: FeedOptions = {
-      maxItemCount: pageSize,
-      continuationToken: criteria.continuationToken
+      query: `SELECT * FROM c WHERE ${whereClause} ORDER BY c.${sortBy} ${sortOrder} OFFSET @offset LIMIT @limit`,
+      parameters: [
+        ...parameters,
+        { name: '@offset', value: offset },
+        { name: '@limit', value: pageSize }
+      ]
     }
 
     const countQuery: SqlQuerySpec = {
       query: `SELECT VALUE COUNT(1) FROM c WHERE ${whereClause}`,
-      parameters: [
-        {
-          name: '@organizationId',
-          value: criteria.organizationId
-        }
-      ]
+      parameters: [...parameters]
     }
 
-    const response = await this.container.items.query<TaskEntity>(query, options).fetchNext()
-    const countResponse = await this.container.items.query<number>(countQuery).fetchAll()
+    const [response, countResponse] = await Promise.all([
+      this.container.items.query<TaskEntity>(query).fetchAll(),
+      this.container.items.query<number>(countQuery).fetchAll()
+    ])
 
     const totalCharge = (response.requestCharge ?? 0) + (countResponse.requestCharge ?? 0)
 
     return {
       items: response.resources ?? [],
-      continuationToken: response.continuationToken,
+      continuationToken: undefined,
       totalCount: countResponse.resources?.[0] ?? 0,
       requestCharge: totalCharge
     }

@@ -19,6 +19,7 @@ export class TaskService {
       search: query.search,
       sortBy: query.sortBy ?? 'createdAt',
       sortOrder: query.sortOrder ?? 'desc',
+      page: query.page ?? 1,
       pageSize: query.pageSize ?? 20,
       continuationToken: query.continuationToken
     })

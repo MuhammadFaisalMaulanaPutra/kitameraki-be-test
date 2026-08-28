@@ -19,12 +19,11 @@ const service = new TaskService(
 
 const validateQuery = ajv.compile<TaskQuerySchema>(taskQuerySchemaJson)
 
-// TODO: fix this query parse
 function parseQuery(rawQuery: URLSearchParams): TaskQuerySchema {
-  const raw: Record<string, string> = {}
+  const raw: Record<string, unknown> = {}
   for (const [key, value] of rawQuery.entries()) if (value) raw[key] = value
   if (!validateQuery(raw)) throw new ValidationError(mapAjvErrors(validateQuery.errors))
-  return raw as unknown as TaskQuerySchema
+  return raw as TaskQuerySchema
 }
 
 function mapAjvErrors(errors: readonly ErrorObject[] | null | undefined): ParamViolation[] {
@@ -44,7 +43,7 @@ export default httpHandler(async (request) => {
   return successResponse(status.OK, {
     message: 'Task retrieved successfully',
     data: result.items,
-    meta: calculatePagination(query.page, query.pageSize, result.totalCount)
+    meta: calculatePagination(query.page ?? 1, query.pageSize ?? 20, result.totalCount)
   })
 })
 
