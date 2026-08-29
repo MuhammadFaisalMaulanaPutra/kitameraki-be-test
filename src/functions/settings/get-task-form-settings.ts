@@ -15,12 +15,28 @@ const service = new TaskFormSettingService(
 )
 
 export default httpHandler(async (request) => {
-  const settings = await service.get(requireRouteParameter(request, 'organizationId'))
+  const organizationId = requireRouteParameter(request, 'organizationId')
+  const entity = await service.getEntity(organizationId)
 
-  return successResponse(status.OK, {
-    message: 'Task form settings retrieved successfully.',
-    data: settings
-  })
+  if (!entity) {
+    return successResponse(status.OK, {
+      message: 'Task form settings retrieved successfully.',
+      data: []
+    })
+  }
+
+  const fields = service.sortFields(entity.fields ?? [])
+
+  return successResponse(
+    status.OK,
+    {
+      message: 'Task form settings retrieved successfully.',
+      data: fields
+    },
+    {
+      etag: entity._etag
+    }
+  )
 })
 
 app.http('GetTaskFormSettings', {

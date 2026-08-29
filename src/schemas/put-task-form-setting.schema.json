@@ -4,23 +4,20 @@
   "title": "PutTaskFormSettingSchema",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "fields"],
+  "required": ["fields"],
   "properties": {
-    "schemaVersion": {
-      "type": "integer",
-      "minimum": 1,
-      "maximum": 2147483647
-    },
     "fields": {
       "type": "array",
       "maxItems": 100,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["key", "label", "type", "required"],
+        "required": ["name", "label", "type", "required", "order", "columnSpan"],
         "properties": {
-          "key": {
+          "name": {
             "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
             "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
           },
           "label": {
@@ -29,33 +26,26 @@
             "maxLength": 100
           },
           "type": {
-            "enum": ["text", "textarea", "number", "boolean", "date", "select"]
+            "type": "string",
+            "enum": ["text", "date", "datetime", "email"]
           },
           "required": {
             "type": "boolean"
           },
-          "options": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "maxItems": 100
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          },
+          "columnSpan": {
+            "type": "integer",
+            "enum": [1, 2]
+          },
+          "placeholder": {
+            "type": "string",
+            "maxLength": 200
           }
-        },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "type": {
-                  "const": "select"
-                }
-              }
-            },
-            "then": {
-              "required": ["options"]
-            }
-          }
-        ]
+        }
       }
     }
   }

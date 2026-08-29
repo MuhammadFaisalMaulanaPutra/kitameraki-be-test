@@ -25,16 +25,20 @@ const validatePutSettings = ajvInstance.compile<PutTaskFormSettingSchema>(
 const wrappedHandler = validateBody<PutTaskFormSettingSchema>(
   validatePutSettings,
   async (request, _context: InvocationContext, body): Promise<HttpResponseInit> => {
-    const settings = await service.put(
-      body,
-      requireIfMatch(request),
-      requireRouteParameter(request, 'organizationId')
-    )
+    const organizationId = requireRouteParameter(request, 'organizationId')
+    const etag = requireIfMatch(request)
+    const result = await service.put(body, etag, organizationId)
 
-    return successResponse(status.OK, {
-      message: 'Task form settings updated successfully.',
-      data: settings
-    })
+    return successResponse(
+      status.OK,
+      {
+        message: 'Task form settings updated successfully.',
+        data: result.fields
+      },
+      {
+        etag: result.etag
+      }
+    )
   }
 )
 

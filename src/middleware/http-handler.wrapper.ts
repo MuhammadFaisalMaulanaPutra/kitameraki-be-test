@@ -25,7 +25,7 @@ export function httpHandler(handler: AsyncHttpHandler): AsyncHttpHandler {
             message: error.message,
             data: Array.isArray(error.details)
               ? error.details.filter((item) => item !== null && typeof item === 'object')
-              : undefined
+              : null
           }
         }
       }
@@ -36,7 +36,7 @@ export function httpHandler(handler: AsyncHttpHandler): AsyncHttpHandler {
         headers: { 'Content-Type': 'application/problem+json' },
         jsonBody: {
           message: 'Internal Server Error',
-          data: undefined
+          data: null
         }
       }
     }

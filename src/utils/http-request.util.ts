@@ -1,5 +1,5 @@
 import { ValidationError } from '@/errors/validation.error'
-import type { ApiResponse } from '@/models/responses/api-response.dto'
+import type { ApiResponse, ResponseMeta } from '@/models/responses/api-response.dto'
 import type { HttpRequest } from '@azure/functions'
 import status from 'http-status'
 
@@ -13,13 +13,30 @@ export function requireIfMatch(request: HttpRequest): string | null {
   return request.headers.get('if-match')
 }
 
-export function successResponse<T>(statusCode: number, options: ApiResponse<T>) {
+interface ExtraResponseOptions {
+  headers?: Record<string, string>
+  etag?: string
+  meta?: ResponseMeta
+}
+
+export function successResponse<T>(
+  statusCode: number,
+  options: ApiResponse<T>,
+  extra?: ExtraResponseOptions
+) {
+  const meta = options.meta ?? extra?.meta
+  const headers = {
+    ...extra?.headers,
+    ...(extra?.etag && { ETag: extra.etag })
+  }
+
   return {
     status: statusCode,
+    ...(Object.keys(headers).length > 0 && { headers }),
     jsonBody: {
       message: options.message ?? 'Request completed successfully.',
       data: options.data,
-      ...(options.meta && { meta: options.meta })
+      ...(meta && { meta })
     }
   }
 }
