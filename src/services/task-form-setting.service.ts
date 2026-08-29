@@ -16,31 +16,9 @@ export class TaskFormSettingService {
 
   constructor(private readonly settingsRepository: TaskFormSettingRepository) {}
 
-  async get(organizationId: string): Promise<FormFieldConfig[]> {
-    try {
-      const entity = await this.settingsRepository.getByOrganizationId(organizationId)
-      const fields = (entity.fields ?? []).map((field) => ({
-        ...field,
-        id: (field as FormFieldConfig).id ?? field.name
-      })) as FormFieldConfig[]
-      return this.sortFields(fields)
-    } catch (error) {
-      if (error instanceof NotFoundError) return []
-      throw error
-    }
-  }
-
   async getEntity(organizationId: string): Promise<TaskFormSettingEntity | null> {
     try {
-      const entity = await this.settingsRepository.getByOrganizationId(organizationId)
-
-      if (entity.fields) {
-        entity.fields = (entity.fields as FormFieldConfig[]).map((field) => ({
-          ...field,
-          id: (field as FormFieldConfig).id ?? field.name
-        })) as FormFieldConfig[]
-      }
-      return entity
+      return await this.settingsRepository.getByOrganizationId(organizationId)
     } catch (error) {
       if (error instanceof NotFoundError) return null
       throw error
@@ -67,8 +45,6 @@ export class TaskFormSettingService {
     }
 
     const fieldsWithId = this.assignIds(payloadFields, current)
-    const sortedFields = this.sortFields(fieldsWithId)
-
     const now = dayjs().toISOString()
     const { _etag: _ignored, ...baseWithoutEtag } = (current ?? {}) as TaskFormSettingEntity & {
       _etag?: string
@@ -78,7 +54,7 @@ export class TaskFormSettingService {
       ...baseWithoutEtag,
       id: TaskFormSettingService.SETTING_ID,
       organizationId,
-      fields: sortedFields,
+      fields: fieldsWithId,
       createdAt: current?.createdAt ?? now,
       updatedAt: now
     } as TaskFormSettingEntity
@@ -88,7 +64,7 @@ export class TaskFormSettingService {
       : await this.settingsRepository.upsert(entityToPersist)
 
     return {
-      fields: this.sortFields(persisted.fields ?? []),
+      fields: persisted.fields ?? [],
       etag: persisted._etag
     }
   }
@@ -108,28 +84,14 @@ export class TaskFormSettingService {
     }))
   }
 
-  sortFields(fields: FormFieldConfig[]): FormFieldConfig[] {
-    return [...fields].sort((a, b) => {
-      if (a.order !== b.order) return a.order - b.order
-      if (a.columnSpan !== b.columnSpan) return a.columnSpan - b.columnSpan
-      return (a.id ?? a.name ?? '').localeCompare(b.id ?? b.name ?? '')
-    })
-  }
-
   private validateFields(fields: FormSettingField[]): void {
     const nameSet = new Set<string>()
-    const orderSet = new Set<number>()
 
     for (const field of fields) {
       if (nameSet.has(field.name)) {
         throw new BadRequestError(`Duplicate field name '${field.name}'.`)
       }
       nameSet.add(field.name)
-
-      if (orderSet.has(field.order)) {
-        throw new BadRequestError(`Duplicate field order '${field.order}'.`)
-      }
-      orderSet.add(field.order)
     }
   }
 }

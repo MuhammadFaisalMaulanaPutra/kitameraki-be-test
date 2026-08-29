@@ -12,7 +12,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "label", "type", "required", "order", "columnSpan"],
+        "required": ["name", "label", "type", "required", "width"],
         "properties": {
           "name": {
             "type": "string",
@@ -29,21 +29,16 @@
             "type": "string",
             "enum": ["text", "date", "datetime", "email"]
           },
-          "required": {
-            "type": "boolean"
-          },
-          "order": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 100000
-          },
-          "columnSpan": {
-            "type": "integer",
-            "enum": [1, 2]
-          },
           "placeholder": {
             "type": "string",
             "maxLength": 200
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "width": {
+            "type": "string",
+            "enum": ["full", "half"]
           }
         }
       }

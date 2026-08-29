@@ -9,9 +9,8 @@ export interface PutTaskFormSettingSchema {
     name: string;
     label: string;
     type: "text" | "date" | "datetime" | "email";
-    required: boolean;
-    order: number;
-    columnSpan: 1 | 2;
     placeholder?: string;
+    required: boolean;
+    width: "full" | "half";
   }[];
 }

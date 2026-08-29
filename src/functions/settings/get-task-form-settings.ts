@@ -25,13 +25,11 @@ export default httpHandler(async (request) => {
     })
   }
 
-  const fields = service.sortFields(entity.fields ?? [])
-
   return successResponse(
     status.OK,
     {
       message: 'Task form settings retrieved successfully.',
-      data: fields
+      data: entity.fields ?? []
     },
     {
       etag: entity._etag
