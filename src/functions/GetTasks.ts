@@ -1,17 +1,26 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { getTasksContainer } from "../cosmos";
 
 export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const organizationId = request.query.get('organizationId');
+    try {
+        context.log(`Http function processed request for url "${request.url}"`);
+        const organizationId = request.query.get("organizationId");
+        if (!organizationId) {
+            return { status: 400, jsonBody: { message: "Query parameter 'organizationId' is required." } };
+        }
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+        const tasks = await getTasksContainer().items
+            .query({
+                query: "SELECT * FROM c WHERE c.organizationId = @organizationId",
+                parameters: [{ name: "@organizationId", value: organizationId }]
+            })
+            .fetchAll();
 
-    return { jsonBody: task.resources, status: 200 };
+        return { jsonBody: tasks.resources, status: 200 };
+    } catch (error) {
+        context.error("GetTasks failed", error);
+        return { status: 500, jsonBody: { message: "Failed to get tasks.", error: (error as Error).message } };
+    }
 };
 
 app.http('GetTasks', {

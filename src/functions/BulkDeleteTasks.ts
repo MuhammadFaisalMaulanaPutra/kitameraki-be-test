@@ -1,20 +1,28 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { getTasksContainer } from "../cosmos";
 
 export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
+    try {
+        context.log(`Http function processed request for url "${request.url}"`);
+        const body = await request.json() as string[];
+        const organizationId = request.query.get("organizationId");
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
+        if (!organizationId) {
+            return { status: 400, jsonBody: { message: "Query parameter 'organizationId' is required." } };
+        }
 
-    return { status: 200 };
+        if (!Array.isArray(body)) {
+            return { status: 400, jsonBody: { message: "Request body must be an array of task IDs." } };
+        }
+
+        const container = getTasksContainer();
+        await Promise.all(body.map((taskId) => container.item(taskId, organizationId).delete()));
+
+        return { status: 200 };
+    } catch (error) {
+        context.error("BulkDeleteTasks failed", error);
+        return { status: 500, jsonBody: { message: "Failed to bulk delete tasks.", error: (error as Error).message } };
+    }
 };
 
 app.http('BulkDeleteTasks', {
