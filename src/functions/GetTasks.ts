@@ -11,8 +11,11 @@ export async function GetTasks(request: HttpRequest, context: InvocationContext)
 
         const tasks = await getTasksContainer().items
             .query({
-                query: "SELECT * FROM c WHERE c.organizationId = @organizationId",
-                parameters: [{ name: "@organizationId", value: organizationId }]
+                query: "SELECT * FROM c WHERE c.organizationId = @organizationId AND (c.entityType = @taskType OR NOT IS_DEFINED(c.entityType))",
+                parameters: [
+                    { name: "@organizationId", value: organizationId },
+                    { name: "@taskType", value: "task" }
+                ]
             })
             .fetchAll();
 
