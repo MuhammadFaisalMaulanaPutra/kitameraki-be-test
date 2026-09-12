@@ -1,10 +1,6 @@
-*.js.map
-*.ts
-.git*
-.vscode
-__azurite_db*__.json
-__blobstorage__
-__queuestorage__
+node_modules/
+dist/
+.vscode/
+.git/
+.gitignore
 local.settings.json
-test
-tsconfig.json
