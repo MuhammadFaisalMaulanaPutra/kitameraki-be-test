@@ -1,19 +1,41 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { randomUUID } from "crypto";
+import { getTasksContainer } from "../services/cosmosClient";
+import { createTaskSchema } from "../schemas/task.schema";
 
 export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json();
+    try {
+        const rawBody = await request.json();
+        const parseResult = createTaskSchema.safeParse(rawBody);
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .items.create(body);
+        if (!parseResult.success) {
+            const firstIssue = parseResult.error.issues[0];
+            return {
+                status: 400,
+                jsonBody: {
+                    error: firstIssue ? `${firstIssue.path.join(".")}: ${firstIssue.message}` : "Invalid task payload",
+                    details: parseResult.error.flatten(),
+                },
+            };
+        }
 
-    return { jsonBody: createdTask.resource, status: 200 };
-};
+        const task = {
+            id: randomUUID(),
+            ...parseResult.data,
+        };
 
-app.http('InsertTask', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    handler: InsertTask
+        const container = getTasksContainer();
+        const { resource } = await container.items.create(task);
+
+        return { status: 201, jsonBody: resource };
+    } catch (error) {
+        context.error("InsertTask failed", error);
+        return { status: 500, jsonBody: { error: "Failed to create task" } };
+    }
+}
+
+app.http("InsertTask", {
+    methods: ["POST"],
+    authLevel: "function",
+    handler: InsertTask,
 });
