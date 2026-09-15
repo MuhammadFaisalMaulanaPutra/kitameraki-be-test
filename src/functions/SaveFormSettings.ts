@@ -59,5 +59,6 @@ export async function SaveFormSettings(
 app.http("SaveFormSettings", {
     methods: ["PUT"],
     authLevel: "anonymous",
+    route: "form-settings",
     handler: SaveFormSettings,
 });
