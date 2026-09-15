@@ -1,24 +1,65 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+    app,
+    HttpRequest,
+    HttpResponseInit,
+    InvocationContext,
+} from "@azure/functions";
+import { deleteTask } from "../services/taskService";
 
-export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json() as string[];
-    const organizationId = request.query.get('organizationId');
+export async function BulkDeleteTasks(
+    request: HttpRequest,
+    context: InvocationContext
+): Promise<HttpResponseInit> {
+    try {
+        const organizationId = request.query.get("organizationId");
 
-    const client = new CosmosClient("this is a connection string");
-    body.forEach(async element => {
-        await client.database("TaskApp")
-        .container("Tasks")
-        .item(element, organizationId)
-        .delete();
-    });
+        if (!organizationId) {
+            return {
+                status: 400,
+                jsonBody: {
+                    message: "organizationId is required",
+                },
+            };
+        }
 
-    return { status: 200 };
-};
+        const body = await request.json();
 
-app.http('BulkDeleteTasks', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+        if (
+            !Array.isArray(body) ||
+            body.length === 0 ||
+            !body.every((id) => typeof id === "string")
+        ) {
+            return {
+                status: 400,
+                jsonBody: {
+                    message: "Request body must be a non-empty array of task IDs",
+                },
+            };
+        }
+
+        await Promise.all(
+            body.map((taskId: string) =>
+                deleteTask(taskId, organizationId)
+            )
+        );
+
+        return {
+            status: 204,
+        };
+    } catch (error) {
+        context.error("Failed to bulk delete tasks", error);
+
+        return {
+            status: 500,
+            jsonBody: {
+                message: "Failed to delete tasks",
+            },
+        };
+    }
+}
+
+app.http("BulkDeleteTasks", {
+    methods: ["DELETE"],
+    authLevel: "anonymous",
+    handler: BulkDeleteTasks,
 });

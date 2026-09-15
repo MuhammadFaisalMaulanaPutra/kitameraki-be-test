@@ -1,21 +1,47 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+    app,
+    HttpRequest,
+    HttpResponseInit,
+    InvocationContext,
+} from "@azure/functions";
+import { getTasks } from "../services/taskService";
 
-export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const organizationId = request.query.get('organizationId');
+export async function GetTasks(
+    request: HttpRequest,
+    context: InvocationContext
+): Promise<HttpResponseInit> {
+    try {
+        const organizationId = request.query.get("organizationId");
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+        if (!organizationId) {
+            return {
+                status: 400,
+                jsonBody: {
+                    message: "organizationId is required",
+                },
+            };
+        }
 
-    return { jsonBody: task.resources, status: 200 };
-};
+        const tasks = await getTasks(organizationId);
 
-app.http('GetTasks', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTasks
+        return {
+            status: 200,
+            jsonBody: tasks,
+        };
+    } catch (error) {
+        context.error("Failed to get tasks", error);
+
+        return {
+            status: 500,
+            jsonBody: {
+                message: "Failed to retrieve tasks",
+            },
+        };
+    }
+}
+
+app.http("GetTasks", {
+    methods: ["GET"],
+    authLevel: "anonymous",
+    handler: GetTasks,
 });

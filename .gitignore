@@ -1,3 +1,11 @@
+.env
+.env.local
+.env.development
+.env.test
+.env.*
+!.env.example
+
+local.settings.json
 # Logs
 logs
 *.log
