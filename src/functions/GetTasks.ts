@@ -1,21 +1,32 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { getTasksContainer } from "../cosmos/client";
+import { toErrorResponse } from "../http/errors";
+import { badRequest, ok } from "../http/responses";
+import { isValidUuid } from "../validation/task";
 
 export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
     const organizationId = request.query.get('organizationId');
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+    if (!isValidUuid(organizationId)) {
+        return badRequest("Query parameter 'organizationId' must be a valid UUID");
+    }
 
-    return { jsonBody: task.resources, status: 200 };
-};
+    try {
+        const container = await getTasksContainer();
+        const { resources } = await container
+            .items.query({
+                query: "SELECT * FROM c WHERE c.organizationId = @organizationId",
+                parameters: [{ name: "@organizationId", value: organizationId }]
+            })
+            .fetchAll();
+        return ok(resources);
+    } catch (error) {
+        return toErrorResponse(error, context);
+    }
+}
 
 app.http('GetTasks', {
     methods: ['GET'],
-    authLevel: 'anonymous',
+    authLevel: 'function',
     handler: GetTasks
 });
