@@ -44,6 +44,14 @@
         "maxLength": 50
       },
       "description": "Tags associated with the task"
+    },
+    "customFields": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "null"],
+        "maxLength": 1000
+      },
+      "description": "Values for fields added through the form settings page, keyed by field key"
     }
   },
   "required": ["id", "organizationId", "title", "status"],
