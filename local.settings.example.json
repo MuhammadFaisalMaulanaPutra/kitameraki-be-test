@@ -1,0 +1,21 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AZURE_FUNCTIONS_ENVIRONMENT": "Development",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "ORGANIZATION_ID": "00000000-0000-4000-8000-000000000001",
+    "COSMOS_CONNECTION_STRING": "AccountEndpoint=http://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==;",
+    "COSMOS_DATABASE_NAME": "TaskApp",
+    "COSMOS_TASKS_CONTAINER_NAME": "Tasks",
+    "COSMOS_FORM_SETTINGS_CONTAINER_NAME": "FormSettings",
+    "ALLOWED_ORIGIN": "http://localhost:5173",
+    "MAX_REQUEST_BODY_BYTES": "262144",
+    "SLOW_COSMOS_OPERATION_MS": "250"
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "http://localhost:5173",
+    "CORSCredentials": false
+  }
+}

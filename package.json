@@ -1,23 +1,48 @@
 {
   "name": "kitameraki-be-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Secure Azure Functions API for the KitaMeraki task management app",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "prebuild": "npm run clean",
+    "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "watch": "tsc-watch --noClear -p tsconfig.json --onSuccess \"tsc-alias -p tsconfig.json\"",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run --config vitest.config.mts",
+    "test:watch": "vitest --config vitest.config.mts",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.mts",
+    "test:smoke": "vitest run --config vitest.smoke.config.mts",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "audit:production": "npm audit --omit=dev --audit-level=high",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run build"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/cosmos": "^4.5.1",
+    "@azure/functions": "^4.8.0",
+    "@azure/identity": "^4.12.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/node": "^20.x",
-    "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "eslint": "^10.0.0",
+    "globals": "^17.0.0",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.0",
+    "tsc-alias": "^1.9.5",
+    "tsc-watch": "^7.2.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^4.0.0"
   },
-  "main": "dist/src/{index.js,functions/*.js}"
+  "main": "dist/src/{index.js,functions/*/*.js}"
 }
