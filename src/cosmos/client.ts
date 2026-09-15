@@ -17,28 +17,53 @@ function getClient(): CosmosClient {
     return client;
 }
 
+let database: Promise<import("@azure/cosmos").Database> | undefined;
 let tasksContainer: Promise<Container> | undefined;
 let formSettingsContainer: Promise<Container> | undefined;
 
+// The database itself is never provisioned by the emulator/account automatically,
+// so it must be created before any container can be. Cached and self-healing on
+// failure for the same reason as the containers below.
+function getDatabase(): Promise<import("@azure/cosmos").Database> {
+    if (!database) {
+        database = getClient()
+            .databases.createIfNotExists({ id: DATABASE_ID })
+            .then(({ database }) => database)
+            .catch((error) => {
+                database = undefined;
+                throw error;
+            });
+    }
+    return database;
+}
+
 // Reused across invocations within the same function host instance so that
 // each request doesn't pay the cost of establishing a new Cosmos connection
-// or re-provisioning a container that already exists.
+// or re-provisioning a container that already exists. If provisioning fails
+// (e.g. Cosmos was unreachable), the cache is cleared so the next call retries
+// instead of replaying the same failure forever.
 export function getTasksContainer(): Promise<Container> {
     if (!tasksContainer) {
-        tasksContainer = getClient()
-            .database(DATABASE_ID)
-            .containers.createIfNotExists({ id: TASKS_CONTAINER_ID, partitionKey: "/organizationId" })
-            .then(({ container }) => container);
+        tasksContainer = getDatabase()
+            .then((db) => db.containers.createIfNotExists({ id: TASKS_CONTAINER_ID, partitionKey: "/organizationId" }))
+            .then(({ container }) => container)
+            .catch((error) => {
+                tasksContainer = undefined;
+                throw error;
+            });
     }
     return tasksContainer;
 }
 
 export function getFormSettingsContainer(): Promise<Container> {
     if (!formSettingsContainer) {
-        formSettingsContainer = getClient()
-            .database(DATABASE_ID)
-            .containers.createIfNotExists({ id: FORM_SETTINGS_CONTAINER_ID, partitionKey: "/organizationId" })
-            .then(({ container }) => container);
+        formSettingsContainer = getDatabase()
+            .then((db) => db.containers.createIfNotExists({ id: FORM_SETTINGS_CONTAINER_ID, partitionKey: "/organizationId" }))
+            .then(({ container }) => container)
+            .catch((error) => {
+                formSettingsContainer = undefined;
+                throw error;
+            });
     }
     return formSettingsContainer;
 }
