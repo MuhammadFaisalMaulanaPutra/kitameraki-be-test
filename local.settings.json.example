@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_CONNECTION_STRING": "dummy_connection_string_nanti_kita_isi",
+    "COSMOS_DATABASE_NAME": "TaskApp",
+    "COSMOS_CONTAINER_NAME": "Tasks"
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}
