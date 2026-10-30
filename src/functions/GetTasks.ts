@@ -6,7 +6,10 @@ export async function GetTasks(request: HttpRequest, context: InvocationContext)
     const organizationId = request.query.get('organizationId');
 
     const task = await tasksContainer.items
-        .query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
+        .query({
+            query: "SELECT * FROM c WHERE c.organizationId = @organizationId",
+            parameters: [{ name: "@organizationId", value: organizationId }]
+        })
         .fetchNext();
 
     return { jsonBody: task.resources, status: 200 };
