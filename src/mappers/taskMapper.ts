@@ -9,6 +9,7 @@ export function toTaskDto(task: TaskDocument): TaskDto {
         dueDate: task.dueDate,
         priority: task.priority,
         status: task.status,
-        tags: task.tags
+        tags: task.tags,
+        createdAt: task.createdAt
     };
 }

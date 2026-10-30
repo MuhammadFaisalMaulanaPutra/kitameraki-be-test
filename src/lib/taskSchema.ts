@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 export const uuidSchema = z.uuid();
+export const prioritySchema = z.enum(["low", "medium", "high"]);
+export const statusSchema = z.enum(["todo", "in-progress", "completed"]);
 
 const taskFields = {
     title: z.string().trim().min(1).max(100),
     description: z.string().max(1000).optional(),
     dueDate: z.iso.datetime({ offset: true }).optional(),
-    priority: z.enum(["low", "medium", "high"]).optional(),
-    status: z.enum(["todo", "in-progress", "completed"]),
+    priority: prioritySchema.optional(),
+    status: statusSchema,
     tags: z.array(z.string().max(50)).optional()
 };
 
@@ -38,5 +40,15 @@ export const bulkDeleteSchema = z.array(uuidSchema)
         message: "Task ids must be unique."
     });
 
+export const taskListQuerySchema = z.strictObject({
+    organizationId: uuidSchema,
+    search: z.string().trim().min(1).max(100).optional(),
+    status: statusSchema.optional(),
+    priority: prioritySchema.optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(20)
+});
+
 export type CreateTask = z.infer<typeof createTaskSchema>;
 export type UpdateTask = z.infer<typeof updateTaskSchema>;
+export type TaskListQuery = z.infer<typeof taskListQuerySchema>;

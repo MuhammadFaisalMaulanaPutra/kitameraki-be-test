@@ -1,12 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { ConflictError, NotFoundError } from "../lib/errors";
-import type { CreateTask, UpdateTask } from "../lib/taskSchema";
+import type { CreateTask, TaskListQuery, UpdateTask } from "../lib/taskSchema";
 import { toTaskDto } from "../mappers/taskMapper";
 import * as taskRepository from "../repositories/taskRepository";
-import type { TaskDto } from "../types/task";
+import type { TaskDto, TaskListDto } from "../types/task";
 
 export async function createTask(input: CreateTask): Promise<TaskDto> {
-    const task = await taskRepository.createTask({ id: randomUUID(), ...input });
+    const task = await taskRepository.createTask({
+        id: randomUUID(),
+        createdAt: new Date().toISOString(),
+        ...input
+    });
     return toTaskDto(task);
 }
 
@@ -18,9 +22,14 @@ export async function getTask(id: string, organizationId: string): Promise<TaskD
     return toTaskDto(task);
 }
 
-export async function getTasks(organizationId: string): Promise<TaskDto[]> {
-    const tasks = await taskRepository.listTasks(organizationId);
-    return tasks.map(toTaskDto);
+export async function getTasks(query: TaskListQuery): Promise<TaskListDto> {
+    const { tasks, total } = await taskRepository.listTasks(query);
+    return {
+        items: tasks.map(toTaskDto),
+        total,
+        page: query.page,
+        pageSize: query.pageSize
+    };
 }
 
 export async function updateTask(
