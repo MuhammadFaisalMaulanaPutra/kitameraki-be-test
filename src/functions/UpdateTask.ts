@@ -1,5 +1,5 @@
-import { CosmosClient } from "@azure/cosmos";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { tasksContainer } from "../lib/cosmos";
 
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
@@ -17,10 +17,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
         });
     }
 
-    const client = new CosmosClient("this is a connection string");
-    const createdTask = await client.database("TaskApp")
-        .container("Tasks")
-        .item(taskId, organizationId)
+    const createdTask = await tasksContainer.item(taskId, organizationId)
         .patch(patchRequests);
 
     return { jsonBody: createdTask.resource, status: 200 };
