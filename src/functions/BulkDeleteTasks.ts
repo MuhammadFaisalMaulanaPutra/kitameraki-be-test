@@ -10,7 +10,10 @@ export async function BulkDeleteTasks(request: HttpRequest, context: InvocationC
         return { jsonBody: { error: "Task ids must be an array of at most 100 strings." }, status: 400 };
     }
 
-    await Promise.all(body.map(id => tasksContainer.item(id, organizationId).delete()));
+    await tasksContainer.items.batch(
+        body.map(id => ({ operationType: "Delete", id })),
+        organizationId
+    );
     return { status: 200 };
 };
 
