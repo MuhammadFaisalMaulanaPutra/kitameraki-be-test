@@ -1,6 +1,6 @@
 import { HttpHandler, HttpResponseInit } from "@azure/functions";
 import { z } from "zod";
-import { ConflictError, NotFoundError, ValidationError } from "./errors";
+import { ConflictError, getErrorStatusCode, NotFoundError, ValidationError } from "./errors";
 
 function errorResponse(statusCode: number, code: string, message: string, details?: unknown): HttpResponseInit {
     return {
@@ -13,16 +13,6 @@ function errorResponse(statusCode: number, code: string, message: string, detail
         },
         status: statusCode
     };
-}
-
-function getStatusCode(error: unknown): number | undefined {
-    if (typeof error !== "object" || error === null) {
-        return undefined;
-    }
-
-    const { code, statusCode } = error as { code?: unknown; statusCode?: unknown };
-    const value = typeof statusCode === "number" ? statusCode : code;
-    return typeof value === "number" ? value : undefined;
 }
 
 export function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
@@ -54,7 +44,7 @@ export function withErrorHandling(handler: HttpHandler): HttpHandler {
                 return errorResponse(400, "INVALID_JSON", "Invalid JSON body.");
             }
 
-            const status = getStatusCode(error);
+            const status = getErrorStatusCode(error);
             if (status === 404) {
                 return errorResponse(404, "NOT_FOUND", "Resource not found.");
             }

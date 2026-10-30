@@ -7,6 +7,8 @@ if (!connectionString) {
 }
 
 export const cosmosClient = new CosmosClient(connectionString);
-export const tasksContainer = cosmosClient
-    .database(process.env.COSMOS_DATABASE_NAME ?? "TaskApp")
-    .container(process.env.COSMOS_CONTAINER_NAME ?? "Tasks");
+const database = cosmosClient.database(process.env.COSMOS_DATABASE_NAME ?? "TaskApp");
+export const tasksContainer = database.container(process.env.COSMOS_CONTAINER_NAME ?? "Tasks");
+export const formSettingsContainer = database.container(
+    process.env.COSMOS_FORM_SETTINGS_CONTAINER_NAME ?? "FormSettings"
+);

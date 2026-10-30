@@ -32,11 +32,16 @@ async function main(): Promise<void> {
 
     const databaseName = process.env.COSMOS_DATABASE_NAME ?? "TaskApp";
     const containerName = process.env.COSMOS_CONTAINER_NAME ?? "Tasks";
+    const formSettingsContainerName = process.env.COSMOS_FORM_SETTINGS_CONTAINER_NAME ?? "FormSettings";
     const client = new CosmosClient(connectionString);
     const { database } = await client.databases.createIfNotExists({ id: databaseName });
 
     await database.containers.createIfNotExists({
         id: containerName,
+        partitionKey: { paths: ["/organizationId"], kind: PartitionKeyKind.Hash }
+    });
+    await database.containers.createIfNotExists({
+        id: formSettingsContainerName,
         partitionKey: { paths: ["/organizationId"], kind: PartitionKeyKind.Hash }
     });
 
@@ -57,7 +62,9 @@ async function main(): Promise<void> {
         }
     });
 
-    console.log(`Initialized ${databaseName}/${containerName} with its composite index.`);
+    console.log(
+        `Initialized ${databaseName}/${containerName} with its composite index and ${formSettingsContainerName}.`
+    );
 }
 
 main().catch(error => {

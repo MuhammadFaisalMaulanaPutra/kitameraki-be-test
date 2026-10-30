@@ -25,7 +25,7 @@ npm run db:init
 npm start
 ```
 
-`npm run db:init` creates the `TaskApp` database and `Tasks` container when needed, with partition key `/organizationId` and the composite index required by task list ordering.
+`npm run db:init` creates the `TaskApp` database, `Tasks` and `FormSettings` containers when needed, with partition key `/organizationId` and the composite index required by task list ordering.
 
 The API is available under `http://localhost:7071/api/tasks`. The example uses the Cosmos DB emulator connection string.
 

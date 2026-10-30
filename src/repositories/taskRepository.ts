@@ -1,4 +1,5 @@
 import { tasksContainer } from "../lib/cosmos";
+import { getErrorStatusCode } from "../lib/errors";
 import type { TaskListQuery, UpdateTask } from "../lib/taskSchema";
 import type { TaskDocument } from "../types/task";
 
@@ -47,8 +48,15 @@ export async function createTask(task: TaskDocument): Promise<TaskDocument> {
 }
 
 export async function readTask(id: string, organizationId: string): Promise<TaskDocument | undefined> {
-    const { resource } = await tasksContainer.item(id, organizationId).read<TaskDocument>();
-    return resource;
+    try {
+        const { resource } = await tasksContainer.item(id, organizationId).read<TaskDocument>();
+        return resource;
+    } catch (error) {
+        if (getErrorStatusCode(error) === 404) {
+            return undefined;
+        }
+        throw error;
+    }
 }
 
 export async function listTasks(query: TaskListQuery): Promise<{ tasks: TaskDocument[]; total: number }> {
