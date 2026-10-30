@@ -20,9 +20,14 @@ export const builtInFields: FormFieldDefinition[] = [
 ];
 
 const builtInFieldsById = new Map(builtInFields.map(field => [field.id, field]));
+const reservedFieldIds = new Set(["__proto__", "constructor", "prototype"]);
+const fieldIdSchema = z.string()
+    .trim()
+    .regex(/^[A-Za-z0-9_-]{1,50}$/, "Field id may contain only letters, numbers, underscores, and hyphens.")
+    .refine(value => !reservedFieldIds.has(value), "Field id is reserved.");
 
 const fieldSchema = z.strictObject({
-    id: z.string().trim().min(1).max(100),
+    id: fieldIdSchema,
     label: z.string().trim().min(1).max(100),
     type: fieldTypeSchema,
     builtIn: z.boolean()
@@ -35,7 +40,7 @@ const rowSchema = z.strictObject({
 
 export const formSettingsInputSchema = z.strictObject({
     rows: z.array(rowSchema).min(1),
-    fields: z.array(fieldSchema).min(1)
+    fields: z.array(fieldSchema).min(1).max(50)
 }).superRefine((settings, ctx) => {
     const fieldIds = new Set<string>();
     for (const [index, field] of settings.fields.entries()) {

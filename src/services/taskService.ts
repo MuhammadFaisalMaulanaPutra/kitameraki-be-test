@@ -93,19 +93,19 @@ export async function updateTask(
             throw new NotFoundError();
         }
 
-        const mergedCustomFields = { ...existing.task.customFields };
+        const mergedCustomFields = new Map(Object.entries(existing.task.customFields ?? {}));
         for (const [fieldId, value] of Object.entries(changes.customFields)) {
             if (value === null) {
-                delete mergedCustomFields[fieldId];
+                mergedCustomFields.delete(fieldId);
             } else {
-                mergedCustomFields[fieldId] = value;
+                mergedCustomFields.set(fieldId, value);
             }
         }
 
         task = await taskRepository.updateTask(
             id,
             organizationId,
-            { ...changes, customFields: mergedCustomFields },
+            { ...changes, customFields: Object.fromEntries(mergedCustomFields) },
             existing.etag
         );
     } else {
