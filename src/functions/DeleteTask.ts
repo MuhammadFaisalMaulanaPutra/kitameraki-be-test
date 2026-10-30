@@ -1,4 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { z } from "zod";
 import { tasksContainer } from "../lib/cosmos";
 import { withErrorHandling } from "../lib/http";
 import { taskParamsSchema } from "../lib/taskSchema";
@@ -11,7 +12,7 @@ export async function DeleteTask(request: HttpRequest, context: InvocationContex
         organizationId: request.query.get('organizationId')
     });
     if (!paramsResult.success) {
-        return { jsonBody: { errors: paramsResult.error.flatten() }, status: 400 };
+        return { jsonBody: { errors: z.flattenError(paramsResult.error) }, status: 400 };
     }
 
     await tasksContainer.item(paramsResult.data.id, paramsResult.data.organizationId)

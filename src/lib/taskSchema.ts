@@ -1,29 +1,28 @@
 import { z } from "zod";
 
-export const uuidSchema = z.string().uuid();
+export const uuidSchema = z.uuid();
 
 const taskFields = {
     title: z.string().trim().min(1).max(100),
     description: z.string().max(1000).optional(),
-    dueDate: z.string().datetime({ offset: true }).optional(),
+    dueDate: z.iso.datetime({ offset: true }).optional(),
     priority: z.enum(["low", "medium", "high"]).optional(),
     status: z.enum(["todo", "in-progress", "completed"]),
     tags: z.array(z.string().max(50)).optional()
 };
 
-export const createTaskSchema = z.object({
+export const createTaskSchema = z.strictObject({
     organizationId: uuidSchema,
     ...taskFields
-}).strict();
+});
 
-export const updateTaskSchema = z.object(taskFields)
+export const updateTaskSchema = z.strictObject(taskFields)
     .partial()
-    .strict()
     .refine(task => Object.keys(task).length > 0, {
         message: "At least one task field is required."
     });
 
-export const taskParamsSchema = z.object({
+export const taskParamsSchema = z.strictObject({
     id: uuidSchema,
     organizationId: uuidSchema
 });

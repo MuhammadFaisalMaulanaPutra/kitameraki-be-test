@@ -1,4 +1,5 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { z } from "zod";
 import { tasksContainer } from "../lib/cosmos";
 import { withErrorHandling } from "../lib/http";
 import { taskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
@@ -6,7 +7,7 @@ import { taskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const bodyResult = updateTaskSchema.safeParse(await request.json());
     if (!bodyResult.success) {
-        return { jsonBody: { errors: bodyResult.error.flatten() }, status: 400 };
+        return { jsonBody: { errors: z.flattenError(bodyResult.error) }, status: 400 };
     }
 
     const paramsResult = taskParamsSchema.safeParse({
@@ -14,7 +15,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
         organizationId: request.query.get('organizationId')
     });
     if (!paramsResult.success) {
-        return { jsonBody: { errors: paramsResult.error.flatten() }, status: 400 };
+        return { jsonBody: { errors: z.flattenError(paramsResult.error) }, status: 400 };
     }
 
     const patchRequests = Object.entries(bodyResult.data).map(([key, value]) => ({

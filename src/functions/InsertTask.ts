@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { z } from "zod";
 import { tasksContainer } from "../lib/cosmos";
 import { withErrorHandling } from "../lib/http";
 import { createTaskSchema } from "../lib/taskSchema";
@@ -8,7 +9,7 @@ export async function InsertTask(request: HttpRequest, context: InvocationContex
     const result = createTaskSchema.safeParse(await request.json());
 
     if (!result.success) {
-        return { jsonBody: { errors: result.error.flatten() }, status: 400 };
+        return { jsonBody: { errors: z.flattenError(result.error) }, status: 400 };
     }
 
     const createdTask = await tasksContainer.items.create({ id: randomUUID(), ...result.data });
