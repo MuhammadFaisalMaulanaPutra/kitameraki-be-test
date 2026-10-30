@@ -17,7 +17,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
     }
 
     const patchRequests = Object.entries(bodyResult.data).map(([key, value]) => ({
-        op: "replace" as const,
+        op: "set" as const,
         path: `/${key}`,
         value
     }));
