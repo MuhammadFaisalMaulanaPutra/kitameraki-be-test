@@ -1,6 +1,7 @@
 import { tasksContainer } from "../lib/cosmos";
 import { getErrorStatusCode } from "../lib/errors";
 import { buildTaskListQueries } from "../lib/taskListQuery";
+import { buildTaskPatchOperations } from "../lib/taskPatch";
 import type { TaskListQuery, UpdateTask } from "../lib/taskSchema";
 import type { TaskDocument } from "../types/task";
 
@@ -48,11 +49,7 @@ export async function updateTask(
     changes: UpdateTask,
     etag?: string
 ): Promise<TaskDocument> {
-    const operations = Object.entries(changes).map(([key, value]) => ({
-        op: "set" as const,
-        path: `/${key}`,
-        value
-    }));
+    const operations = buildTaskPatchOperations(changes);
     const { resource } = await tasksContainer
         .item(id, organizationId)
         .patch<TaskDocument>(

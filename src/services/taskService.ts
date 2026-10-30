@@ -88,22 +88,35 @@ export async function updateTask(
 ): Promise<TaskDto> {
     await validateCustomFields(organizationId, changes.customFields);
     let task: Awaited<ReturnType<typeof taskRepository.updateTask>>;
+    const needsExistingTask =
+        changes.customFields !== undefined ||
+        Object.values(changes).some((value) => value === null);
 
-    if (changes.customFields) {
+    if (needsExistingTask) {
         const existing = await taskRepository.readTask(id, organizationId);
         if (!existing) {
             throw new NotFoundError();
         }
 
-        task = await taskRepository.updateTask(
-            id,
-            organizationId,
-            {
-                ...changes,
-                customFields: mergeCustomFields(existing.task.customFields, changes.customFields)
-            },
-            existing.etag
-        );
+        const patchChanges: UpdateTask = { ...changes };
+        if (changes.customFields) {
+            patchChanges.customFields = mergeCustomFields(
+                existing.task.customFields,
+                changes.customFields
+            );
+        }
+
+        for (const [field, value] of Object.entries(changes)) {
+            if (value === null && !Object.hasOwn(existing.task, field)) {
+                delete patchChanges[field as keyof UpdateTask];
+            }
+        }
+
+        if (Object.keys(patchChanges).length === 0) {
+            return toTaskDto(existing.task);
+        }
+
+        task = await taskRepository.updateTask(id, organizationId, patchChanges, existing.etag);
     } else {
         task = await taskRepository.updateTask(id, organizationId, changes);
     }

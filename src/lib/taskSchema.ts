@@ -20,8 +20,15 @@ export const createTaskSchema = z.strictObject({
 });
 
 export const updateTaskSchema = z
-    .strictObject(taskFields)
-    .partial()
+    .strictObject({
+        title: taskFields.title.optional(),
+        description: taskFields.description.nullable(),
+        dueDate: taskFields.dueDate.nullable(),
+        priority: taskFields.priority.nullable(),
+        status: taskFields.status.optional(),
+        tags: taskFields.tags.nullable(),
+        customFields: taskFields.customFields
+    })
     .refine((task) => Object.keys(task).length > 0, {
         message: "At least one task field is required."
     });

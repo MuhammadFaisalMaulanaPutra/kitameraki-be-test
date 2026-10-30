@@ -108,6 +108,32 @@ test("API integration", async (t) => {
             Object.keys(updated.body).some((key) => key.startsWith("_")),
             false
         );
+
+        const emptyTask = await api("POST", "/tasks", {
+            organizationId,
+            title: "empty task",
+            status: "todo"
+        });
+        const clearMissing = await api(
+            "PATCH",
+            `/tasks/${emptyTask.body.id}?organizationId=${organizationId}`,
+            { dueDate: null }
+        );
+        assert.equal(clearMissing.status, 200);
+
+        const clearAllMissing = await api(
+            "PATCH",
+            `/tasks/${emptyTask.body.id}?organizationId=${organizationId}`,
+            {
+                title: "still empty",
+                description: null,
+                dueDate: null,
+                priority: null,
+                tags: null
+            }
+        );
+        assert.equal(clearAllMissing.status, 200);
+        assert.equal(clearAllMissing.body.title, "still empty");
     });
 
     await t.test("bulk delete is atomic", async (t) => {
