@@ -9,7 +9,8 @@
     "db:init": "npm run build && node dist/scripts/init-db.js",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "test": "npm run build && node --test dist/test/unit/*.test.js",
+    "test:integration": "npm run build && node --test dist/test/integration/*.test.js"
   },
   "dependencies": {
     "@azure/cosmos": "^4.10.1",

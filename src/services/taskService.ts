@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { mergeCustomFields } from "../lib/customFields";
 import { ConflictError, NotFoundError, ValidationError } from "../lib/errors";
 import { customFieldValueSchemas } from "../lib/formSettingsSchema";
 import type { CreateTask, TaskListQuery, UpdateTask } from "../lib/taskSchema";
@@ -93,19 +94,13 @@ export async function updateTask(
             throw new NotFoundError();
         }
 
-        const mergedCustomFields = new Map(Object.entries(existing.task.customFields ?? {}));
-        for (const [fieldId, value] of Object.entries(changes.customFields)) {
-            if (value === null) {
-                mergedCustomFields.delete(fieldId);
-            } else {
-                mergedCustomFields.set(fieldId, value);
-            }
-        }
-
         task = await taskRepository.updateTask(
             id,
             organizationId,
-            { ...changes, customFields: Object.fromEntries(mergedCustomFields) },
+            {
+                ...changes,
+                customFields: mergeCustomFields(existing.task.customFields, changes.customFields)
+            },
             existing.etag
         );
     } else {
