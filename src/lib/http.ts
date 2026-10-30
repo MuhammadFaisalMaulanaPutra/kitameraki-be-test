@@ -56,6 +56,13 @@ export function withErrorHandling(handler: HttpHandler): HttpHandler {
             if (status === 409 || status === 412) {
                 return errorResponse(409, "CONFLICT", "Resource conflict.");
             }
+            if (status === 408 || status === 429 || status === 503) {
+                return errorResponse(
+                    503,
+                    "SERVICE_UNAVAILABLE",
+                    "Service temporarily unavailable. Please retry."
+                );
+            }
 
             context.error(error);
             return errorResponse(500, "INTERNAL_ERROR", "Internal server error.");
