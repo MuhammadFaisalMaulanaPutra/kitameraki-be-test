@@ -23,7 +23,7 @@ export const updateTaskSchema = z.object(taskFields)
         message: "At least one task field is required."
     });
 
-export const updateTaskParamsSchema = z.object({
+export const taskParamsSchema = z.object({
     id: uuidSchema,
     organizationId: uuidSchema
 });

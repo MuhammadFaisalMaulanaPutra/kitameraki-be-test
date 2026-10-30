@@ -1,7 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
 import { withErrorHandling } from "../lib/http";
-import { updateTaskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
+import { taskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const bodyResult = updateTaskSchema.safeParse(await request.json());
@@ -9,7 +9,7 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
         return { jsonBody: { errors: bodyResult.error.flatten() }, status: 400 };
     }
 
-    const paramsResult = updateTaskParamsSchema.safeParse({
+    const paramsResult = taskParamsSchema.safeParse({
         id: request.query.get('id'),
         organizationId: request.query.get('organizationId')
     });
