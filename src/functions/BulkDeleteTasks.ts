@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
+import { withErrorHandling } from "../lib/http";
 import { bulkDeleteSchema, uuidSchema } from "../lib/taskSchema";
 
 export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
@@ -30,5 +31,5 @@ export async function BulkDeleteTasks(request: HttpRequest, context: InvocationC
 app.http('BulkDeleteTasks', {
     methods: ['DELETE'],
     authLevel: 'anonymous',
-    handler: BulkDeleteTasks
+    handler: withErrorHandling(BulkDeleteTasks)
 });

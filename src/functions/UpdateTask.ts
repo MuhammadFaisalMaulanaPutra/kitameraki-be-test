@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
+import { withErrorHandling } from "../lib/http";
 import { updateTaskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
@@ -31,5 +32,5 @@ export async function UpdateTask(request: HttpRequest, context: InvocationContex
 app.http('UpdateTask', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    handler: UpdateTask
+    handler: withErrorHandling(UpdateTask)
 });

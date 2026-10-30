@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
+import { withErrorHandling } from "../lib/http";
 
 export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
@@ -18,5 +19,5 @@ export async function GetTasks(request: HttpRequest, context: InvocationContext)
 app.http('GetTasks', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    handler: GetTasks
+    handler: withErrorHandling(GetTasks)
 });

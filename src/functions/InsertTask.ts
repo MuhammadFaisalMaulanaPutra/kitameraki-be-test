@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
+import { withErrorHandling } from "../lib/http";
 import { createTaskSchema } from "../lib/taskSchema";
 
 export async function InsertTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
@@ -18,5 +19,5 @@ export async function InsertTask(request: HttpRequest, context: InvocationContex
 app.http('InsertTask', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    handler: InsertTask
+    handler: withErrorHandling(InsertTask)
 });
