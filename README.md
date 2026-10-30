@@ -115,7 +115,7 @@ All errors use one response shape:
 }
 ```
 
-`details` is present for validation errors. Error codes include `VALIDATION_ERROR`, `INVALID_JSON`, `NOT_FOUND`, `CONFLICT`, and `INTERNAL_ERROR`.
+`details` is present for validation errors. Error codes include `VALIDATION_ERROR`, `INVALID_JSON`, `NOT_FOUND`, `CONFLICT`, `SERVICE_UNAVAILABLE`, and `INTERNAL_ERROR`.
 
 ## Tests and quality checks
 
