@@ -42,9 +42,18 @@ export const bulkDeleteSchema = z.array(uuidSchema)
 
 export const taskListQuerySchema = z.strictObject({
     organizationId: uuidSchema,
-    search: z.string().trim().min(1).max(100).optional(),
-    status: statusSchema.optional(),
-    priority: prioritySchema.optional(),
+    search: z.preprocess(
+        value => value === "" ? undefined : value,
+        z.string().trim().min(1).max(100).optional()
+    ),
+    status: z.preprocess(
+        value => value === "" ? undefined : value,
+        statusSchema.optional()
+    ),
+    priority: z.preprocess(
+        value => value === "" ? undefined : value,
+        prioritySchema.optional()
+    ),
     page: z.coerce.number().int().min(1).default(1),
     pageSize: z.coerce.number().int().min(1).max(100).default(20)
 });
