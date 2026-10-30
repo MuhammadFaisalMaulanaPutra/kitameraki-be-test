@@ -20,6 +20,11 @@ export async function BulkDeleteTasks(request: HttpRequest, context: InvocationC
         bodyResult.data.map(id => ({ operationType: "Delete", id })),
         organizationResult.data
     );
+
+    if (!batchResult.result) {
+        throw new Error("Cosmos batch returned no operation results.");
+    }
+
     const failedOperation = batchResult.result.find(operation => operation.statusCode >= 400);
 
     if (failedOperation) {
