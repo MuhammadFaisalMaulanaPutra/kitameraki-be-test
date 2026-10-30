@@ -2,7 +2,12 @@ import { HttpHandler, HttpResponseInit } from "@azure/functions";
 import { z } from "zod";
 import { ConflictError, getErrorStatusCode, NotFoundError, ValidationError } from "./errors";
 
-function errorResponse(statusCode: number, code: string, message: string, details?: unknown): HttpResponseInit {
+function errorResponse(
+    statusCode: number,
+    code: string,
+    message: string,
+    details?: unknown
+): HttpResponseInit {
     return {
         jsonBody: {
             error: {

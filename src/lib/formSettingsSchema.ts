@@ -19,12 +19,16 @@ export const builtInFields: FormFieldDefinition[] = [
     { id: "tags", label: "Tags", type: "text", builtIn: true }
 ];
 
-const builtInFieldsById = new Map(builtInFields.map(field => [field.id, field]));
+const builtInFieldsById = new Map(builtInFields.map((field) => [field.id, field]));
 const reservedFieldIds = new Set(["__proto__", "constructor", "prototype"]);
-const fieldIdSchema = z.string()
+const fieldIdSchema = z
+    .string()
     .trim()
-    .regex(/^[A-Za-z0-9_-]{1,50}$/, "Field id may contain only letters, numbers, underscores, and hyphens.")
-    .refine(value => !reservedFieldIds.has(value), "Field id is reserved.");
+    .regex(
+        /^[A-Za-z0-9_-]{1,50}$/,
+        "Field id may contain only letters, numbers, underscores, and hyphens."
+    )
+    .refine((value) => !reservedFieldIds.has(value), "Field id is reserved.");
 
 const fieldSchema = z.strictObject({
     id: fieldIdSchema,
@@ -38,95 +42,97 @@ const rowSchema = z.strictObject({
     fieldIds: z.array(z.string().trim().min(1).max(100)).min(1).max(2)
 });
 
-export const formSettingsInputSchema = z.strictObject({
-    rows: z.array(rowSchema).min(1),
-    fields: z.array(fieldSchema).min(1).max(50)
-}).superRefine((settings, ctx) => {
-    const fieldIds = new Set<string>();
-    for (const [index, field] of settings.fields.entries()) {
-        if (fieldIds.has(field.id)) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Field ids must be unique.",
-                path: ["fields", index, "id"]
-            });
-        }
-        fieldIds.add(field.id);
-
-        const builtIn = builtInFieldsById.get(field.id);
-        if (builtIn && field.type !== builtIn.type) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Built-in field types cannot be changed.",
-                path: ["fields", index, "type"]
-            });
-        }
-        if (builtIn && !field.builtIn) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Built-in fields must remain marked as built-in.",
-                path: ["fields", index, "builtIn"]
-            });
-        }
-        if (!builtIn && field.builtIn) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Custom fields must not be marked as built-in.",
-                path: ["fields", index, "builtIn"]
-            });
-        }
-    }
-
-    for (const builtIn of builtInFields) {
-        if (!fieldIds.has(builtIn.id)) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Built-in fields cannot be removed.",
-                path: ["fields"]
-            });
-        }
-    }
-
-    const rowIds = new Set<string>();
-    const placedFieldIds = new Set<string>();
-    for (const [rowIndex, row] of settings.rows.entries()) {
-        if (rowIds.has(row.id)) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Row ids must be unique.",
-                path: ["rows", rowIndex, "id"]
-            });
-        }
-        rowIds.add(row.id);
-
-        for (const [fieldIndex, fieldId] of row.fieldIds.entries()) {
-            if (!fieldIds.has(fieldId)) {
+export const formSettingsInputSchema = z
+    .strictObject({
+        rows: z.array(rowSchema).min(1),
+        fields: z.array(fieldSchema).min(1).max(50)
+    })
+    .superRefine((settings, ctx) => {
+        const fieldIds = new Set<string>();
+        for (const [index, field] of settings.fields.entries()) {
+            if (fieldIds.has(field.id)) {
                 ctx.addIssue({
                     code: "custom",
-                    message: "Field id referenced by row does not exist.",
-                    path: ["rows", rowIndex, "fieldIds", fieldIndex]
-                });
-            } else if (placedFieldIds.has(fieldId)) {
-                ctx.addIssue({
-                    code: "custom",
-                    message: "Each field must appear in exactly one row.",
-                    path: ["rows", rowIndex, "fieldIds", fieldIndex]
+                    message: "Field ids must be unique.",
+                    path: ["fields", index, "id"]
                 });
             }
-            placedFieldIds.add(fieldId);
-        }
-    }
+            fieldIds.add(field.id);
 
-    for (const fieldId of fieldIds) {
-        if (!placedFieldIds.has(fieldId)) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Every field must appear in a row.",
-                path: ["rows"]
-            });
+            const builtIn = builtInFieldsById.get(field.id);
+            if (builtIn && field.type !== builtIn.type) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Built-in field types cannot be changed.",
+                    path: ["fields", index, "type"]
+                });
+            }
+            if (builtIn && !field.builtIn) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Built-in fields must remain marked as built-in.",
+                    path: ["fields", index, "builtIn"]
+                });
+            }
+            if (!builtIn && field.builtIn) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Custom fields must not be marked as built-in.",
+                    path: ["fields", index, "builtIn"]
+                });
+            }
         }
-    }
-});
+
+        for (const builtIn of builtInFields) {
+            if (!fieldIds.has(builtIn.id)) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Built-in fields cannot be removed.",
+                    path: ["fields"]
+                });
+            }
+        }
+
+        const rowIds = new Set<string>();
+        const placedFieldIds = new Set<string>();
+        for (const [rowIndex, row] of settings.rows.entries()) {
+            if (rowIds.has(row.id)) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Row ids must be unique.",
+                    path: ["rows", rowIndex, "id"]
+                });
+            }
+            rowIds.add(row.id);
+
+            for (const [fieldIndex, fieldId] of row.fieldIds.entries()) {
+                if (!fieldIds.has(fieldId)) {
+                    ctx.addIssue({
+                        code: "custom",
+                        message: "Field id referenced by row does not exist.",
+                        path: ["rows", rowIndex, "fieldIds", fieldIndex]
+                    });
+                } else if (placedFieldIds.has(fieldId)) {
+                    ctx.addIssue({
+                        code: "custom",
+                        message: "Each field must appear in exactly one row.",
+                        path: ["rows", rowIndex, "fieldIds", fieldIndex]
+                    });
+                }
+                placedFieldIds.add(fieldId);
+            }
+        }
+
+        for (const fieldId of fieldIds) {
+            if (!placedFieldIds.has(fieldId)) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "Every field must appear in a row.",
+                    path: ["rows"]
+                });
+            }
+        }
+    });
 
 export const customFieldValueSchemas = {
     text: z.string().max(1000),

@@ -13,10 +13,9 @@ test("custom field merge preserves untouched values", () => {
 });
 
 test("custom field merge removes null keys", () => {
-    assert.deepEqual(
-        mergeCustomFields({ email: "a@b.com", notes: "old" }, { notes: null }),
-        { email: "a@b.com" }
-    );
+    assert.deepEqual(mergeCustomFields({ email: "a@b.com", notes: "old" }, { notes: null }), {
+        email: "a@b.com"
+    });
 });
 
 test("custom field merge handles a task without existing values", () => {

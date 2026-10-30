@@ -32,7 +32,8 @@ async function main(): Promise<void> {
 
     const databaseName = process.env.COSMOS_DATABASE_NAME ?? "TaskApp";
     const containerName = process.env.COSMOS_CONTAINER_NAME ?? "Tasks";
-    const formSettingsContainerName = process.env.COSMOS_FORM_SETTINGS_CONTAINER_NAME ?? "FormSettings";
+    const formSettingsContainerName =
+        process.env.COSMOS_FORM_SETTINGS_CONTAINER_NAME ?? "FormSettings";
     const client = new CosmosClient(connectionString);
     const { database } = await client.databases.createIfNotExists({ id: databaseName });
 
@@ -55,10 +56,12 @@ async function main(): Promise<void> {
         ...definition,
         indexingPolicy: {
             ...definition.indexingPolicy,
-            compositeIndexes: [[
-                { path: "/createdAt", order: "descending" },
-                { path: "/id", order: "ascending" }
-            ]]
+            compositeIndexes: [
+                [
+                    { path: "/createdAt", order: "descending" },
+                    { path: "/id", order: "ascending" }
+                ]
+            ]
         }
     });
 
@@ -67,7 +70,7 @@ async function main(): Promise<void> {
     );
 }
 
-main().catch(error => {
+main().catch((error) => {
     console.error(error);
     process.exitCode = 1;
 });

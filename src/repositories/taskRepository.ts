@@ -27,7 +27,9 @@ export async function readTask(
     }
 }
 
-export async function listTasks(query: TaskListQuery): Promise<{ tasks: TaskDocument[]; total: number }> {
+export async function listTasks(
+    query: TaskListQuery
+): Promise<{ tasks: TaskDocument[]; total: number }> {
     const { itemsQuery, countQuery } = buildTaskListQueries(query);
     const [itemsResult, countResult] = await Promise.all([
         tasksContainer.items.query<TaskDocument>(itemsQuery).fetchAll(),
@@ -51,10 +53,12 @@ export async function updateTask(
         path: `/${key}`,
         value
     }));
-    const { resource } = await tasksContainer.item(id, organizationId).patch<TaskDocument>(
-        operations,
-        etag ? { accessCondition: { type: "IfMatch", condition: etag } } : undefined
-    );
+    const { resource } = await tasksContainer
+        .item(id, organizationId)
+        .patch<TaskDocument>(
+            operations,
+            etag ? { accessCondition: { type: "IfMatch", condition: etag } } : undefined
+        );
     if (!resource) {
         throw new Error("Cosmos patch returned no task resource.");
     }
@@ -67,7 +71,7 @@ export async function deleteTask(id: string, organizationId: string): Promise<vo
 
 export async function deleteTasks(ids: string[], organizationId: string) {
     return tasksContainer.items.batch(
-        ids.map(id => ({ operationType: "Delete" as const, id })),
+        ids.map((id) => ({ operationType: "Delete" as const, id })),
         organizationId
     );
 }

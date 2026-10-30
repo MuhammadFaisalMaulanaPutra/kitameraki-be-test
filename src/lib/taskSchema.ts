@@ -19,9 +19,10 @@ export const createTaskSchema = z.strictObject({
     ...taskFields
 });
 
-export const updateTaskSchema = z.strictObject(taskFields)
+export const updateTaskSchema = z
+    .strictObject(taskFields)
     .partial()
-    .refine(task => Object.keys(task).length > 0, {
+    .refine((task) => Object.keys(task).length > 0, {
         message: "At least one task field is required."
     });
 
@@ -34,25 +35,23 @@ export const organizationParamsSchema = z.strictObject({
     organizationId: uuidSchema
 });
 
-export const bulkDeleteSchema = z.array(uuidSchema)
+export const bulkDeleteSchema = z
+    .array(uuidSchema)
     .min(1)
     .max(100)
-    .refine(ids => new Set(ids).size === ids.length, {
+    .refine((ids) => new Set(ids).size === ids.length, {
         message: "Task ids must be unique."
     });
 
 export const taskListQuerySchema = z.strictObject({
     organizationId: uuidSchema,
     search: z.preprocess(
-        value => value === "" ? undefined : value,
+        (value) => (value === "" ? undefined : value),
         z.string().trim().min(1).max(100).optional()
     ),
-    status: z.preprocess(
-        value => value === "" ? undefined : value,
-        statusSchema.optional()
-    ),
+    status: z.preprocess((value) => (value === "" ? undefined : value), statusSchema.optional()),
     priority: z.preprocess(
-        value => value === "" ? undefined : value,
+        (value) => (value === "" ? undefined : value),
         prioritySchema.optional()
     ),
     page: z.coerce.number().int().min(1).default(1),

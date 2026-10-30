@@ -7,6 +7,9 @@
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "db:init": "npm run build && node dist/scripts/init-db.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
     "test": "npm run build && node --test dist/test/unit/*.test.js",
@@ -18,9 +21,13 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.x",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
     "rimraf": "^5.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.1"
   },
   "main": "dist/src/{index.js,functions/*.js}"
 }

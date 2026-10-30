@@ -4,7 +4,10 @@ import { parseOrThrow, withErrorHandling } from "../lib/http";
 import { organizationParamsSchema } from "../lib/taskSchema";
 import { getFormSettings, saveFormSettings } from "../services/formSettingsService";
 
-export async function GetFormSettings(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function GetFormSettings(
+    request: HttpRequest,
+    context: InvocationContext
+): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
     const params = parseOrThrow(organizationParamsSchema, {
         organizationId: request.query.get("organizationId")
@@ -13,7 +16,10 @@ export async function GetFormSettings(request: HttpRequest, context: InvocationC
     return { jsonBody: settings, status: 200 };
 }
 
-export async function PutFormSettings(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function PutFormSettings(
+    request: HttpRequest,
+    context: InvocationContext
+): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
     const params = parseOrThrow(organizationParamsSchema, {
         organizationId: request.query.get("organizationId")

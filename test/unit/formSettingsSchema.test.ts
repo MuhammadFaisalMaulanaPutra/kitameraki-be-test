@@ -5,7 +5,7 @@ import { builtInFields, formSettingsInputSchema } from "../../src/lib/formSettin
 function validSettings() {
     return {
         fields: [
-            ...builtInFields.map(field => ({ ...field })),
+            ...builtInFields.map((field) => ({ ...field })),
             { id: "cf-email", label: "Email", type: "email" as const, builtIn: false }
         ],
         rows: [
@@ -37,19 +37,19 @@ test("form settings enforces row and field relationships", () => {
 
 test("form settings protects built-in fields", () => {
     const removed = validSettings();
-    removed.fields = removed.fields.filter(field => field.id !== "title");
-    removed.rows = removed.rows.map(row => ({
+    removed.fields = removed.fields.filter((field) => field.id !== "title");
+    removed.rows = removed.rows.map((row) => ({
         ...row,
-        fieldIds: row.fieldIds.filter(fieldId => fieldId !== "title")
+        fieldIds: row.fieldIds.filter((fieldId) => fieldId !== "title")
     }));
     assert.equal(formSettingsInputSchema.safeParse(removed).success, false);
 
     const changedType = validSettings();
-    changedType.fields.find(field => field.id === "dueDate")!.type = "date";
+    changedType.fields.find((field) => field.id === "dueDate")!.type = "date";
     assert.equal(formSettingsInputSchema.safeParse(changedType).success, false);
 
     const markedCustom = validSettings();
-    markedCustom.fields.find(field => field.id === "status")!.builtIn = false;
+    markedCustom.fields.find((field) => field.id === "status")!.builtIn = false;
     assert.equal(formSettingsInputSchema.safeParse(markedCustom).success, false);
 });
 

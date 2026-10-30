@@ -24,7 +24,7 @@ async function validateCustomFields(
             continue;
         }
 
-        const field = settings.fields.find(candidate => candidate.id === fieldId);
+        const field = settings.fields.find((candidate) => candidate.id === fieldId);
         if (!field || field.builtIn) {
             messages.push(`Unknown custom field: ${fieldId}.`);
             continue;
@@ -49,9 +49,10 @@ export async function createTask(input: CreateTask): Promise<TaskDto> {
     const { customFields, ...taskFields } = input;
     const persistedCustomFields = customFields
         ? Object.fromEntries(
-            Object.entries(customFields)
-                .filter((entry): entry is [string, string] => entry[1] !== null)
-        )
+              Object.entries(customFields).filter(
+                  (entry): entry is [string, string] => entry[1] !== null
+              )
+          )
         : undefined;
     const task = await taskRepository.createTask({
         id: randomUUID(),
@@ -121,7 +122,7 @@ export async function bulkDeleteTasks(ids: string[], organizationId: string): Pr
         throw new Error("Cosmos batch returned no operation results.");
     }
 
-    const failedOperation = batchResult.result.find(operation => operation.statusCode >= 400);
+    const failedOperation = batchResult.result.find((operation) => operation.statusCode >= 400);
     if (failedOperation) {
         throw failedOperation.statusCode === 409 ? new ConflictError() : new NotFoundError();
     }

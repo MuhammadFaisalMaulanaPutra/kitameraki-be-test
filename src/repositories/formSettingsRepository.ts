@@ -2,7 +2,9 @@ import { formSettingsContainer } from "../lib/cosmos";
 import { getErrorStatusCode } from "../lib/errors";
 import type { FormSettingsDocument } from "../types/formSettings";
 
-export async function readFormSettings(organizationId: string): Promise<FormSettingsDocument | undefined> {
+export async function readFormSettings(
+    organizationId: string
+): Promise<FormSettingsDocument | undefined> {
     try {
         const { resource } = await formSettingsContainer
             .item(organizationId, organizationId)
@@ -16,7 +18,9 @@ export async function readFormSettings(organizationId: string): Promise<FormSett
     }
 }
 
-export async function saveFormSettings(settings: FormSettingsDocument): Promise<FormSettingsDocument> {
+export async function saveFormSettings(
+    settings: FormSettingsDocument
+): Promise<FormSettingsDocument> {
     const { resource } = await formSettingsContainer.items.upsert<FormSettingsDocument>(settings);
     if (!resource) {
         throw new Error("Cosmos upsert returned no form settings resource.");

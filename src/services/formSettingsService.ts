@@ -9,7 +9,7 @@ export function getDefaultFormSettings(organizationId: string): FormSettingsDto 
     return {
         id: organizationId,
         organizationId,
-        fields: builtInFields.map(field => ({ ...field })),
+        fields: builtInFields.map((field) => ({ ...field })),
         rows: [
             { id: "row-title-description", fieldIds: ["title", "description"] },
             { id: "row-dueDate-priority", fieldIds: ["dueDate", "priority"] },
@@ -29,18 +29,20 @@ export async function saveFormSettings(
 ): Promise<FormSettingsDto> {
     const existing = await formSettingsRepository.readFormSettings(organizationId);
     if (existing) {
-        const nextFieldsById = new Map(input.fields.map(field => [field.id, field]));
+        const nextFieldsById = new Map(input.fields.map((field) => [field.id, field]));
         const changedTypes = existing.fields
-            .filter(field => !field.builtIn)
-            .filter(field => nextFieldsById.get(field.id)?.type !== undefined)
-            .filter(field => nextFieldsById.get(field.id)?.type !== field.type)
-            .map(field => field.id);
+            .filter((field) => !field.builtIn)
+            .filter((field) => nextFieldsById.get(field.id)?.type !== undefined)
+            .filter((field) => nextFieldsById.get(field.id)?.type !== field.type)
+            .map((field) => field.id);
 
         if (changedTypes.length > 0) {
             throw new ValidationError({
                 formErrors: [],
                 fieldErrors: {
-                    fields: changedTypes.map(fieldId => `Custom field type cannot be changed: ${fieldId}.`)
+                    fields: changedTypes.map(
+                        (fieldId) => `Custom field type cannot be changed: ${fieldId}.`
+                    )
                 }
             });
         }

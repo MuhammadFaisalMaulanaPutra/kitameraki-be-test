@@ -38,7 +38,7 @@ test("task list count and item queries share filters", () => {
 
     assert.deepEqual(
         countQuery.parameters,
-        itemsQuery.parameters.filter(parameter => !["@offset", "@limit"].includes(parameter.name))
+        itemsQuery.parameters.filter((parameter) => !["@offset", "@limit"].includes(parameter.name))
     );
     assert.match(countQuery.query, /c\.status = @status/);
 });

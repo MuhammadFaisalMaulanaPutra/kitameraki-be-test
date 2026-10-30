@@ -16,7 +16,10 @@ interface ApiResult {
 async function api(method: string, path: string, body?: unknown, raw?: string): Promise<ApiResult> {
     const response = await fetch(`${baseUrl}${path}`, {
         method,
-        headers: body === undefined && raw === undefined ? undefined : { "content-type": "application/json" },
+        headers:
+            body === undefined && raw === undefined
+                ? undefined
+                : { "content-type": "application/json" },
         body: raw ?? (body === undefined ? undefined : JSON.stringify(body))
     });
     const text = await response.text();
@@ -35,11 +38,14 @@ function taskQuery(org = organizationId): string {
     return `/tasks?organizationId=${org}`;
 }
 
-function settingsInput(fields = builtInFields, rows = [
-    { id: "r1", fieldIds: ["title", "description"] },
-    { id: "r2", fieldIds: ["dueDate", "priority"] },
-    { id: "r3", fieldIds: ["status", "tags"] }
-]) {
+function settingsInput(
+    fields = builtInFields,
+    rows = [
+        { id: "r1", fieldIds: ["title", "description"] },
+        { id: "r2", fieldIds: ["dueDate", "priority"] },
+        { id: "r3", fieldIds: ["status", "tags"] }
+    ]
+) {
     return {
         fields: structuredClone(fields),
         rows: structuredClone(rows)
@@ -56,7 +62,7 @@ async function cleanupTasks(org: string): Promise<void> {
     await api("POST", `/tasks/bulk-delete?organizationId=${org}`, ids);
 }
 
-test("API integration", async t => {
+test("API integration", async (t) => {
     t.after(async () => {
         await cleanupTasks(organizationId).catch(() => undefined);
     });
@@ -71,15 +77,27 @@ test("API integration", async t => {
         });
         assert.equal(created.status, 201);
         assert.equal(created.body.title, "Integration task");
-        assert.equal(Object.keys(created.body).some(key => key.startsWith("_")), false);
+        assert.equal(
+            Object.keys(created.body).some((key) => key.startsWith("_")),
+            false
+        );
 
         assertError(
-            await api("POST", "/tasks", { organizationId, title: "bad", status: "todo", id: missingTaskId }),
+            await api("POST", "/tasks", {
+                organizationId,
+                title: "bad",
+                status: "todo",
+                id: missingTaskId
+            }),
             400,
             "VALIDATION_ERROR"
         );
         assertError(await api("POST", "/tasks", undefined, "{bad"), 400, "INVALID_JSON");
-        assertError(await api("GET", `/tasks/${missingTaskId}?organizationId=${organizationId}`), 404, "NOT_FOUND");
+        assertError(
+            await api("GET", `/tasks/${missingTaskId}?organizationId=${organizationId}`),
+            404,
+            "NOT_FOUND"
+        );
 
         const updated = await api(
             "PATCH",
@@ -88,26 +106,43 @@ test("API integration", async t => {
         );
         assert.equal(updated.status, 200);
         assert.equal(updated.body.description, "created by set operation");
-        assert.equal(Object.keys(updated.body).some(key => key.startsWith("_")), false);
+        assert.equal(
+            Object.keys(updated.body).some((key) => key.startsWith("_")),
+            false
+        );
     });
 
     await t.test("bulk delete is atomic", async () => {
-        const task = await api("POST", "/tasks", { organizationId, title: "bulk survivor", status: "todo" });
+        const task = await api("POST", "/tasks", {
+            organizationId,
+            title: "bulk survivor",
+            status: "todo"
+        });
         const missing = await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, [
             task.body.id,
             missingTaskId
         ]);
         assertError(missing, 404, "NOT_FOUND");
 
-        const survivor = await api("GET", `/tasks/${task.body.id}?organizationId=${organizationId}`);
+        const survivor = await api(
+            "GET",
+            `/tasks/${task.body.id}?organizationId=${organizationId}`
+        );
         assert.equal(survivor.status, 200);
         assertError(
-            await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, [task.body.id, task.body.id]),
+            await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, [
+                task.body.id,
+                task.body.id
+            ]),
             400,
             "VALIDATION_ERROR"
         );
         assert.equal(
-            (await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, [task.body.id])).status,
+            (
+                await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, [
+                    task.body.id
+                ])
+            ).status,
             204
         );
     });
@@ -137,11 +172,17 @@ test("API integration", async t => {
         const second = await api("GET", `/tasks?organizationId=${organizationId}&page=2`);
         assert.equal(second.body.items.length, 5);
         const firstIds = new Set(first.body.items.map((task: { id: string }) => task.id));
-        assert.equal(second.body.items.some((task: { id: string }) => firstIds.has(task.id)), false);
+        assert.equal(
+            second.body.items.some((task: { id: string }) => firstIds.has(task.id)),
+            false
+        );
 
         const search = await api("GET", `/tasks?organizationId=${organizationId}&search=ALPHA`);
         assert.equal(search.body.total, 5);
-        assert.equal(search.body.items.every((task: { title: string }) => task.title.startsWith("Alpha")), true);
+        assert.equal(
+            search.body.items.every((task: { title: string }) => task.title.startsWith("Alpha")),
+            true
+        );
 
         const combined = await api(
             "GET",
@@ -158,7 +199,8 @@ test("API integration", async t => {
         );
 
         assert.equal(
-            (await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, createdIds)).status,
+            (await api("POST", `/tasks/bulk-delete?organizationId=${organizationId}`, createdIds))
+                .status,
             204
         );
     });
@@ -217,7 +259,7 @@ test("API integration", async t => {
         assert.equal(removed.body.customFields["cf-email"], values["cf-email"]);
 
         const changedType = structuredClone(fields);
-        changedType.find(field => field.id === "cf-text")!.type = "email";
+        changedType.find((field) => field.id === "cf-text")!.type = "email";
         assertError(
             await api(
                 "PUT",
@@ -229,10 +271,15 @@ test("API integration", async t => {
         );
 
         const patches = await Promise.all(
-            Array.from({ length: 8 }, (_, index) => api("PATCH", taskPath, {
-                customFields: { "cf-text": `value-${index}` }
-            }))
+            Array.from({ length: 8 }, (_, index) =>
+                api("PATCH", taskPath, {
+                    customFields: { "cf-text": `value-${index}` }
+                })
+            )
         );
-        assert.equal(patches.every(result => result.status === 200 || result.status === 409), true);
+        assert.equal(
+            patches.every((result) => result.status === 200 || result.status === 409),
+            true
+        );
     });
 });
