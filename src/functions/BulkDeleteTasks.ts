@@ -1,19 +1,29 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
+import { bulkDeleteSchema, uuidSchema } from "../lib/taskSchema";
 
 export async function BulkDeleteTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
-    const body = await request.json();
-    const organizationId = request.query.get('organizationId');
-
-    if (!Array.isArray(body) || body.length > 100 || !body.every(id => typeof id === "string")) {
-        return { jsonBody: { error: "Task ids must be an array of at most 100 strings." }, status: 400 };
+    const bodyResult = bulkDeleteSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+        return { jsonBody: { errors: bodyResult.error.flatten() }, status: 400 };
     }
 
-    await tasksContainer.items.batch(
-        body.map(id => ({ operationType: "Delete", id })),
-        organizationId
+    const organizationResult = uuidSchema.safeParse(request.query.get('organizationId'));
+    if (!organizationResult.success) {
+        return { jsonBody: { errors: organizationResult.error.flatten() }, status: 400 };
+    }
+
+    const batchResult = await tasksContainer.items.batch(
+        bodyResult.data.map(id => ({ operationType: "Delete", id })),
+        organizationResult.data
     );
+    const failedOperation = batchResult.result.find(operation => operation.statusCode >= 400);
+
+    if (failedOperation) {
+        return { status: failedOperation.statusCode === 409 ? 409 : 404 };
+    }
+
     return { status: 200 };
 };
 
