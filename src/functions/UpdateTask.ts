@@ -1,37 +1,23 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { z } from "zod";
-import { tasksContainer } from "../lib/cosmos";
-import { withErrorHandling } from "../lib/http";
+import { parseOrThrow, withErrorHandling } from "../lib/http";
 import { taskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
+import { updateTask } from "../services/taskService";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const bodyResult = updateTaskSchema.safeParse(await request.json());
-    if (!bodyResult.success) {
-        return { jsonBody: { errors: z.flattenError(bodyResult.error) }, status: 400 };
-    }
-
-    const paramsResult = taskParamsSchema.safeParse({
-        id: request.query.get('id'),
+    context.log(`Http function processed request for url "${request.url}"`);
+    const input = parseOrThrow(updateTaskSchema, await request.json());
+    const params = parseOrThrow(taskParamsSchema, {
+        id: request.params.id,
         organizationId: request.query.get('organizationId')
     });
-    if (!paramsResult.success) {
-        return { jsonBody: { errors: z.flattenError(paramsResult.error) }, status: 400 };
-    }
+    const task = await updateTask(params.id, params.organizationId, input);
 
-    const patchRequests = Object.entries(bodyResult.data).map(([key, value]) => ({
-        op: "set" as const,
-        path: `/${key}`,
-        value
-    }));
-
-    const createdTask = await tasksContainer.item(paramsResult.data.id, paramsResult.data.organizationId)
-        .patch(patchRequests);
-
-    return { jsonBody: createdTask.resource, status: 200 };
+    return { jsonBody: task, status: 200 };
 };
 
 app.http('UpdateTask', {
-    methods: ['POST'],
+    methods: ['PATCH'],
+    route: 'tasks/{id}',
     authLevel: 'anonymous',
     handler: withErrorHandling(UpdateTask)
 });

@@ -1,32 +1,27 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { z } from "zod";
-import { tasksContainer } from "../lib/cosmos";
-import { withErrorHandling } from "../lib/http";
+import { HttpError, parseOrThrow, withErrorHandling } from "../lib/http";
 import { taskParamsSchema } from "../lib/taskSchema";
+import { getTask } from "../services/taskService";
 
 export async function GetTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const paramsResult = taskParamsSchema.safeParse({
-        id: request.query.get('id'),
+    const params = parseOrThrow(taskParamsSchema, {
+        id: request.params.id,
         organizationId: request.query.get('organizationId')
     });
-    if (!paramsResult.success) {
-        return { jsonBody: { errors: z.flattenError(paramsResult.error) }, status: 400 };
+    const task = await getTask(params.id, params.organizationId);
+
+    if (!task) {
+        throw new HttpError(404, "NOT_FOUND", "Resource not found.");
     }
 
-    const task = await tasksContainer.item(paramsResult.data.id, paramsResult.data.organizationId)
-        .read();
-
-    if (!task.resource) {
-        return { jsonBody: { error: "Task not found." }, status: 404 };
-    }
-
-    return { jsonBody: task.resource, status: 200 };
+    return { jsonBody: task, status: 200 };
 };
 
 app.http('GetTask', {
     methods: ['GET'],
+    route: 'tasks/{id}',
     authLevel: 'anonymous',
     handler: withErrorHandling(GetTask)
 });

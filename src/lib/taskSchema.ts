@@ -27,6 +27,10 @@ export const taskParamsSchema = z.strictObject({
     organizationId: uuidSchema
 });
 
+export const organizationParamsSchema = z.strictObject({
+    organizationId: uuidSchema
+});
+
 export const bulkDeleteSchema = z.array(uuidSchema)
     .min(1)
     .max(100)

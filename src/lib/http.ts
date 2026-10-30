@@ -1,4 +1,29 @@
-import { HttpHandler } from "@azure/functions";
+import { HttpHandler, HttpResponseInit } from "@azure/functions";
+import { z } from "zod";
+
+export class HttpError extends Error {
+    constructor(
+        readonly statusCode: number,
+        readonly code: string,
+        message: string,
+        readonly details?: unknown
+    ) {
+        super(message);
+    }
+}
+
+function errorResponse(statusCode: number, code: string, message: string, details?: unknown): HttpResponseInit {
+    return {
+        jsonBody: {
+            error: {
+                code,
+                message,
+                ...(details === undefined ? {} : { details })
+            }
+        },
+        status: statusCode
+    };
+}
 
 function getStatusCode(error: unknown): number | undefined {
     if (typeof error !== "object" || error === null) {
@@ -10,25 +35,39 @@ function getStatusCode(error: unknown): number | undefined {
     return typeof value === "number" ? value : undefined;
 }
 
+export function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
+    const result = schema.safeParse(value);
+
+    if (!result.success) {
+        throw new HttpError(400, "VALIDATION_ERROR", "Invalid request.", z.flattenError(result.error));
+    }
+
+    return result.data;
+}
+
 export function withErrorHandling(handler: HttpHandler): HttpHandler {
     return async (request, context) => {
         try {
             return await handler(request, context);
         } catch (error) {
+            if (error instanceof HttpError) {
+                return errorResponse(error.statusCode, error.code, error.message, error.details);
+            }
+
             if (error instanceof SyntaxError) {
-                return { jsonBody: { error: "Invalid JSON body." }, status: 400 };
+                return errorResponse(400, "INVALID_JSON", "Invalid JSON body.");
             }
 
             const status = getStatusCode(error);
-            if (status === 404 || status === 409) {
-                return {
-                    jsonBody: { error: status === 404 ? "Resource not found." : "Conflict." },
-                    status
-                };
+            if (status === 404) {
+                return errorResponse(404, "NOT_FOUND", "Resource not found.");
+            }
+            if (status === 409) {
+                return errorResponse(409, "CONFLICT", "Resource conflict.");
             }
 
             context.error(error);
-            return { jsonBody: { error: "Internal server error." }, status: 500 };
+            return errorResponse(500, "INTERNAL_ERROR", "Internal server error.");
         }
     };
 }

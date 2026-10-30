@@ -1,28 +1,23 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { z } from "zod";
-import { tasksContainer } from "../lib/cosmos";
-import { withErrorHandling } from "../lib/http";
+import { parseOrThrow, withErrorHandling } from "../lib/http";
 import { taskParamsSchema } from "../lib/taskSchema";
+import { deleteTask } from "../services/taskService";
 
 export async function DeleteTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    const paramsResult = taskParamsSchema.safeParse({
-        id: request.query.get('id'),
+    const params = parseOrThrow(taskParamsSchema, {
+        id: request.params.id,
         organizationId: request.query.get('organizationId')
     });
-    if (!paramsResult.success) {
-        return { jsonBody: { errors: z.flattenError(paramsResult.error) }, status: 400 };
-    }
+    await deleteTask(params.id, params.organizationId);
 
-    await tasksContainer.item(paramsResult.data.id, paramsResult.data.organizationId)
-        .delete();
-
-    return { status: 200 };
+    return { status: 204 };
 };
 
 app.http('DeleteTask', {
     methods: ['DELETE'],
+    route: 'tasks/{id}',
     authLevel: 'anonymous',
     handler: withErrorHandling(DeleteTask)
 });
