@@ -47,10 +47,13 @@ export async function createTask(task: TaskDocument): Promise<TaskDocument> {
     return resource;
 }
 
-export async function readTask(id: string, organizationId: string): Promise<TaskDocument | undefined> {
+export async function readTask(
+    id: string,
+    organizationId: string
+): Promise<{ task: TaskDocument; etag: string } | undefined> {
     try {
-        const { resource } = await tasksContainer.item(id, organizationId).read<TaskDocument>();
-        return resource;
+        const response = await tasksContainer.item(id, organizationId).read<TaskDocument>();
+        return response.resource ? { task: response.resource, etag: response.etag } : undefined;
     } catch (error) {
         if (getErrorStatusCode(error) === 404) {
             return undefined;
@@ -75,14 +78,18 @@ export async function listTasks(query: TaskListQuery): Promise<{ tasks: TaskDocu
 export async function updateTask(
     id: string,
     organizationId: string,
-    changes: UpdateTask
+    changes: UpdateTask,
+    etag?: string
 ): Promise<TaskDocument> {
     const operations = Object.entries(changes).map(([key, value]) => ({
         op: "set" as const,
         path: `/${key}`,
         value
     }));
-    const { resource } = await tasksContainer.item(id, organizationId).patch<TaskDocument>(operations);
+    const { resource } = await tasksContainer.item(id, organizationId).patch<TaskDocument>(
+        operations,
+        etag ? { accessCondition: { type: "IfMatch", condition: etag } } : undefined
+    );
     if (!resource) {
         throw new Error("Cosmos patch returned no task resource.");
     }

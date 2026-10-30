@@ -11,7 +11,7 @@ const taskFields = {
     priority: prioritySchema.optional(),
     status: statusSchema,
     tags: z.array(z.string().max(50)).optional(),
-    customFields: z.record(z.string().min(1).max(100), z.string()).optional()
+    customFields: z.record(z.string().min(1).max(100), z.string().nullable()).optional()
 };
 
 export const createTaskSchema = z.strictObject({

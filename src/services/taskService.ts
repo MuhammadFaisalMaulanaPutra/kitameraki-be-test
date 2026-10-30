@@ -9,7 +9,7 @@ import { getFormSettings } from "./formSettingsService";
 
 async function validateCustomFields(
     organizationId: string,
-    customFields: Record<string, string> | undefined
+    customFields: Record<string, string | null> | undefined
 ): Promise<void> {
     if (!customFields || Object.keys(customFields).length === 0) {
         return;
@@ -19,6 +19,10 @@ async function validateCustomFields(
     const messages: string[] = [];
 
     for (const [fieldId, value] of Object.entries(customFields)) {
+        if (value === null) {
+            continue;
+        }
+
         const field = settings.fields.find(candidate => candidate.id === fieldId);
         if (!field || field.builtIn) {
             messages.push(`Unknown custom field: ${fieldId}.`);
@@ -41,20 +45,28 @@ async function validateCustomFields(
 
 export async function createTask(input: CreateTask): Promise<TaskDto> {
     await validateCustomFields(input.organizationId, input.customFields);
+    const { customFields, ...taskFields } = input;
+    const persistedCustomFields = customFields
+        ? Object.fromEntries(
+            Object.entries(customFields)
+                .filter((entry): entry is [string, string] => entry[1] !== null)
+        )
+        : undefined;
     const task = await taskRepository.createTask({
         id: randomUUID(),
         createdAt: new Date().toISOString(),
-        ...input
+        ...taskFields,
+        ...(persistedCustomFields ? { customFields: persistedCustomFields } : {})
     });
     return toTaskDto(task);
 }
 
 export async function getTask(id: string, organizationId: string): Promise<TaskDto> {
-    const task = await taskRepository.readTask(id, organizationId);
-    if (!task) {
+    const result = await taskRepository.readTask(id, organizationId);
+    if (!result) {
         throw new NotFoundError();
     }
-    return toTaskDto(task);
+    return toTaskDto(result.task);
 }
 
 export async function getTasks(query: TaskListQuery): Promise<TaskListDto> {
@@ -73,7 +85,33 @@ export async function updateTask(
     changes: UpdateTask
 ): Promise<TaskDto> {
     await validateCustomFields(organizationId, changes.customFields);
-    const task = await taskRepository.updateTask(id, organizationId, changes);
+    let task: Awaited<ReturnType<typeof taskRepository.updateTask>>;
+
+    if (changes.customFields) {
+        const existing = await taskRepository.readTask(id, organizationId);
+        if (!existing) {
+            throw new NotFoundError();
+        }
+
+        const mergedCustomFields = { ...existing.task.customFields };
+        for (const [fieldId, value] of Object.entries(changes.customFields)) {
+            if (value === null) {
+                delete mergedCustomFields[fieldId];
+            } else {
+                mergedCustomFields[fieldId] = value;
+            }
+        }
+
+        task = await taskRepository.updateTask(
+            id,
+            organizationId,
+            { ...changes, customFields: mergedCustomFields },
+            existing.etag
+        );
+    } else {
+        task = await taskRepository.updateTask(id, organizationId, changes);
+    }
+
     return toTaskDto(task);
 }
 

@@ -48,7 +48,7 @@ export function withErrorHandling(handler: HttpHandler): HttpHandler {
             if (status === 404) {
                 return errorResponse(404, "NOT_FOUND", "Resource not found.");
             }
-            if (status === 409) {
+            if (status === 409 || status === 412) {
                 return errorResponse(409, "CONFLICT", "Resource conflict.");
             }
 

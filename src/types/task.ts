@@ -1,6 +1,11 @@
 import type { CreateTask } from "../lib/taskSchema";
 
-export type TaskDocument = CreateTask & { id: string; createdAt?: string };
+export type TaskCustomFields = Record<string, string>;
+export type TaskDocument = Omit<CreateTask, "customFields"> & {
+    id: string;
+    createdAt?: string;
+    customFields?: TaskCustomFields;
+};
 
 export interface TaskDto {
     id: string;
@@ -11,7 +16,7 @@ export interface TaskDto {
     priority?: CreateTask["priority"];
     status: CreateTask["status"];
     tags?: string[];
-    customFields?: Record<string, string>;
+    customFields?: TaskCustomFields;
     createdAt?: string;
 }
 
