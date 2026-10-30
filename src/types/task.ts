@@ -11,6 +11,7 @@ export interface TaskDto {
     priority?: CreateTask["priority"];
     status: CreateTask["status"];
     tags?: string[];
+    customFields?: Record<string, string>;
     createdAt?: string;
 }
 

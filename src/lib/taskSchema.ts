@@ -10,7 +10,8 @@ const taskFields = {
     dueDate: z.iso.datetime({ offset: true }).optional(),
     priority: prioritySchema.optional(),
     status: statusSchema,
-    tags: z.array(z.string().max(50)).optional()
+    tags: z.array(z.string().max(50)).optional(),
+    customFields: z.record(z.string().min(1).max(100), z.string()).optional()
 };
 
 export const createTaskSchema = z.strictObject({

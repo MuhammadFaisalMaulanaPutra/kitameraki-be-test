@@ -10,6 +10,7 @@ export function toTaskDto(task: TaskDocument): TaskDto {
         priority: task.priority,
         status: task.status,
         tags: task.tags,
+        customFields: task.customFields,
         createdAt: task.createdAt
     };
 }
