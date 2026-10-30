@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { HttpError } from "../lib/http";
+import { ConflictError, NotFoundError } from "../lib/errors";
 import type { CreateTask, UpdateTask } from "../lib/taskSchema";
 import { toTaskDto } from "../mappers/taskMapper";
 import * as taskRepository from "../repositories/taskRepository";
@@ -10,9 +10,12 @@ export async function createTask(input: CreateTask): Promise<TaskDto> {
     return toTaskDto(task);
 }
 
-export async function getTask(id: string, organizationId: string): Promise<TaskDto | undefined> {
+export async function getTask(id: string, organizationId: string): Promise<TaskDto> {
     const task = await taskRepository.readTask(id, organizationId);
-    return task ? toTaskDto(task) : undefined;
+    if (!task) {
+        throw new NotFoundError();
+    }
+    return toTaskDto(task);
 }
 
 export async function getTasks(organizationId: string): Promise<TaskDto[]> {
@@ -42,11 +45,6 @@ export async function bulkDeleteTasks(ids: string[], organizationId: string): Pr
 
     const failedOperation = batchResult.result.find(operation => operation.statusCode >= 400);
     if (failedOperation) {
-        const statusCode = failedOperation.statusCode === 409 ? 409 : 404;
-        throw new HttpError(
-            statusCode,
-            statusCode === 409 ? "CONFLICT" : "NOT_FOUND",
-            statusCode === 409 ? "Resource conflict." : "Resource not found."
-        );
+        throw failedOperation.statusCode === 409 ? new ConflictError() : new NotFoundError();
     }
 }

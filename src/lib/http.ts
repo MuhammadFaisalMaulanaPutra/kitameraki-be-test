@@ -1,16 +1,6 @@
 import { HttpHandler, HttpResponseInit } from "@azure/functions";
 import { z } from "zod";
-
-export class HttpError extends Error {
-    constructor(
-        readonly statusCode: number,
-        readonly code: string,
-        message: string,
-        readonly details?: unknown
-    ) {
-        super(message);
-    }
-}
+import { ConflictError, NotFoundError, ValidationError } from "./errors";
 
 function errorResponse(statusCode: number, code: string, message: string, details?: unknown): HttpResponseInit {
     return {
@@ -39,7 +29,7 @@ export function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown): T {
     const result = schema.safeParse(value);
 
     if (!result.success) {
-        throw new HttpError(400, "VALIDATION_ERROR", "Invalid request.", z.flattenError(result.error));
+        throw new ValidationError(z.flattenError(result.error));
     }
 
     return result.data;
@@ -50,8 +40,14 @@ export function withErrorHandling(handler: HttpHandler): HttpHandler {
         try {
             return await handler(request, context);
         } catch (error) {
-            if (error instanceof HttpError) {
-                return errorResponse(error.statusCode, error.code, error.message, error.details);
+            if (error instanceof ValidationError) {
+                return errorResponse(400, "VALIDATION_ERROR", error.message, error.details);
+            }
+            if (error instanceof NotFoundError) {
+                return errorResponse(404, "NOT_FOUND", error.message);
+            }
+            if (error instanceof ConflictError) {
+                return errorResponse(409, "CONFLICT", error.message);
             }
 
             if (error instanceof SyntaxError) {
