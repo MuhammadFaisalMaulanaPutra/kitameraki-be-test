@@ -1,5 +1,6 @@
 import { builtInFields } from "../lib/formSettingsSchema";
 import type { FormSettingsInput } from "../lib/formSettingsSchema";
+import { ValidationError } from "../lib/errors";
 import { toFormSettingsDto } from "../mappers/formSettingsMapper";
 import * as formSettingsRepository from "../repositories/formSettingsRepository";
 import type { FormSettingsDto } from "../types/formSettings";
@@ -26,6 +27,25 @@ export async function saveFormSettings(
     organizationId: string,
     input: FormSettingsInput
 ): Promise<FormSettingsDto> {
+    const existing = await formSettingsRepository.readFormSettings(organizationId);
+    if (existing) {
+        const nextFieldsById = new Map(input.fields.map(field => [field.id, field]));
+        const changedTypes = existing.fields
+            .filter(field => !field.builtIn)
+            .filter(field => nextFieldsById.get(field.id)?.type !== undefined)
+            .filter(field => nextFieldsById.get(field.id)?.type !== field.type)
+            .map(field => field.id);
+
+        if (changedTypes.length > 0) {
+            throw new ValidationError({
+                formErrors: [],
+                fieldErrors: {
+                    fields: changedTypes.map(fieldId => `Custom field type cannot be changed: ${fieldId}.`)
+                }
+            });
+        }
+    }
+
     const settings = await formSettingsRepository.saveFormSettings({
         id: organizationId,
         organizationId,
