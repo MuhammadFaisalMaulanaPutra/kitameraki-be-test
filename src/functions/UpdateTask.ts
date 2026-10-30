@@ -1,23 +1,28 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { tasksContainer } from "../lib/cosmos";
-
+import { updateTaskParamsSchema, updateTaskSchema } from "../lib/taskSchema";
 
 export async function UpdateTask(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    const body = await request.json() as object;
-    const taskId = request.query.get('id');
-    const organizationId = request.query.get('organizationId');
-
-    let patchRequests = [];
-
-    for (let key in body) {
-        patchRequests.push({
-            "op": "replace",
-            "path": `/${key}`,
-            "value": body[key]
-        });
+    const bodyResult = updateTaskSchema.safeParse(await request.json());
+    if (!bodyResult.success) {
+        return { jsonBody: { errors: bodyResult.error.flatten() }, status: 400 };
     }
 
-    const createdTask = await tasksContainer.item(taskId, organizationId)
+    const paramsResult = updateTaskParamsSchema.safeParse({
+        id: request.query.get('id'),
+        organizationId: request.query.get('organizationId')
+    });
+    if (!paramsResult.success) {
+        return { jsonBody: { errors: paramsResult.error.flatten() }, status: 400 };
+    }
+
+    const patchRequests = Object.entries(bodyResult.data).map(([key, value]) => ({
+        op: "replace" as const,
+        path: `/${key}`,
+        value
+    }));
+
+    const createdTask = await tasksContainer.item(paramsResult.data.id, paramsResult.data.organizationId)
         .patch(patchRequests);
 
     return { jsonBody: createdTask.resource, status: 200 };
