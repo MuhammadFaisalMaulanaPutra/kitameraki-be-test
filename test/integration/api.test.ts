@@ -1,11 +1,10 @@
 import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
 import test from "node:test";
 import { builtInFields } from "../../src/lib/formSettingsSchema";
 import type { FormFieldDefinition } from "../../src/lib/formSettingsSchema";
 
 const baseUrl = process.env.API_BASE_URL ?? "http://localhost:7071/api";
-const organizationId = "44444444-4444-4444-8444-444444444444";
-const emptyOrganizationId = "55555555-5555-4555-8555-555555555555";
 const missingTaskId = "22222222-2222-4222-8222-222222222222";
 
 interface ApiResult {
@@ -34,7 +33,7 @@ function assertError(result: ApiResult, status: number, code: string): void {
     assert.equal(result.body.error.code, code);
 }
 
-function taskQuery(org = organizationId): string {
+function taskQuery(org: string): string {
     return `/tasks?organizationId=${org}`;
 }
 
@@ -53,7 +52,7 @@ function settingsInput(
 }
 
 async function cleanupTasks(org: string): Promise<void> {
-    const result = await api("GET", taskQuery(org));
+    const result = await api("GET", `${taskQuery(org)}&pageSize=100`);
     if (result.status !== 200 || result.body.items.length === 0) {
         return;
     }
@@ -63,13 +62,12 @@ async function cleanupTasks(org: string): Promise<void> {
 }
 
 test("API integration", async (t) => {
-    t.after(async () => {
-        await cleanupTasks(organizationId).catch(() => undefined);
-    });
+    await t.test("task validation, DTO, and REST statuses", async (t) => {
+        const organizationId = randomUUID();
+        t.after(async () => {
+            await cleanupTasks(organizationId).catch(() => undefined);
+        });
 
-    await cleanupTasks(organizationId);
-
-    await t.test("task validation, DTO, and REST statuses", async () => {
         const created = await api("POST", "/tasks", {
             organizationId,
             title: "Integration task",
@@ -112,7 +110,12 @@ test("API integration", async (t) => {
         );
     });
 
-    await t.test("bulk delete is atomic", async () => {
+    await t.test("bulk delete is atomic", async (t) => {
+        const organizationId = randomUUID();
+        t.after(async () => {
+            await cleanupTasks(organizationId).catch(() => undefined);
+        });
+
         const task = await api("POST", "/tasks", {
             organizationId,
             title: "bulk survivor",
@@ -147,7 +150,11 @@ test("API integration", async (t) => {
         );
     });
 
-    await t.test("pagination, filters, search, and count", async () => {
+    await t.test("pagination, filters, search, and count", async (t) => {
+        const organizationId = randomUUID();
+        t.after(async () => {
+            await cleanupTasks(organizationId).catch(() => undefined);
+        });
         const createdIds: string[] = [];
         for (let index = 1; index <= 25; index++) {
             const status = ["todo", "in-progress", "completed"][(index - 1) % 3];
@@ -162,7 +169,7 @@ test("API integration", async (t) => {
             createdIds.push(created.body.id);
         }
 
-        const first = await api("GET", taskQuery());
+        const first = await api("GET", taskQuery(organizationId));
         assert.equal(first.status, 200);
         assert.equal(first.body.total, 25);
         assert.equal(first.body.items.length, 20);
@@ -205,7 +212,12 @@ test("API integration", async (t) => {
         );
     });
 
-    await t.test("form settings and custom field merge", async () => {
+    await t.test("form settings and custom field merge", async (t) => {
+        const organizationId = randomUUID();
+        const emptyOrganizationId = randomUUID();
+        t.after(async () => {
+            await cleanupTasks(organizationId).catch(() => undefined);
+        });
         const customFields: FormFieldDefinition[] = [
             { id: "cf-email", label: "Email", type: "email", builtIn: false },
             { id: "cf-date", label: "Date", type: "date", builtIn: false },

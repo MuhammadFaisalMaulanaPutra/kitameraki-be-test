@@ -125,10 +125,16 @@ npm run lint
 npm run format:check
 ```
 
-With the Functions host and Cosmos emulator running:
+Initialize the database first, then start the Functions host:
 
 ```bash
 npm run db:init
+npm start
+```
+
+With the host and Cosmos emulator running, execute the integration suite from another terminal:
+
+```bash
 npm run test:integration
 ```
 
