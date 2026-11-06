@@ -143,7 +143,7 @@ export function seedFormSettings(): FormSettings {
     return {
         id: "task-form",
         organizationId: SEED_ORGANIZATION_ID,
-        version: 3,
+        version: 1,
         title: "Task Form",
         description: "Fields are applied to every task.",
         coreFields: [
