@@ -2,22 +2,28 @@
   "name": "kitameraki-be-test",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "dev": "func start",
+    "test": "vitest run src/",
+    "seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/functions": "^4.0.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^20.x",
+    "@types/node": "^26.6.5",
     "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   },
   "main": "dist/src/{index.js,functions/*.js}"
 }
