@@ -5,6 +5,14 @@ REST API for the Kitameraki Task Management App — **Express 5 + TypeScript + A
 - Swagger UI: `http://localhost:7071/api/docs` (OpenAPI JSON: `/api/docs.json`)
 - Postman collection: [`postman/Kitameraki - Task Management API.postman_collection.json`](postman/) (36 requests; `npx newman run "postman/Kitameraki - Task Management API.postman_collection.json" --working-dir postman` so "Upload File" finds `sample-attachment.txt`)
 
+## Repositories
+
+- **Root repository:** https://github.com/zulkifliraihan/test_kitameraki
+- **Frontend repository (private):** https://github.com/zulkifliraihan/test_kitameraki-fe
+  Access invitations have been sent to me@abdulhalimzhr.com, muhammadfaisalmaulanaputra2024@gmail.com, and faiz.sulistiyo@gmail.com. The invitation can be accepted through the following link: https://github.com/zulkifliraihan/test_kitameraki-fe/invitations
+- **Backend repository:** https://github.com/zulkifliraihan/test_kitameraki-be
+- **Backend pull request to the `main` branch:** https://github.com/MuhammadFaisalMaulanaPutra/kitameraki-be-test/pull/50
+
 ---
 
 ## Quick start (Docker — one command)
