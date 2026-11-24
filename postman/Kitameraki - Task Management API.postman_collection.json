@@ -1,0 +1,4027 @@
+{
+	"info": {
+		"_postman_id": "bb96dbc8-a103-4e61-bcd9-ad521d585f12",
+		"name": "Kitameraki - Task Management API",
+		"description": "Requests for every endpoint of the Task Management API (Express + Azure Cosmos DB + Azure Blob Storage).\n\nRun the whole collection with the Postman Collection Runner (or `npx newman run \"postman/Kitameraki - Task Management API.postman_collection.json\" --working-dir postman`) \u2014 requests are ordered so variables such as `task_id` and `file_id` are captured automatically. \"Upload File\" sends `sample-attachment.txt` from the collection folder (set Postman's working directory to `backend/postman`, or re-select the file).\n\nSwagger UI: {{app_url}}/api/docs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/api/health",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{app_url}}/api/health",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=997; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "127"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7f-SBQcFZlbdhtvlXQsaKGvFGjjOKA\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Service is healthy\",\n    \"data\": {\n        \"status\": \"ok\",\n        \"uptimeSeconds\": 4,\n        \"timestamp\": \"2026-11-23T21:26:10.816Z\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Form Settings",
+			"item": [
+				{
+					"name": "Get Form Settings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"description": "Returns the task form configuration (the task template with Submit / Reset buttons when never saved)."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"description": "Returns the task form configuration (the task template with Submit / Reset buttons when never saved)."
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=996; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1298"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"512-giYTcgsuqSeyZUeTWf14MJSDPPI\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Form settings retrieved successfully\",\n    \"data\": {\n        \"id\": \"task-form\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"schemaVersion\": 3,\n        \"rows\": [\n            {\n                \"id\": \"row_title\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_title\",\n                        \"type\": \"text\",\n                        \"key\": \"title\",\n                        \"label\": \"Title\",\n                        \"required\": true,\n                        \"validation\": {\n                            \"maxLength\": 100\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_description\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_description\",\n                        \"type\": \"textarea\",\n                        \"key\": \"description\",\n                        \"label\": \"Description\",\n                        \"validation\": {\n                            \"maxLength\": 1000\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_schedule\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_due_date\",\n                        \"type\": \"datetime\",\n                        \"key\": \"dueDate\",\n                        \"label\": \"Due Date\"\n                    },\n                    {\n                        \"id\": \"field_priority\",\n                        \"type\": \"select\",\n                        \"key\": \"priority\",\n                        \"label\": \"Priority\",\n                        \"options\": [\n                            {\n                                \"label\": \"Low\",\n                                \"value\": \"low\"\n                            },\n                            {\n                                \"label\": \"Medium\",\n                                \"value\": \"medium\"\n                            },\n                            {\n                                \"label\": \"High\",\n                                \"value\": \"high\"\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_progress\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_status\",\n                        \"type\": \"select\",\n                        \"key\": \"status\",\n                        \"label\": \"Status\",\n                        \"required\": true,\n                        \"defaultValue\": \"todo\",\n                        \"options\": [\n                            {\n                                \"label\": \"To Do\",\n                                \"value\": \"todo\"\n                            },\n                            {\n                                \"label\": \"In Progress\",\n                                \"value\": \"in-progress\"\n                            },\n                            {\n                                \"label\": \"Completed\",\n                                \"value\": \"completed\"\n                            }\n                        ]\n                    },\n                    {\n                        \"id\": \"field_tags\",\n                        \"type\": \"taglist\",\n                        \"key\": \"tags\",\n                        \"label\": \"Tags\"\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_actions\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_submit\",\n                        \"type\": \"button\",\n                        \"label\": \"Submit\",\n                        \"action\": \"submit\"\n                    },\n                    {\n                        \"id\": \"field_reset\",\n                        \"type\": \"button\",\n                        \"label\": \"Reset\",\n                        \"action\": \"reset\"\n                    }\n                ]\n            }\n        ],\n        \"updatedAt\": null\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Schema version 3', () => pm.expect(pm.response.json().data.schemaVersion).to.eql(3));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Form Settings",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"versionTag\": \"v3-demo\",\n    \"rows\": [\n        {\n            \"id\": \"row_title\",\n            \"fields\": [\n                {\n                    \"id\": \"field_title\",\n                    \"type\": \"text\",\n                    \"key\": \"title\",\n                    \"label\": \"Task Name\",\n                    \"required\": true,\n                    \"validation\": {\n                        \"maxLength\": 100\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_description\",\n            \"fields\": [\n                {\n                    \"id\": \"field_description\",\n                    \"type\": \"textarea\",\n                    \"key\": \"description\",\n                    \"label\": \"Description\",\n                    \"validation\": {\n                        \"maxLength\": 1000\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_schedule\",\n            \"fields\": [\n                {\n                    \"id\": \"field_due_date\",\n                    \"type\": \"datetime\",\n                    \"key\": \"dueDate\",\n                    \"label\": \"Due Date\"\n                },\n                {\n                    \"id\": \"field_priority\",\n                    \"type\": \"select\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"options\": [\n                        {\n                            \"label\": \"Low\",\n                            \"value\": \"low\"\n                        },\n                        {\n                            \"label\": \"Medium\",\n                            \"value\": \"medium\"\n                        },\n                        {\n                            \"label\": \"High\",\n                            \"value\": \"high\"\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_progress\",\n            \"fields\": [\n                {\n                    \"id\": \"field_status\",\n                    \"type\": \"select\",\n                    \"key\": \"status\",\n                    \"label\": \"Status\",\n                    \"required\": true,\n                    \"defaultValue\": \"todo\",\n                    \"options\": [\n                        {\n                            \"label\": \"To Do\",\n                            \"value\": \"todo\"\n                        },\n                        {\n                            \"label\": \"In Progress\",\n                            \"value\": \"in-progress\"\n                        },\n                        {\n                            \"label\": \"In Review\",\n                            \"value\": \"in-review\"\n                        },\n                        {\n                            \"label\": \"Completed\",\n                            \"value\": \"completed\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_tags\",\n                    \"type\": \"taglist\",\n                    \"key\": \"tags\",\n                    \"label\": \"Tags\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_reviewer\",\n            \"fields\": [\n                {\n                    \"id\": \"field_reviewer\",\n                    \"type\": \"email\",\n                    \"key\": \"reviewerEmail\",\n                    \"label\": \"Reviewer Email\",\n                    \"required\": true,\n                    \"placeholder\": \"reviewer@company.com\"\n                },\n                {\n                    \"id\": \"field_start\",\n                    \"type\": \"date\",\n                    \"key\": \"startDate\",\n                    \"label\": \"Start Date\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_severity\",\n            \"fields\": [\n                {\n                    \"id\": \"field_severity\",\n                    \"type\": \"select\",\n                    \"key\": \"severity\",\n                    \"label\": \"Severity\",\n                    \"searchable\": true,\n                    \"options\": [\n                        {\n                            \"label\": \"Minor\",\n                            \"value\": \"minor\"\n                        },\n                        {\n                            \"label\": \"Major\",\n                            \"value\": \"major\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_impact\",\n                    \"type\": \"textarea\",\n                    \"key\": \"impact\",\n                    \"label\": \"Impact\",\n                    \"required\": true,\n                    \"description\": \"Only shown for major issues\",\n                    \"conditional\": {\n                        \"hide\": \"=severity != \\\"major\\\"\"\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_client\",\n            \"fields\": [\n                {\n                    \"id\": \"field_client\",\n                    \"type\": \"group\",\n                    \"path\": \"client\",\n                    \"label\": \"Client\",\n                    \"showOutline\": true,\n                    \"rows\": [\n                        {\n                            \"id\": \"row_client_details\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"field_client_name\",\n                                    \"type\": \"text\",\n                                    \"key\": \"name\",\n                                    \"label\": \"Client Name\"\n                                },\n                                {\n                                    \"id\": \"field_client_email\",\n                                    \"type\": \"email\",\n                                    \"key\": \"contactEmail\",\n                                    \"label\": \"Contact Email\"\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_checklist\",\n            \"fields\": [\n                {\n                    \"id\": \"field_checklist\",\n                    \"type\": \"dynamiclist\",\n                    \"path\": \"checklist\",\n                    \"label\": \"Checklist\",\n                    \"allowAddRemove\": true,\n                    \"defaultRepetitions\": 1,\n                    \"nonCollapsedItems\": 5,\n                    \"rows\": [\n                        {\n                            \"id\": \"row_checklist_item\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"field_item\",\n                                    \"type\": \"text\",\n                                    \"key\": \"item\",\n                                    \"label\": \"Item\",\n                                    \"required\": true,\n                                    \"layout\": {\n                                        \"columns\": 12\n                                    }\n                                },\n                                {\n                                    \"id\": \"field_done\",\n                                    \"type\": \"checkbox\",\n                                    \"key\": \"done\",\n                                    \"label\": \"Done\",\n                                    \"layout\": {\n                                        \"columns\": 4\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_attachments\",\n            \"fields\": [\n                {\n                    \"id\": \"field_attachments\",\n                    \"type\": \"filepicker\",\n                    \"key\": \"attachments\",\n                    \"label\": \"Attachments\",\n                    \"multiple\": true,\n                    \"accept\": \".pdf,.txt,image/*\"\n                },\n                {\n                    \"id\": \"field_summary\",\n                    \"type\": \"expression\",\n                    \"key\": \"summary\",\n                    \"computeOn\": \"change\",\n                    \"expression\": \"=title + \\\" (\\\" + string(count(checklist)) + \\\" checklist items)\\\"\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_actions\",\n            \"fields\": [\n                {\n                    \"id\": \"field_submit\",\n                    \"type\": \"button\",\n                    \"label\": \"Submit\",\n                    \"action\": \"submit\"\n                },\n                {\n                    \"id\": \"field_reset\",\n                    \"type\": \"button\",\n                    \"label\": \"Reset\",\n                    \"action\": \"reset\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "Saves the whole form (schemaVersion 3, bpmn.io form-js components): template fields (renamed Title, extra 'In Review' status option), custom components, a conditionally hidden Impact field, a group with a path (`client`), a dynamic list (`checklist`), a file picker, an expression and the Submit / Reset buttons. Max 2 components per row; groups and dynamic lists hold rows of their own."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"versionTag\": \"v3-demo\",\n    \"rows\": [\n        {\n            \"id\": \"row_title\",\n            \"fields\": [\n                {\n                    \"id\": \"field_title\",\n                    \"type\": \"text\",\n                    \"key\": \"title\",\n                    \"label\": \"Task Name\",\n                    \"required\": true,\n                    \"validation\": {\n                        \"maxLength\": 100\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_description\",\n            \"fields\": [\n                {\n                    \"id\": \"field_description\",\n                    \"type\": \"textarea\",\n                    \"key\": \"description\",\n                    \"label\": \"Description\",\n                    \"validation\": {\n                        \"maxLength\": 1000\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_schedule\",\n            \"fields\": [\n                {\n                    \"id\": \"field_due_date\",\n                    \"type\": \"datetime\",\n                    \"key\": \"dueDate\",\n                    \"label\": \"Due Date\"\n                },\n                {\n                    \"id\": \"field_priority\",\n                    \"type\": \"select\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"options\": [\n                        {\n                            \"label\": \"Low\",\n                            \"value\": \"low\"\n                        },\n                        {\n                            \"label\": \"Medium\",\n                            \"value\": \"medium\"\n                        },\n                        {\n                            \"label\": \"High\",\n                            \"value\": \"high\"\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_progress\",\n            \"fields\": [\n                {\n                    \"id\": \"field_status\",\n                    \"type\": \"select\",\n                    \"key\": \"status\",\n                    \"label\": \"Status\",\n                    \"required\": true,\n                    \"defaultValue\": \"todo\",\n                    \"options\": [\n                        {\n                            \"label\": \"To Do\",\n                            \"value\": \"todo\"\n                        },\n                        {\n                            \"label\": \"In Progress\",\n                            \"value\": \"in-progress\"\n                        },\n                        {\n                            \"label\": \"In Review\",\n                            \"value\": \"in-review\"\n                        },\n                        {\n                            \"label\": \"Completed\",\n                            \"value\": \"completed\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_tags\",\n                    \"type\": \"taglist\",\n                    \"key\": \"tags\",\n                    \"label\": \"Tags\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_reviewer\",\n            \"fields\": [\n                {\n                    \"id\": \"field_reviewer\",\n                    \"type\": \"email\",\n                    \"key\": \"reviewerEmail\",\n                    \"label\": \"Reviewer Email\",\n                    \"required\": true,\n                    \"placeholder\": \"reviewer@company.com\"\n                },\n                {\n                    \"id\": \"field_start\",\n                    \"type\": \"date\",\n                    \"key\": \"startDate\",\n                    \"label\": \"Start Date\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_severity\",\n            \"fields\": [\n                {\n                    \"id\": \"field_severity\",\n                    \"type\": \"select\",\n                    \"key\": \"severity\",\n                    \"label\": \"Severity\",\n                    \"searchable\": true,\n                    \"options\": [\n                        {\n                            \"label\": \"Minor\",\n                            \"value\": \"minor\"\n                        },\n                        {\n                            \"label\": \"Major\",\n                            \"value\": \"major\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_impact\",\n                    \"type\": \"textarea\",\n                    \"key\": \"impact\",\n                    \"label\": \"Impact\",\n                    \"required\": true,\n                    \"description\": \"Only shown for major issues\",\n                    \"conditional\": {\n                        \"hide\": \"=severity != \\\"major\\\"\"\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_client\",\n            \"fields\": [\n                {\n                    \"id\": \"field_client\",\n                    \"type\": \"group\",\n                    \"path\": \"client\",\n                    \"label\": \"Client\",\n                    \"showOutline\": true,\n                    \"rows\": [\n                        {\n                            \"id\": \"row_client_details\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"field_client_name\",\n                                    \"type\": \"text\",\n                                    \"key\": \"name\",\n                                    \"label\": \"Client Name\"\n                                },\n                                {\n                                    \"id\": \"field_client_email\",\n                                    \"type\": \"email\",\n                                    \"key\": \"contactEmail\",\n                                    \"label\": \"Contact Email\"\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_checklist\",\n            \"fields\": [\n                {\n                    \"id\": \"field_checklist\",\n                    \"type\": \"dynamiclist\",\n                    \"path\": \"checklist\",\n                    \"label\": \"Checklist\",\n                    \"allowAddRemove\": true,\n                    \"defaultRepetitions\": 1,\n                    \"nonCollapsedItems\": 5,\n                    \"rows\": [\n                        {\n                            \"id\": \"row_checklist_item\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"field_item\",\n                                    \"type\": \"text\",\n                                    \"key\": \"item\",\n                                    \"label\": \"Item\",\n                                    \"required\": true,\n                                    \"layout\": {\n                                        \"columns\": 12\n                                    }\n                                },\n                                {\n                                    \"id\": \"field_done\",\n                                    \"type\": \"checkbox\",\n                                    \"key\": \"done\",\n                                    \"label\": \"Done\",\n                                    \"layout\": {\n                                        \"columns\": 4\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_attachments\",\n            \"fields\": [\n                {\n                    \"id\": \"field_attachments\",\n                    \"type\": \"filepicker\",\n                    \"key\": \"attachments\",\n                    \"label\": \"Attachments\",\n                    \"multiple\": true,\n                    \"accept\": \".pdf,.txt,image/*\"\n                },\n                {\n                    \"id\": \"field_summary\",\n                    \"type\": \"expression\",\n                    \"key\": \"summary\",\n                    \"computeOn\": \"change\",\n                    \"expression\": \"=title + \\\" (\\\" + string(count(checklist)) + \\\" checklist items)\\\"\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_actions\",\n            \"fields\": [\n                {\n                    \"id\": \"field_submit\",\n                    \"type\": \"button\",\n                    \"label\": \"Submit\",\n                    \"action\": \"submit\"\n                },\n                {\n                    \"id\": \"field_reset\",\n                    \"type\": \"button\",\n                    \"label\": \"Reset\",\n                    \"action\": \"reset\"\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "Saves the whole form (schemaVersion 3, bpmn.io form-js components): template fields (renamed Title, extra 'In Review' status option), custom components, a conditionally hidden Impact field, a group with a path (`client`), a dynamic list (`checklist`), a file picker, an expression and the Submit / Reset buttons. Max 2 components per row; groups and dynamic lists hold rows of their own."
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=995; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3107"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c23-4afEo+QzSs2Cm195so9pjkMgq3g\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Form settings saved successfully\",\n    \"data\": {\n        \"id\": \"task-form\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"schemaVersion\": 3,\n        \"versionTag\": \"v3-demo\",\n        \"rows\": [\n            {\n                \"id\": \"row_title\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_title\",\n                        \"type\": \"text\",\n                        \"key\": \"title\",\n                        \"label\": \"Task Name\",\n                        \"required\": true,\n                        \"validation\": {\n                            \"maxLength\": 100\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_description\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_description\",\n                        \"type\": \"textarea\",\n                        \"key\": \"description\",\n                        \"label\": \"Description\",\n                        \"validation\": {\n                            \"maxLength\": 1000\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_schedule\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_due_date\",\n                        \"type\": \"datetime\",\n                        \"key\": \"dueDate\",\n                        \"label\": \"Due Date\"\n                    },\n                    {\n                        \"id\": \"field_priority\",\n                        \"type\": \"select\",\n                        \"key\": \"priority\",\n                        \"label\": \"Priority\",\n                        \"options\": [\n                            {\n                                \"label\": \"Low\",\n                                \"value\": \"low\"\n                            },\n                            {\n                                \"label\": \"Medium\",\n                                \"value\": \"medium\"\n                            },\n                            {\n                                \"label\": \"High\",\n                                \"value\": \"high\"\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_progress\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_status\",\n                        \"type\": \"select\",\n                        \"key\": \"status\",\n                        \"label\": \"Status\",\n                        \"defaultValue\": \"todo\",\n                        \"required\": true,\n                        \"options\": [\n                            {\n                                \"label\": \"To Do\",\n                                \"value\": \"todo\"\n                            },\n                            {\n                                \"label\": \"In Progress\",\n                                \"value\": \"in-progress\"\n                            },\n                            {\n                                \"label\": \"In Review\",\n                                \"value\": \"in-review\"\n                            },\n                            {\n                                \"label\": \"Completed\",\n                                \"value\": \"completed\"\n                            }\n                        ]\n                    },\n                    {\n                        \"id\": \"field_tags\",\n                        \"type\": \"taglist\",\n                        \"key\": \"tags\",\n                        \"label\": \"Tags\"\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_reviewer\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_reviewer\",\n                        \"type\": \"email\",\n                        \"key\": \"reviewerEmail\",\n                        \"label\": \"Reviewer Email\",\n                        \"placeholder\": \"reviewer@company.com\",\n                        \"required\": true\n                    },\n                    {\n                        \"id\": \"field_start\",\n                        \"type\": \"date\",\n                        \"key\": \"startDate\",\n                        \"label\": \"Start Date\"\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_severity\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_severity\",\n                        \"type\": \"select\",\n                        \"key\": \"severity\",\n                        \"label\": \"Severity\",\n                        \"searchable\": true,\n                        \"options\": [\n                            {\n                                \"label\": \"Minor\",\n                                \"value\": \"minor\"\n                            },\n                            {\n                                \"label\": \"Major\",\n                                \"value\": \"major\"\n                            }\n                        ]\n                    },\n                    {\n                        \"id\": \"field_impact\",\n                        \"type\": \"textarea\",\n                        \"key\": \"impact\",\n                        \"label\": \"Impact\",\n                        \"description\": \"Only shown for major issues\",\n                        \"required\": true,\n                        \"conditional\": {\n                            \"hide\": \"=severity != \\\"major\\\"\"\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_client\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_client\",\n                        \"type\": \"group\",\n                        \"path\": \"client\",\n                        \"label\": \"Client\",\n                        \"showOutline\": true,\n                        \"rows\": [\n                            {\n                                \"id\": \"row_client_details\",\n                                \"fields\": [\n                                    {\n                                        \"id\": \"field_client_name\",\n                                        \"type\": \"text\",\n                                        \"key\": \"name\",\n                                        \"label\": \"Client Name\"\n                                    },\n                                    {\n                                        \"id\": \"field_client_email\",\n                                        \"type\": \"email\",\n                                        \"key\": \"contactEmail\",\n                                        \"label\": \"Contact Email\"\n                                    }\n                                ]\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_checklist\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_checklist\",\n                        \"type\": \"dynamiclist\",\n                        \"path\": \"checklist\",\n                        \"label\": \"Checklist\",\n                        \"defaultRepetitions\": 1,\n                        \"allowAddRemove\": true,\n                        \"nonCollapsedItems\": 5,\n                        \"rows\": [\n                            {\n                                \"id\": \"row_checklist_item\",\n                                \"fields\": [\n                                    {\n                                        \"id\": \"field_item\",\n                                        \"type\": \"text\",\n                                        \"key\": \"item\",\n                                        \"label\": \"Item\",\n                                        \"required\": true,\n                                        \"layout\": {\n                                            \"columns\": 12\n                                        }\n                                    },\n                                    {\n                                        \"id\": \"field_done\",\n                                        \"type\": \"checkbox\",\n                                        \"key\": \"done\",\n                                        \"label\": \"Done\",\n                                        \"layout\": {\n                                            \"columns\": 4\n                                        }\n                                    }\n                                ]\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_attachments\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_attachments\",\n                        \"type\": \"filepicker\",\n                        \"key\": \"attachments\",\n                        \"label\": \"Attachments\",\n                        \"accept\": \".pdf,.txt,image/*\",\n                        \"multiple\": true\n                    },\n                    {\n                        \"id\": \"field_summary\",\n                        \"type\": \"expression\",\n                        \"key\": \"summary\",\n                        \"expression\": \"=title + \\\" (\\\" + string(count(checklist)) + \\\" checklist items)\\\"\",\n                        \"computeOn\": \"change\"\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_actions\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_submit\",\n                        \"type\": \"button\",\n                        \"label\": \"Submit\",\n                        \"action\": \"submit\"\n                    },\n                    {\n                        \"id\": \"field_reset\",\n                        \"type\": \"button\",\n                        \"label\": \"Reset\",\n                        \"action\": \"reset\"\n                    }\n                ]\n            }\n        ],\n        \"updatedAt\": \"2026-11-23T21:26:10.837Z\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Rows are saved', () => pm.expect(pm.response.json().data.rows).to.have.lengthOf(10));",
+									"pm.test('Version tag is saved', () => pm.expect(pm.response.json().data.versionTag).to.eql('v3-demo'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Form Settings - More Than 2 Columns (422)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"a\",\n                    \"label\": \"A\",\n                    \"type\": \"text\"\n                },\n                {\n                    \"id\": \"b\",\n                    \"key\": \"b\",\n                    \"label\": \"B\",\n                    \"type\": \"text\"\n                },\n                {\n                    \"id\": \"c\",\n                    \"key\": \"c\",\n                    \"label\": \"C\",\n                    \"type\": \"text\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"a\",\n                    \"label\": \"A\",\n                    \"type\": \"text\"\n                },\n                {\n                    \"id\": \"b\",\n                    \"key\": \"b\",\n                    \"label\": \"B\",\n                    \"type\": \"text\"\n                },\n                {\n                    \"id\": \"c\",\n                    \"key\": \"c\",\n                    \"label\": \"C\",\n                    \"type\": \"text\"\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=994; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "168"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a8-z2hEcvr9uP0UaQ9FIyCTswv5KWA\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"rows.0.fields\",\n                \"message\": \"A row can contain at most 2 fields\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Form Settings - Unsupported Component (422)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"signature\",\n                    \"label\": \"Signature\",\n                    \"type\": \"signature\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"signature\",\n                    \"label\": \"Signature\",\n                    \"type\": \"signature\"\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=993; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "384"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"180-J5cuqzuwH8FSB9/AaYdei/JJrVg\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"rows.0.fields.0.type\",\n                \"message\": \"Type must be one of: text, textarea, number, date, time, datetime, email, expression, filepicker, checkbox, checklist, radio, select, taglist, textview, image, table, html, documentPreview, spacer, separator, group, dynamiclist, iframe, button\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Form Settings - Select Without Options (422)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"type\": \"select\",\n                    \"options\": []\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"a\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"type\": \"select\",\n                    \"options\": []\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=992; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "167"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a7-ePa2uUWTkGiHUkfQmFcuHugMXS4\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"rows.0.fields.0.options\",\n                \"message\": \"Add at least one option\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Form Settings - Invalid Nested Component (422)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"list\",\n                    \"type\": \"dynamiclist\",\n                    \"label\": \"Items\",\n                    \"rows\": [\n                        {\n                            \"id\": \"row_2\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"s\",\n                                    \"type\": \"select\",\n                                    \"key\": \"status\",\n                                    \"label\": \"Status\",\n                                    \"options\": [\n                                        {\n                                            \"label\": \"To Do\",\n                                            \"value\": \"todo\"\n                                        }\n                                    ],\n                                    \"conditional\": {\n                                        \"hide\": \"status = \\\"todo\\\"\"\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "A dynamic list needs a path, core keys (status) cannot be used inside a dynamic list and 'Hide if' must be a FEEL expression (\"=...\")."
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_1\",\n            \"fields\": [\n                {\n                    \"id\": \"list\",\n                    \"type\": \"dynamiclist\",\n                    \"label\": \"Items\",\n                    \"rows\": [\n                        {\n                            \"id\": \"row_2\",\n                            \"fields\": [\n                                {\n                                    \"id\": \"s\",\n                                    \"type\": \"select\",\n                                    \"key\": \"status\",\n                                    \"label\": \"Status\",\n                                    \"options\": [\n                                        {\n                                            \"label\": \"To Do\",\n                                            \"value\": \"todo\"\n                                        }\n                                    ],\n                                    \"conditional\": {\n                                        \"hide\": \"status = \\\"todo\\\"\"\n                                    }\n                                }\n                            ]\n                        }\n                    ]\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "A dynamic list needs a path, core keys (status) cannot be used inside a dynamic list and 'Hide if' must be a FEEL expression (\"=...\")."
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=991; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "436"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"1b4-4F2n3rZIWb+bcgqMHRBIux6/3JE\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"rows.0.fields.0.rows.0.fields.0.conditional.hide\",\n                \"message\": \"Must be a FEEL expression starting with \\\"=\\\"\"\n            },\n            {\n                \"field\": \"rows.0.fields.0.path\",\n                \"message\": \"Path is required\"\n            },\n            {\n                \"field\": \"rows.0.fields.0.rows.0.fields.0.key\",\n                \"message\": \"Key \\\"status\\\" is bound to the task and cannot be used inside a group with a path or a dynamic list\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Errors point into the component tree', () => pm.expect(pm.response.json().error.details.map(d => d.field)).to.include('rows.0.fields.0.rows.0.fields.0.key'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Form Settings - Missing Organization Header (400)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=990; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "106"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"6a-gzHURKO4WXLeR1SU8TMDoB/zzCo\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Missing required \\\"x-organization-id\\\" header\",\n    \"error\": {\n        \"code\": \"BAD_REQUEST\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Files",
+			"item": [
+				{
+					"name": "Upload File",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/files",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"files"
+							]
+						},
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "sample-attachment.txt"
+								}
+							]
+						},
+						"description": "multipart/form-data with one part named `file` (max FILE_MAX_SIZE_BYTES, default 5 MB). The returned reference `{ id, name, size, contentType }` is the value stored by a File picker. The file part points to `sample-attachment.txt` next to the collection (newman: `--working-dir postman`)."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/files",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"files"
+									]
+								},
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": "sample-attachment.txt"
+										}
+									]
+								},
+								"description": "multipart/form-data with one part named `file` (max FILE_MAX_SIZE_BYTES, default 5 MB). The returned reference `{ id, name, size, contentType }` is the value stored by a File picker. The file part points to `sample-attachment.txt` next to the collection (newman: `--working-dir postman`)."
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=989; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Location",
+									"value": "/api/files/11a45dac-b177-456b-8cf6-91445b377441"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "177"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"b1-zpTHZ8zj7+GyyG+g0KOxYhEaL50\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"File uploaded successfully\",\n    \"data\": {\n        \"id\": \"11a45dac-b177-456b-8cf6-91445b377441\",\n        \"name\": \"sample-attachment.txt\",\n        \"size\": 150,\n        \"contentType\": \"text/plain\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"const file = pm.response.json().data;",
+									"pm.collectionVariables.set('file_id', file.id);",
+									"pm.collectionVariables.set('file_reference', JSON.stringify(file));",
+									"pm.test('Location header is set', () => pm.response.to.have.header('Location'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Upload File - Missing File (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/files",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"files"
+							]
+						},
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "note",
+									"value": "no file attached",
+									"type": "text"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/files",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"files"
+									]
+								},
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "note",
+											"value": "no file attached",
+											"type": "text"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=988; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "115"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"73-gRAcNqK0F7Sh0CwWY0VTijiZ4Hw\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"A file is required (multipart/form-data part \\\"file\\\")\",\n    \"error\": {\n        \"code\": \"BAD_REQUEST\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Download File",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/files/{{file_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"{{file_id}}"
+							]
+						},
+						"description": "Returns the bytes with Content-Disposition: attachment, Content-Security-Policy: sandbox and Cache-Control: private, no-store."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/files/{{file_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"files",
+										"{{file_id}}"
+									]
+								},
+								"description": "Returns the bytes with Content-Disposition: attachment, Content-Security-Policy: sandbox and Cache-Control: private, no-store."
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Security-Policy",
+									"value": "sandbox"
+								},
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=987; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								},
+								{
+									"key": "Content-Length",
+									"value": "150"
+								},
+								{
+									"key": "Content-Disposition",
+									"value": "attachment; filename*=UTF-8''sample-attachment.txt"
+								},
+								{
+									"key": "Cache-Control",
+									"value": "private, no-store"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"96-ilIvleyW4gvChySYVidD/sZz8x8\""
+								}
+							],
+							"cookie": [],
+							"body": "Sample attachment for the Kitameraki Task Management API Postman collection.\nUploaded by \"Files > Upload File\" and referenced by a File picker value.\n"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Served as an attachment', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));",
+									"pm.test('Sandboxed (never runs in the app origin)', () => pm.expect(pm.response.headers.get('Content-Security-Policy')).to.eql('sandbox'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Download File - Not Found (404)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/files/{{missing_file_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"{{missing_file_id}}"
+							]
+						},
+						"description": "Unknown id, or a file of another organization."
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/files/{{missing_file_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"files",
+										"{{missing_file_id}}"
+									]
+								},
+								"description": "Unknown id, or a file of another organization."
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=986; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "126"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7e-y1jZJHGlRqUgJ51xV4YD3b7+GvI\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"File with id \\\"0d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a\\\" was not found\",\n    \"error\": {\n        \"code\": \"NOT_FOUND\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Create Task",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Prepare sprint demo\",\n    \"description\": \"Slides and a live demo of the task board\",\n    \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n    \"priority\": \"high\",\n    \"status\": \"todo\",\n    \"tags\": [\n        \"demo\",\n        \"sprint-12\"\n    ],\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"startDate\": \"2026-11-25\",\n        \"severity\": \"major\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Prepare sprint demo\",\n    \"description\": \"Slides and a live demo of the task board\",\n    \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n    \"priority\": \"high\",\n    \"status\": \"todo\",\n    \"tags\": [\n        \"demo\",\n        \"sprint-12\"\n    ],\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"startDate\": \"2026-11-25\",\n        \"severity\": \"major\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=985; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Location",
+									"value": "/api/tasks/d8f96433-6aaf-4183-abca-6547fdccf985"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "527"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"20f-vZ9NKJcJ1WB5mr7iwtwxhIrHJwk\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task created successfully\",\n    \"data\": {\n        \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [\n            \"demo\",\n            \"sprint-12\"\n        ],\n        \"customFields\": {\n            \"reviewerEmail\": \"reviewer@company.com\",\n            \"startDate\": \"2026-11-25\",\n            \"severity\": \"major\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.860Z\",\n        \"title\": \"Prepare sprint demo\",\n        \"description\": \"Slides and a live demo of the task board\",\n        \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n        \"priority\": \"high\",\n        \"status\": \"todo\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"const task = pm.response.json().data;",
+									"pm.collectionVariables.set('task_id', task.id);",
+									"pm.test('Location header is set', () => pm.response.to.have.header('Location'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Groups, Dynamic List & Files (201)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Launch customer portal\",\n    \"status\": \"todo\",\n    \"priority\": \"high\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"severity\": \"major\",\n        \"impact\": \"Customers cannot sign in until the portal is live\",\n        \"client\": {\n            \"name\": \"Acme Corp\",\n            \"contactEmail\": \"pm@acme.example\"\n        },\n        \"checklist\": [\n            { \"item\": \"Prepare slides\", \"done\": true },\n            { \"item\": \"Rehearse the demo\" }\n        ],\n        \"attachments\": [{{file_reference}}],\n        \"summary\": \"Launch customer portal (2 checklist items)\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "Group with a path -> `customFields.client`, dynamic list -> `customFields.checklist` (list of objects), file picker -> list of references returned by Upload File, expression -> any JSON value computed in the browser."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Launch customer portal\",\n    \"status\": \"todo\",\n    \"priority\": \"high\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"severity\": \"major\",\n        \"impact\": \"Customers cannot sign in until the portal is live\",\n        \"client\": {\n            \"name\": \"Acme Corp\",\n            \"contactEmail\": \"pm@acme.example\"\n        },\n        \"checklist\": [\n            { \"item\": \"Prepare slides\", \"done\": true },\n            { \"item\": \"Rehearse the demo\" }\n        ],\n        \"attachments\": [{{file_reference}}],\n        \"summary\": \"Launch customer portal (2 checklist items)\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "Group with a path -> `customFields.client`, dynamic list -> `customFields.checklist` (list of objects), file picker -> list of references returned by Upload File, expression -> any JSON value computed in the browser."
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=984; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Location",
+									"value": "/api/tasks/98cb3912-f40f-4536-954c-f8c4b76035c5"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "784"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"310-6GdYvCv2FQO58IaGqZBlIxzAzag\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task created successfully\",\n    \"data\": {\n        \"id\": \"98cb3912-f40f-4536-954c-f8c4b76035c5\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [],\n        \"customFields\": {\n            \"reviewerEmail\": \"reviewer@company.com\",\n            \"severity\": \"major\",\n            \"impact\": \"Customers cannot sign in until the portal is live\",\n            \"client\": {\n                \"name\": \"Acme Corp\",\n                \"contactEmail\": \"pm@acme.example\"\n            },\n            \"checklist\": [\n                {\n                    \"item\": \"Prepare slides\",\n                    \"done\": true\n                },\n                {\n                    \"item\": \"Rehearse the demo\"\n                }\n            ],\n            \"attachments\": [\n                {\n                    \"id\": \"11a45dac-b177-456b-8cf6-91445b377441\",\n                    \"name\": \"sample-attachment.txt\",\n                    \"size\": 150,\n                    \"contentType\": \"text/plain\"\n                }\n            ],\n            \"summary\": \"Launch customer portal (2 checklist items)\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.862Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.862Z\",\n        \"title\": \"Launch customer portal\",\n        \"priority\": \"high\",\n        \"status\": \"todo\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"const task = pm.response.json().data;",
+									"pm.collectionVariables.set('nested_task_id', task.id);",
+									"pm.test('Group values are nested under their path', () => pm.expect(task.customFields.client.name).to.eql('Acme Corp'));",
+									"pm.test('Dynamic list items are stored', () => pm.expect(task.customFields.checklist).to.have.lengthOf(2));",
+									"pm.test('File reference is stored', () => pm.expect(task.customFields.attachments[0].id).to.eql(pm.collectionVariables.get('file_id')));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Invalid Nested Values (422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Nested errors\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"client\": {\n            \"name\": \"Acme Corp\",\n            \"vatNumber\": \"NL123\"\n        },\n        \"checklist\": [\n            {\n                \"item\": \"Prepare slides\"\n            },\n            {\n                \"done\": true\n            }\n        ],\n        \"attachments\": [\n            {\n                \"id\": \"not-an-uploaded-file\"\n            }\n        ]\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "Errors inside groups and dynamic list items: `customFields.<path>.<key>` and `customFields.<list>.<index>.<key>`."
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Nested errors\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\",\n        \"client\": {\n            \"name\": \"Acme Corp\",\n            \"vatNumber\": \"NL123\"\n        },\n        \"checklist\": [\n            {\n                \"item\": \"Prepare slides\"\n            },\n            {\n                \"done\": true\n            }\n        ],\n        \"attachments\": [\n            {\n                \"id\": \"not-an-uploaded-file\"\n            }\n        ]\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "Errors inside groups and dynamic list items: `customFields.<path>.<key>` and `customFields.<list>.<index>.<key>`."
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=983; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "404"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"194-KenzUVeCPT4kLfSu+rfUil70cnE\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"customFields.client.vatNumber\",\n                \"message\": \"Field is not part of the task form\"\n            },\n            {\n                \"field\": \"customFields.checklist.1.item\",\n                \"message\": \"Item is required\"\n            },\n            {\n                \"field\": \"customFields.attachments\",\n                \"message\": \"Attachments: Each file must be a reference returned by the upload ({ id, name, size, contentType })\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Nested errors have their path', () => pm.expect(pm.response.json().error.details.map(d => d.field)).to.include('customFields.checklist.1.item'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Validation Error (422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"\",\n    \"priority\": \"urgent\",\n    \"status\": \"done\",\n    \"organizationId\": \"hack\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"\",\n    \"priority\": \"urgent\",\n    \"status\": \"done\",\n    \"organizationId\": \"hack\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=982; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "163"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a3-HrSGBkQ/KmHo+NUHycBdQ/BOLUA\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"organizationId\",\n                \"message\": \"Unknown field is not allowed\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Invalid Custom Field (422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Task with bad custom fields\",\n    \"customFields\": {\n        \"reviewerEmail\": \"not-an-email\",\n        \"unknown_field\": \"x\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Task with bad custom fields\",\n    \"customFields\": {\n        \"reviewerEmail\": \"not-an-email\",\n        \"unknown_field\": \"x\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=981; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "278"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"116-Nq9U4wqQ5P43ldmxJYtCqFhIkQo\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"customFields.unknown_field\",\n                \"message\": \"Field is not part of the task form\"\n            },\n            {\n                \"field\": \"customFields.reviewerEmail\",\n                \"message\": \"Reviewer Email: Must be a valid email address\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Status Not In Options (422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Wrong status\",\n    \"status\": \"done\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "Status / priority must be one of the options configured in the form settings."
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Wrong status\",\n    \"status\": \"done\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "Status / priority must be one of the options configured in the form settings."
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=980; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "190"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"be-HOnu7I0UXHr4gxnZOiHEu6L4p2M\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"status\",\n                \"message\": \"Status: Must be one of: todo, in-progress, in-review, completed\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Create Task - Malformed JSON (400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"title\": \"missing quote }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{ \"title\": \"missing quote }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "96"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"60-i+obhtM55/ldRcoq88zM74L6Krg\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Request body contains invalid JSON\",\n    \"error\": {\n        \"code\": \"INVALID_JSON\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get All Tasks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks?page=1&pageSize=10",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "(Optional) - (Integer) default 1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10",
+									"description": "(Optional) - (Integer 1-100) default 10"
+								},
+								{
+									"key": "search",
+									"value": "demo",
+									"description": "(Optional) - search in title, description and tags",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "todo",
+									"description": "(Optional) - a Status option value (template: todo | in-progress | completed)",
+									"disabled": true
+								},
+								{
+									"key": "priority",
+									"value": "high",
+									"description": "(Optional) - a Priority option value (template: low | medium | high)",
+									"disabled": true
+								},
+								{
+									"key": "tag",
+									"value": "demo",
+									"description": "(Optional) - exact tag",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt",
+									"description": "(Optional) - createdAt | updatedAt | title | dueDate",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc",
+									"description": "(Optional) - asc | desc",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks?page=1&pageSize=10",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "(Optional) - (Integer) default 1"
+										},
+										{
+											"key": "pageSize",
+											"value": "10",
+											"description": "(Optional) - (Integer 1-100) default 10"
+										},
+										{
+											"key": "search",
+											"value": "demo",
+											"description": "(Optional) - search in title, description and tags",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": "todo",
+											"description": "(Optional) - a Status option value (template: todo | in-progress | completed)",
+											"disabled": true
+										},
+										{
+											"key": "priority",
+											"value": "high",
+											"description": "(Optional) - a Priority option value (template: low | medium | high)",
+											"disabled": true
+										},
+										{
+											"key": "tag",
+											"value": "demo",
+											"description": "(Optional) - exact tag",
+											"disabled": true
+										},
+										{
+											"key": "sortBy",
+											"value": "createdAt",
+											"description": "(Optional) - createdAt | updatedAt | title | dueDate",
+											"disabled": true
+										},
+										{
+											"key": "sortOrder",
+											"value": "desc",
+											"description": "(Optional) - asc | desc",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=979; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1317"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"525-Q+ASE/iq8wyCk1n+KbnuGBGyfA0\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Tasks retrieved successfully\",\n    \"data\": [\n        {\n            \"id\": \"98cb3912-f40f-4536-954c-f8c4b76035c5\",\n            \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n            \"tags\": [],\n            \"customFields\": {\n                \"reviewerEmail\": \"reviewer@company.com\",\n                \"severity\": \"major\",\n                \"impact\": \"Customers cannot sign in until the portal is live\",\n                \"client\": {\n                    \"name\": \"Acme Corp\",\n                    \"contactEmail\": \"pm@acme.example\"\n                },\n                \"checklist\": [\n                    {\n                        \"item\": \"Prepare slides\",\n                        \"done\": true\n                    },\n                    {\n                        \"item\": \"Rehearse the demo\"\n                    }\n                ],\n                \"attachments\": [\n                    {\n                        \"id\": \"11a45dac-b177-456b-8cf6-91445b377441\",\n                        \"name\": \"sample-attachment.txt\",\n                        \"size\": 150,\n                        \"contentType\": \"text/plain\"\n                    }\n                ],\n                \"summary\": \"Launch customer portal (2 checklist items)\"\n            },\n            \"createdAt\": \"2026-11-23T21:26:10.862Z\",\n            \"updatedAt\": \"2026-11-23T21:26:10.862Z\",\n            \"title\": \"Launch customer portal\",\n            \"priority\": \"high\",\n            \"status\": \"todo\"\n        },\n        {\n            \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n            \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n            \"tags\": [\n                \"demo\",\n                \"sprint-12\"\n            ],\n            \"customFields\": {\n                \"reviewerEmail\": \"reviewer@company.com\",\n                \"startDate\": \"2026-11-25\",\n                \"severity\": \"major\"\n            },\n            \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n            \"updatedAt\": \"2026-11-23T21:26:10.860Z\",\n            \"title\": \"Prepare sprint demo\",\n            \"description\": \"Slides and a live demo of the task board\",\n            \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n            \"priority\": \"high\",\n            \"status\": \"todo\"\n        }\n    ],\n    \"meta\": {\n        \"page\": 1,\n        \"pageSize\": 10,\n        \"totalItems\": 2,\n        \"totalPages\": 1\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Has pagination meta', () => pm.expect(pm.response.json().meta).to.include.keys('page','pageSize','totalItems','totalPages'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get All Tasks - Search, Filter & Pagination",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks?search=sprint&status=todo&priority=high&page=1&pageSize=5&sortBy=dueDate&sortOrder=asc",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "sprint"
+								},
+								{
+									"key": "status",
+									"value": "todo"
+								},
+								{
+									"key": "priority",
+									"value": "high"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "5"
+								},
+								{
+									"key": "sortBy",
+									"value": "dueDate"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks?search=sprint&status=todo&priority=high&page=1&pageSize=5&sortBy=dueDate&sortOrder=asc",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "sprint"
+										},
+										{
+											"key": "status",
+											"value": "todo"
+										},
+										{
+											"key": "priority",
+											"value": "high"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "pageSize",
+											"value": "5"
+										},
+										{
+											"key": "sortBy",
+											"value": "dueDate"
+										},
+										{
+											"key": "sortOrder",
+											"value": "asc"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=978; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "593"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"251-sXk0aq0YnXcc61fIDyQ/0KFMfeg\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Tasks retrieved successfully\",\n    \"data\": [\n        {\n            \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n            \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n            \"tags\": [\n                \"demo\",\n                \"sprint-12\"\n            ],\n            \"customFields\": {\n                \"reviewerEmail\": \"reviewer@company.com\",\n                \"startDate\": \"2026-11-25\",\n                \"severity\": \"major\"\n            },\n            \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n            \"updatedAt\": \"2026-11-23T21:26:10.860Z\",\n            \"title\": \"Prepare sprint demo\",\n            \"description\": \"Slides and a live demo of the task board\",\n            \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n            \"priority\": \"high\",\n            \"status\": \"todo\"\n        }\n    ],\n    \"meta\": {\n        \"page\": 1,\n        \"pageSize\": 5,\n        \"totalItems\": 1,\n        \"totalPages\": 1\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get All Tasks - Invalid Query (400)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks?page=0&status=done",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "status",
+									"value": "done"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks?page=0&status=done",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "status",
+											"value": "done"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=977; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "163"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a3-wFaZPD2XpN40HKrtlN3qS7momEs\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Invalid query parameters\",\n    \"error\": {\n        \"code\": \"BAD_REQUEST\",\n        \"details\": [\n            {\n                \"field\": \"page\",\n                \"message\": \"Too small: expected number to be >=1\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Detail Task",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=976; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "529"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"211-9N5iSI/k9IjEmbSJ/kNRWNX+GTM\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task retrieved successfully\",\n    \"data\": {\n        \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [\n            \"demo\",\n            \"sprint-12\"\n        ],\n        \"customFields\": {\n            \"reviewerEmail\": \"reviewer@company.com\",\n            \"startDate\": \"2026-11-25\",\n            \"severity\": \"major\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.860Z\",\n        \"title\": \"Prepare sprint demo\",\n        \"description\": \"Slides and a live demo of the task board\",\n        \"dueDate\": \"2026-12-01T09:00:00.000Z\",\n        \"priority\": \"high\",\n        \"status\": \"todo\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Detail Task - Not Found (404)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{missing_task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{missing_task_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{missing_task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{missing_task_id}}"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=975; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "126"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7e-6BvzYRQqrRU4co1yY/nreYAcS8w\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Task with id \\\"9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d\\\" was not found\",\n    \"error\": {\n        \"code\": \"NOT_FOUND\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Get Detail Task - Invalid Id (400)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/not-a-uuid",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"not-a-uuid"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "400 Bad Request",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/not-a-uuid",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"not-a-uuid"
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=974; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"88-8UHV5IrexwDJeuG2ctfBJ3ecDO0\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Invalid task id\",\n    \"error\": {\n        \"code\": \"BAD_REQUEST\",\n        \"details\": [\n            {\n                \"field\": \"id\",\n                \"message\": \"Must be a valid UUID\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Task (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Prepare sprint demo (updated)\",\n    \"description\": \"Slides, live demo and Q&A\",\n    \"dueDate\": \"2026-12-02T09:00:00.000Z\",\n    \"priority\": \"medium\",\n    \"status\": \"in-review\",\n    \"tags\": [\n        \"demo\"\n    ],\n    \"customFields\": {\n        \"reviewerEmail\": \"lead@company.com\",\n        \"startDate\": \"2026-11-26\",\n        \"severity\": \"minor\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Prepare sprint demo (updated)\",\n    \"description\": \"Slides, live demo and Q&A\",\n    \"dueDate\": \"2026-12-02T09:00:00.000Z\",\n    \"priority\": \"medium\",\n    \"status\": \"in-review\",\n    \"tags\": [\n        \"demo\"\n    ],\n    \"customFields\": {\n        \"reviewerEmail\": \"lead@company.com\",\n        \"startDate\": \"2026-11-26\",\n        \"severity\": \"minor\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=973; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "513"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"201-k96lB/D01L9q7df6GcllxB+eS80\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task updated successfully\",\n    \"data\": {\n        \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [\n            \"demo\"\n        ],\n        \"customFields\": {\n            \"reviewerEmail\": \"lead@company.com\",\n            \"startDate\": \"2026-11-26\",\n            \"severity\": \"minor\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.890Z\",\n        \"title\": \"Prepare sprint demo (updated)\",\n        \"description\": \"Slides, live demo and Q&A\",\n        \"dueDate\": \"2026-12-02T09:00:00.000Z\",\n        \"priority\": \"medium\",\n        \"status\": \"in-review\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Task Status (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"completed\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"completed\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=972; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "513"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"201-W8nLKXogtlKja0Ha1+gD21z+AUw\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task updated successfully\",\n    \"data\": {\n        \"id\": \"d8f96433-6aaf-4183-abca-6547fdccf985\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [\n            \"demo\"\n        ],\n        \"customFields\": {\n            \"reviewerEmail\": \"lead@company.com\",\n            \"startDate\": \"2026-11-26\",\n            \"severity\": \"minor\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.860Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.892Z\",\n        \"title\": \"Prepare sprint demo (updated)\",\n        \"description\": \"Slides, live demo and Q&A\",\n        \"dueDate\": \"2026-12-02T09:00:00.000Z\",\n        \"priority\": \"medium\",\n        \"status\": \"completed\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Status changed', () => pm.expect(pm.response.json().data.status).to.eql('completed'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Task - Validation Error (422)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"done\",\n    \"dueDate\": \"tomorrow\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"done\",\n    \"dueDate\": \"tomorrow\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=971; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "267"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"10b-IOh2mfjulJGPU90wE1gfzlzH3Hc\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"dueDate\",\n                \"message\": \"Due Date: Must be a valid ISO 8601 date-time\"\n            },\n            {\n                \"field\": \"status\",\n                \"message\": \"Status: Must be one of: todo, in-progress, in-review, completed\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Update Task - Not Found (404)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{missing_task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{missing_task_id}}"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"todo\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{missing_task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{missing_task_id}}"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"todo\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=970; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "126"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7e-6BvzYRQqrRU4co1yY/nreYAcS8w\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Task with id \\\"9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d\\\" was not found\",\n    \"error\": {\n        \"code\": \"NOT_FOUND\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "204 No Content",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=969; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 204', () => pm.response.to.have.status(204));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Delete Task - Not Found (404)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/{{task_id}}",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"{{task_id}}"
+							]
+						},
+						"description": "Deleting the same task twice returns 404."
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/{{task_id}}",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"{{task_id}}"
+									]
+								},
+								"description": "Deleting the same task twice returns 404."
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=968; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "126"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7e-NChHotZFKWUzq7tK0w8xFGVXTic\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Task with id \\\"d8f96433-6aaf-4183-abca-6547fdccf985\\\" was not found\",\n    \"error\": {\n        \"code\": \"NOT_FOUND\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Bulk Delete",
+			"item": [
+				{
+					"name": "Create Task For Bulk Delete",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Task to bulk delete\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Task to bulk delete\",\n    \"customFields\": {\n        \"reviewerEmail\": \"reviewer@company.com\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=967; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Location",
+									"value": "/api/tasks/06176567-d157-4c23-b7c4-4125e87c8216"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "353"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"161-ETJsw0FTjc1jK5JJJMqFxDDxObM\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Task created successfully\",\n    \"data\": {\n        \"id\": \"06176567-d157-4c23-b7c4-4125e87c8216\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"tags\": [],\n        \"customFields\": {\n            \"reviewerEmail\": \"reviewer@company.com\"\n        },\n        \"createdAt\": \"2026-11-23T21:26:10.898Z\",\n        \"updatedAt\": \"2026-11-23T21:26:10.898Z\",\n        \"title\": \"Task to bulk delete\",\n        \"status\": \"todo\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 201', () => pm.response.to.have.status(201));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.collectionVariables.set('bulk_task_id', pm.response.json().data.id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Bulk Delete Tasks",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/bulk-delete",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"bulk-delete"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"{{bulk_task_id}}\",\n        \"{{nested_task_id}}\",\n        \"{{missing_task_id}}\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/bulk-delete",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"bulk-delete"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ids\": [\n        \"{{bulk_task_id}}\",\n        \"{{nested_task_id}}\",\n        \"{{missing_task_id}}\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=966; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "203"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"cb-L1kIkXFTcrBJb7Xld35/WTYvMWg\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"2 task(s) deleted\",\n    \"data\": {\n        \"deletedIds\": [\n            \"06176567-d157-4c23-b7c4-4125e87c8216\",\n            \"98cb3912-f40f-4536-954c-f8c4b76035c5\"\n        ],\n        \"notFoundIds\": [\n            \"9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d\"\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));",
+									"pm.test('Reports deleted and missing ids', () => { const d = pm.response.json().data; pm.expect(d.deletedIds).to.have.lengthOf(2); pm.expect(d.notFoundIds).to.have.lengthOf(1); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Bulk Delete Tasks - Validation Error (422)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/tasks/bulk-delete",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"tasks",
+								"bulk-delete"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"abc\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						}
+					},
+					"response": [
+						{
+							"name": "422 Unprocessable Entity",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/tasks/bulk-delete",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"tasks",
+										"bulk-delete"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"ids\": [\n        \"abc\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								}
+							},
+							"status": "Unprocessable Entity",
+							"code": 422,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=965; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "146"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"92-JtP3W7A+MFiL+oOSjQ+k0WBIEzc\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Validation failed\",\n    \"error\": {\n        \"code\": \"VALIDATION_ERROR\",\n        \"details\": [\n            {\n                \"field\": \"ids.0\",\n                \"message\": \"Must be a valid UUID\"\n            }\n        ]\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 422', () => pm.response.to.have.status(422));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "Reset Form Settings",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-organization-id",
+								"value": "{{organization_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{app_url}}/api/form-settings",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"form-settings"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_title\",\n            \"fields\": [\n                {\n                    \"id\": \"field_title\",\n                    \"type\": \"text\",\n                    \"key\": \"title\",\n                    \"label\": \"Title\",\n                    \"required\": true,\n                    \"validation\": {\n                        \"maxLength\": 100\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_description\",\n            \"fields\": [\n                {\n                    \"id\": \"field_description\",\n                    \"type\": \"textarea\",\n                    \"key\": \"description\",\n                    \"label\": \"Description\",\n                    \"validation\": {\n                        \"maxLength\": 1000\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_schedule\",\n            \"fields\": [\n                {\n                    \"id\": \"field_due_date\",\n                    \"type\": \"datetime\",\n                    \"key\": \"dueDate\",\n                    \"label\": \"Due Date\"\n                },\n                {\n                    \"id\": \"field_priority\",\n                    \"type\": \"select\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"options\": [\n                        {\n                            \"label\": \"Low\",\n                            \"value\": \"low\"\n                        },\n                        {\n                            \"label\": \"Medium\",\n                            \"value\": \"medium\"\n                        },\n                        {\n                            \"label\": \"High\",\n                            \"value\": \"high\"\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_progress\",\n            \"fields\": [\n                {\n                    \"id\": \"field_status\",\n                    \"type\": \"select\",\n                    \"key\": \"status\",\n                    \"label\": \"Status\",\n                    \"required\": true,\n                    \"defaultValue\": \"todo\",\n                    \"options\": [\n                        {\n                            \"label\": \"To Do\",\n                            \"value\": \"todo\"\n                        },\n                        {\n                            \"label\": \"In Progress\",\n                            \"value\": \"in-progress\"\n                        },\n                        {\n                            \"label\": \"Completed\",\n                            \"value\": \"completed\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_tags\",\n                    \"type\": \"taglist\",\n                    \"key\": \"tags\",\n                    \"label\": \"Tags\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_actions\",\n            \"fields\": [\n                {\n                    \"id\": \"field_submit\",\n                    \"type\": \"button\",\n                    \"label\": \"Submit\",\n                    \"action\": \"submit\"\n                },\n                {\n                    \"id\": \"field_reset\",\n                    \"type\": \"button\",\n                    \"label\": \"Reset\",\n                    \"action\": \"reset\"\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"description": "Restores the task template so the front-end starts clean."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "x-organization-id",
+										"value": "{{organization_id}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{app_url}}/api/form-settings",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"form-settings"
+									]
+								},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rows\": [\n        {\n            \"id\": \"row_title\",\n            \"fields\": [\n                {\n                    \"id\": \"field_title\",\n                    \"type\": \"text\",\n                    \"key\": \"title\",\n                    \"label\": \"Title\",\n                    \"required\": true,\n                    \"validation\": {\n                        \"maxLength\": 100\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_description\",\n            \"fields\": [\n                {\n                    \"id\": \"field_description\",\n                    \"type\": \"textarea\",\n                    \"key\": \"description\",\n                    \"label\": \"Description\",\n                    \"validation\": {\n                        \"maxLength\": 1000\n                    }\n                }\n            ]\n        },\n        {\n            \"id\": \"row_schedule\",\n            \"fields\": [\n                {\n                    \"id\": \"field_due_date\",\n                    \"type\": \"datetime\",\n                    \"key\": \"dueDate\",\n                    \"label\": \"Due Date\"\n                },\n                {\n                    \"id\": \"field_priority\",\n                    \"type\": \"select\",\n                    \"key\": \"priority\",\n                    \"label\": \"Priority\",\n                    \"options\": [\n                        {\n                            \"label\": \"Low\",\n                            \"value\": \"low\"\n                        },\n                        {\n                            \"label\": \"Medium\",\n                            \"value\": \"medium\"\n                        },\n                        {\n                            \"label\": \"High\",\n                            \"value\": \"high\"\n                        }\n                    ]\n                }\n            ]\n        },\n        {\n            \"id\": \"row_progress\",\n            \"fields\": [\n                {\n                    \"id\": \"field_status\",\n                    \"type\": \"select\",\n                    \"key\": \"status\",\n                    \"label\": \"Status\",\n                    \"required\": true,\n                    \"defaultValue\": \"todo\",\n                    \"options\": [\n                        {\n                            \"label\": \"To Do\",\n                            \"value\": \"todo\"\n                        },\n                        {\n                            \"label\": \"In Progress\",\n                            \"value\": \"in-progress\"\n                        },\n                        {\n                            \"label\": \"Completed\",\n                            \"value\": \"completed\"\n                        }\n                    ]\n                },\n                {\n                    \"id\": \"field_tags\",\n                    \"type\": \"taglist\",\n                    \"key\": \"tags\",\n                    \"label\": \"Tags\"\n                }\n            ]\n        },\n        {\n            \"id\": \"row_actions\",\n            \"fields\": [\n                {\n                    \"id\": \"field_submit\",\n                    \"type\": \"button\",\n                    \"label\": \"Submit\",\n                    \"action\": \"submit\"\n                },\n                {\n                    \"id\": \"field_reset\",\n                    \"type\": \"button\",\n                    \"label\": \"Reset\",\n                    \"action\": \"reset\"\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"description": "Restores the task template so the front-end starts clean."
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=964; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1316"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"524-FljywlUrWPyyXeefHC+yRO6t9dw\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": true,\n    \"message\": \"Form settings saved successfully\",\n    \"data\": {\n        \"id\": \"task-form\",\n        \"organizationId\": \"5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f\",\n        \"schemaVersion\": 3,\n        \"rows\": [\n            {\n                \"id\": \"row_title\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_title\",\n                        \"type\": \"text\",\n                        \"key\": \"title\",\n                        \"label\": \"Title\",\n                        \"required\": true,\n                        \"validation\": {\n                            \"maxLength\": 100\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_description\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_description\",\n                        \"type\": \"textarea\",\n                        \"key\": \"description\",\n                        \"label\": \"Description\",\n                        \"validation\": {\n                            \"maxLength\": 1000\n                        }\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_schedule\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_due_date\",\n                        \"type\": \"datetime\",\n                        \"key\": \"dueDate\",\n                        \"label\": \"Due Date\"\n                    },\n                    {\n                        \"id\": \"field_priority\",\n                        \"type\": \"select\",\n                        \"key\": \"priority\",\n                        \"label\": \"Priority\",\n                        \"options\": [\n                            {\n                                \"label\": \"Low\",\n                                \"value\": \"low\"\n                            },\n                            {\n                                \"label\": \"Medium\",\n                                \"value\": \"medium\"\n                            },\n                            {\n                                \"label\": \"High\",\n                                \"value\": \"high\"\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_progress\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_status\",\n                        \"type\": \"select\",\n                        \"key\": \"status\",\n                        \"label\": \"Status\",\n                        \"defaultValue\": \"todo\",\n                        \"required\": true,\n                        \"options\": [\n                            {\n                                \"label\": \"To Do\",\n                                \"value\": \"todo\"\n                            },\n                            {\n                                \"label\": \"In Progress\",\n                                \"value\": \"in-progress\"\n                            },\n                            {\n                                \"label\": \"Completed\",\n                                \"value\": \"completed\"\n                            }\n                        ]\n                    },\n                    {\n                        \"id\": \"field_tags\",\n                        \"type\": \"taglist\",\n                        \"key\": \"tags\",\n                        \"label\": \"Tags\"\n                    }\n                ]\n            },\n            {\n                \"id\": \"row_actions\",\n                \"fields\": [\n                    {\n                        \"id\": \"field_submit\",\n                        \"type\": \"button\",\n                        \"label\": \"Submit\",\n                        \"action\": \"submit\"\n                    },\n                    {\n                        \"id\": \"field_reset\",\n                        \"type\": \"button\",\n                        \"label\": \"Reset\",\n                        \"action\": \"reset\"\n                    }\n                ]\n            }\n        ],\n        \"updatedAt\": \"2026-11-23T21:26:10.902Z\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Unknown Route (404)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{app_url}}/api/unknown",
+							"host": [
+								"{{app_url}}"
+							],
+							"path": [
+								"api",
+								"unknown"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "404 Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{app_url}}/api/unknown",
+									"host": [
+										"{{app_url}}"
+									],
+									"path": [
+										"api",
+										"unknown"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "RateLimit",
+									"value": "\"1000-in-1min\"; r=963; t=60"
+								},
+								{
+									"key": "RateLimit-Policy",
+									"value": "\"1000-in-1min\"; q=1000; w=60; pk=:MTJjYTE3YjQ5YWYy:"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "97"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"61-jssH+Vv+TJAEB5+xwZ4PaCHw1j4\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"success\": false,\n    \"message\": \"Route GET /api/unknown not found\",\n    \"error\": {\n        \"code\": \"ROUTE_NOT_FOUND\"\n    }\n}"
+						}
+					],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status code is 404', () => pm.response.to.have.status(404));",
+									"pm.test('Response has the standard envelope', () => pm.expect(pm.response.json()).to.have.property('success'));"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "app_url",
+			"value": "http://localhost:7071"
+		},
+		{
+			"key": "organization_id",
+			"value": "5f0c9d4e-8a3b-4c2d-9e1f-7a6b5c4d3e2f"
+		},
+		{
+			"key": "missing_task_id",
+			"value": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d"
+		},
+		{
+			"key": "missing_file_id",
+			"value": "0d1e2f3a-4b5c-4d6e-8f7a-9b0c1d2e3f4a"
+		},
+		{
+			"key": "task_id",
+			"value": ""
+		},
+		{
+			"key": "nested_task_id",
+			"value": ""
+		},
+		{
+			"key": "bulk_task_id",
+			"value": ""
+		},
+		{
+			"key": "file_id",
+			"value": ""
+		},
+		{
+			"key": "file_reference",
+			"value": ""
+		}
+	]
+}

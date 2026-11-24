@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+tests
+postman
+.git
+.vscode
+.env
+.env.*
+!.env.example
+local.settings.json
+*.log
+Dockerfile
+docker-compose.yml

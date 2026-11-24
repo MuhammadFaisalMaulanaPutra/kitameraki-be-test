@@ -1,23 +1,66 @@
 {
   "name": "kitameraki-be-test",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Task Management API (Express + Azure Cosmos DB), deployable to Azure Function App",
+  "main": "dist/{index.js,functions/*.js}",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc -p tsconfig.build.json",
+    "watch": "tsc -p tsconfig.build.json -w",
     "clean": "rimraf dist",
-    "prestart": "npm run clean && npm run build",
-    "start": "func start",
-    "test": "echo \"No tests yet...\""
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "seed": "tsx src/scripts/seed.ts",
+    "seed:prod": "node dist/scripts/seed.js",
+    "prestart:func": "npm run clean && npm run build",
+    "start:func": "func start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"{src,tests}/**/*.ts\"",
+    "format:check": "prettier --check \"{src,tests}/**/*.ts\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
+    "@azure/cosmos": "^4.10.2",
+    "@azure/functions": "^4.17.1",
+    "@azure/storage-blob": "^12.34.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "helmet": "^8.3.0",
+    "light-my-request": "~6.6.0",
+    "morgan": "^1.12.1",
+    "multer": "^2.5.0",
+    "safe-regex2": "^5.1.2",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/node": "^20.x",
-    "rimraf": "^5.0.0",
-    "typescript": "^4.0.0"
-  },
-  "main": "dist/src/{index.js,functions/*.js}"
+    "@eslint/js": "^9.39.5",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^22.20.5",
+    "@types/supertest": "^7.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "jest": "^30.5.2",
+    "prettier": "^3.10.1",
+    "rimraf": "^6.1.4",
+    "supertest": "^7.3.2",
+    "ts-jest": "^29.4.15",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.73.0"
+  }
 }
