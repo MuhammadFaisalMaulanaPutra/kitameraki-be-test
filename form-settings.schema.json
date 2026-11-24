@@ -1,0 +1,520 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormSettings",
+  "type": "object",
+  "description": "Task form of an organization, modelled after the bpmn.io form editor (form-js 2.1.1). Unlimited rows of 1-2 components; groups and dynamic lists hold rows of their own (nesting up to 3 levels, 500 components in total). The template (Title, Description, Due Date + Priority, Status + Tags, Submit + Reset buttons) is served until the organization saves its own form. Rules that JSON Schema cannot express are listed in the descriptions (unique ids, keys unique per scope, core keys, 16-column grid).",
+  "properties": {
+    "id": {
+      "type": "string",
+      "const": "task-form",
+      "description": "One settings document per organization"
+    },
+    "organizationId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Partition key"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 3,
+      "description": "Older documents are migrated on read: v1 (renamed built-in labels + custom rows) -> v2 (rows of components) -> v3 (bpmn.io parity; a Submit + Reset row is appended)"
+    },
+    "versionTag": {
+      "type": "string",
+      "maxLength": 50,
+      "description": "'Version tag' of the form (bpmn.io form properties); omitted when empty"
+    },
+    "rows": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "$ref": "#/$defs/row"
+      }
+    },
+    "updatedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "null until the settings are saved"
+    }
+  },
+  "required": [
+    "id",
+    "organizationId",
+    "schemaVersion",
+    "rows",
+    "updatedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "feel": {
+      "type": "string",
+      "maxLength": 500,
+      "pattern": "^=\\s*\\S",
+      "description": "FEEL expression ('=' + expression), evaluated in the browser; the API only checks its shape"
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 1000
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          }
+        }
+      ]
+    },
+    "row": {
+      "type": "object",
+      "description": "Ids are unique in the whole document. The columns of a row must fit the 16-column grid: sum of layout.columns + 2 per component without columns <= 16.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/field"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "description": "A form component. Value components (input and selection types + expression) need a key; data components (all of them except expression) and buttons need a label. Keys are unique per scope: the form, and each group with a path / dynamic list (a group without path shares its parent's scope; a container path counts as a key of its parent scope). Keys title, description, dueDate, priority, status and tags are bound to the task properties: root scope only, compatible types only (title/description: text, textarea; dueDate: date, datetime; priority/status: select, radio with static options; tags: taglist, checklist). Other keys are stored in task.customFields.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "textarea",
+            "number",
+            "date",
+            "time",
+            "datetime",
+            "email",
+            "expression",
+            "filepicker",
+            "checkbox",
+            "checklist",
+            "radio",
+            "select",
+            "taglist",
+            "textview",
+            "image",
+            "table",
+            "html",
+            "documentPreview",
+            "spacer",
+            "separator",
+            "group",
+            "dynamiclist",
+            "iframe",
+            "button"
+          ]
+        },
+        "key": {
+          "$ref": "#/$defs/identifier"
+        },
+        "path": {
+          "$ref": "#/$defs/identifier",
+          "description": "group (optional) / dynamiclist (required): child values are nested under this key"
+        },
+        "label": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "May contain {{ }} templates or start with '='"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "placeholder": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "defaultValue": {
+          "$ref": "#/$defs/value",
+          "description": "Checked against the component (not for expression); applied on create (root scope and groups, not dynamic list items)"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Not enforced by the API while the component or one of its containers has a hide condition"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "readOnly": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/feel"
+            }
+          ]
+        },
+        "searchable": {
+          "type": "boolean",
+          "description": "select only"
+        },
+        "options": {
+          "type": "array",
+          "maxItems": 100,
+          "description": "Options source 'Static' of checklist, radio, select (at least one) and taglist (optional: free-form tags when empty). At most one source: options, valuesKey or valuesExpression.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "value": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 50,
+                "description": "Unique within the component"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "valuesKey": {
+          "$ref": "#/$defs/identifier",
+          "description": "Options source 'Input data'"
+        },
+        "valuesExpression": {
+          "$ref": "#/$defs/feel",
+          "description": "Options source 'Expression'"
+        },
+        "prefix": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "suffix": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "minLength": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "pattern": {
+              "type": "string",
+              "enum": [
+                "email",
+                "phone",
+                "custom"
+              ]
+            },
+            "customPattern": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Must be a valid, non-catastrophic regular expression; the whole value must match"
+            },
+            "min": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "disallowPastDates": {
+          "type": "boolean",
+          "description": "date / datetime"
+        },
+        "use24h": {
+          "type": "boolean",
+          "description": "time / datetime (values are always stored as 24-hour HH:mm)"
+        },
+        "timeInterval": {
+          "type": "integer",
+          "enum": [
+            1,
+            5,
+            10,
+            15,
+            30,
+            60
+          ],
+          "description": "time / datetime (minutes)"
+        },
+        "decimalDigits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "number"
+        },
+        "increment": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "number"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 5000,
+          "description": "textview: Markdown with {{ }} templates"
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 10000,
+          "description": "html: HTML with {{ }} templates (sanitized in the browser)"
+        },
+        "height": {
+          "type": "integer",
+          "description": "spacer 8-400, iframe 50-2000 (px)"
+        },
+        "expression": {
+          "$ref": "#/$defs/feel",
+          "description": "expression: target value (required)"
+        },
+        "computeOn": {
+          "type": "string",
+          "enum": [
+            "change",
+            "presubmit"
+          ],
+          "description": "expression (default: change)"
+        },
+        "accept": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "filepicker: supported formats, e.g. '.pdf,image/*'"
+        },
+        "multiple": {
+          "type": "boolean",
+          "description": "filepicker: up to 10 files instead of 1"
+        },
+        "source": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "image: http(s) URL, data:image URI or FEEL (must start with http://, https://, data:image/ or '=', case-insensitive)"
+        },
+        "alt": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "image"
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "iframe: https URL or FEEL (must start with https:// or '=', case-insensitive)"
+        },
+        "security": {
+          "type": "object",
+          "description": "iframe security attributes",
+          "properties": {
+            "allowScripts": {
+              "type": "boolean"
+            },
+            "allowSameOrigin": {
+              "type": "boolean"
+            },
+            "fullscreen": {
+              "type": "boolean"
+            },
+            "geolocation": {
+              "type": "boolean"
+            },
+            "camera": {
+              "type": "boolean"
+            },
+            "microphone": {
+              "type": "boolean"
+            },
+            "allowForms": {
+              "type": "boolean"
+            },
+            "allowModals": {
+              "type": "boolean"
+            },
+            "allowPopups": {
+              "type": "boolean"
+            },
+            "allowTopNavigation": {
+              "type": "boolean"
+            },
+            "allowStorageAccessByUserActivation": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "dataSource": {
+          "$ref": "#/$defs/feel",
+          "description": "table / documentPreview: data (required)"
+        },
+        "rowCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "table: rows per page"
+        },
+        "columns": {
+          "type": "array",
+          "maxItems": 30,
+          "description": "table: static header items (exactly one of columns / columnsExpression); keys are unique",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "key": {
+                "$ref": "#/$defs/identifier"
+              }
+            },
+            "required": [
+              "label",
+              "key"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "columnsExpression": {
+          "$ref": "#/$defs/feel",
+          "description": "table: header items"
+        },
+        "maxHeight": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 2000,
+          "description": "documentPreview (px)"
+        },
+        "showOutline": {
+          "type": "boolean",
+          "description": "group / dynamiclist"
+        },
+        "verticalAlignment": {
+          "type": "string",
+          "enum": [
+            "start",
+            "center",
+            "end"
+          ],
+          "description": "group / dynamiclist"
+        },
+        "defaultRepetitions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50,
+          "description": "dynamiclist"
+        },
+        "allowAddRemove": {
+          "type": "boolean",
+          "description": "dynamiclist"
+        },
+        "disableCollapse": {
+          "type": "boolean",
+          "description": "dynamiclist"
+        },
+        "nonCollapsedItems": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "dynamiclist"
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "submit",
+            "reset"
+          ],
+          "description": "button (required)"
+        },
+        "conditional": {
+          "type": "object",
+          "properties": {
+            "hide": {
+              "$ref": "#/$defs/feel",
+              "description": "Hide if: the component (and its value) is hidden when true"
+            }
+          },
+          "additionalProperties": false
+        },
+        "layout": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 16,
+              "description": "Columns of the 16-column grid (auto when unset)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "properties": {
+          "type": "object",
+          "maxProperties": 50,
+          "description": "Custom properties (not interpreted by the app)",
+          "propertyNames": {
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          },
+          "description": "group / dynamiclist only (required there, may be empty)"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

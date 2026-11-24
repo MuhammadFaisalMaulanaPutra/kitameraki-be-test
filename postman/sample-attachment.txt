@@ -1,0 +1,2 @@
+Sample attachment for the Kitameraki Task Management API Postman collection.
+Uploaded by "Files > Upload File" and referenced by a File picker value.
