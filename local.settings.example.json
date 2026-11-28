@@ -1,0 +1,9 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "COSMOS_CONNECTION_STRING": "AccountEndpoint=https://localhost:8081/;AccountKey=<copy the Primary Key shown at https://localhost:8081/_explorer/index.html>;",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  }
+}
