@@ -1,0 +1,40 @@
+{
+  "title": "FormSettings",
+  "description": "One document per organization; id equals organizationId.",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "format": "uuid" },
+    "organizationId": { "type": "string", "format": "uuid" },
+    "rows": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "maxLength": 64 },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+                "label": { "type": "string", "minLength": 1, "maxLength": 50 },
+                "type": { "enum": ["text", "date", "datetime", "email", "textarea", "status", "priority", "tags"] }
+              },
+              "required": ["id", "label", "type"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["id", "fields"],
+        "additionalProperties": false
+      }
+    },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "required": ["id", "organizationId", "rows", "updatedAt"],
+  "additionalProperties": false
+}

@@ -18,23 +18,41 @@
       "description": "Title of the task"
     },
     "description": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "maxLength": 1000,
       "description": "Description of the task"
     },
     "dueDate": {
-      "type": "string",
+      "type": [
+        "string",
+        "null"
+      ],
       "format": "date-time",
       "description": "Due date and time for the task"
     },
     "priority": {
-      "type": "string",
-      "enum": ["low", "medium", "high"],
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        null
+      ],
       "description": "Priority level of the task"
     },
     "status": {
       "type": "string",
-      "enum": ["todo", "in-progress", "completed"],
+      "enum": [
+        "todo",
+        "in-progress",
+        "completed"
+      ],
       "description": "Status of the task"
     },
     "tags": {
@@ -44,8 +62,37 @@
         "maxLength": 50
       },
       "description": "Tags associated with the task"
+    },
+    "customFields": {
+      "type": "object",
+      "maxProperties": 50,
+      "propertyNames": {
+        "pattern": "^[A-Za-z0-9_-]{1,64}$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 1000
+      },
+      "description": "Values of custom form fields, keyed by FormField.id"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set by the server on creation"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set by the server on every change"
     }
   },
-  "required": ["id", "organizationId", "title", "status"],
+  "required": [
+    "id",
+    "organizationId",
+    "title",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
   "additionalProperties": false
 }
