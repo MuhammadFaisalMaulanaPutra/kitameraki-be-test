@@ -1,21 +1,49 @@
-import { CosmosClient } from "@azure/cosmos";
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import { app } from "@azure/functions";
+import type { SqlParameter } from "@azure/cosmos";
+import { tasks } from "../lib/cosmos";
+import { handler, requireOrgId } from "../lib/http";
+import { toTask } from "../lib/mappers";
+import { validateListQuery } from "../lib/validation";
 
-export async function GetTasks(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    context.log(`Http function processed request for url "${request.url}"`);
-    const organizationId = request.query.get('organizationId');
+app.http("GetTasks", {
+  methods: ["GET"],
+  route: "tasks",
+  authLevel: "anonymous",
+  handler: handler(async (request) => {
+    const organizationId = requireOrgId(request);
+    const q = validateListQuery(request.query);
 
-    const client = new CosmosClient("this is a connection string");
-    const task = await client.database("TaskApp")
-        .container("Tasks")
-        .items.query(`SELECT * FROM c WHERE c.organizationId = '${organizationId}'`)
-        .fetchNext();
+    const where = ["c.organizationId = @org"];
+    const parameters: SqlParameter[] = [{ name: "@org", value: organizationId }];
 
-    return { jsonBody: task.resources, status: 200 };
-};
+    if (q.status) { 
+        where.push("c.status = @status"); 
+        parameters.push({ name: "@status", value: q.status }); 
+    }
 
-app.http('GetTasks', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    handler: GetTasks
+    if (q.priority) { 
+        where.push("c.priority = @priority"); 
+        parameters.push({ name: "@priority", value: q.priority }); 
+    }
+
+    if (q.search) {
+      where.push("(CONTAINS(c.title, @q, true) OR CONTAINS(c.description, @q, true))");
+      parameters.push({ name: "@q", value: q.search });
+    }
+
+    const clause = where.join(" AND ");
+    const options = { partitionKey: organizationId };
+
+    const [{ resources: countRows }, { resources: items }] = await Promise.all([
+      tasks.items.query<number>({ query: `SELECT VALUE COUNT(1) FROM c WHERE ${clause}`, parameters }, options).fetchAll(),
+      tasks.items
+        .query({
+          query: `SELECT * FROM c WHERE ${clause} ORDER BY c.createdAt DESC OFFSET @offset LIMIT @limit`,
+          parameters: [...parameters, { name: "@offset", value: (q.page - 1) * q.pageSize }, { name: "@limit", value: q.pageSize }],
+        }, options)
+        .fetchAll(),
+    ]);
+
+    return { jsonBody: { items: items.map(toTask), total: countRows[0] ?? 0, page: q.page, pageSize: q.pageSize } };
+  }),
 });
